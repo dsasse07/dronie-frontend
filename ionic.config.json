@@ -1,0 +1,7 @@
+{
+  "name": "dronie-frontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
