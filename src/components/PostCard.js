@@ -109,6 +109,9 @@ export const PostCard = ({post}) => {
 };
 export default PostCard
 
+
+
+
 const Card = styled(IonCard)`
   align-items: center;
   display: flex;
@@ -116,6 +119,10 @@ const Card = styled(IonCard)`
   justify-content: center;
   max-width: 1200px;
 `
+//****************************************************** */
+//************** Card Header Styling ******************* */
+//****************************************************** */
+
 const HeaderContainer = styled(IonCardHeader)`
   align-items: center;
   display: flex;
@@ -145,6 +152,9 @@ const HeaderText = styled.div`
     cursor: pointer;
   }
 `
+//****************************************************** */
+//************** Card Body Styling ********************* */
+//****************************************************** */
 
 const CardContent = styled(IonCardContent)`
   height: 100%;
@@ -156,10 +166,13 @@ const CardContent = styled(IonCardContent)`
     width: 95%;               
     background-color: black;
     height: 1px;
-    margin-top: 0;
-    
+    margin-top: 0;    
   }
 `
+
+const ImageContainer = styled.div``
+
+const Img = styled(IonImg)``
 
 const DescriptionContainer = styled.div`
   font-size: 1rem;
@@ -167,9 +180,9 @@ const DescriptionContainer = styled.div`
   padding-right: 1rem;
 `
 
-const ImageContainer = styled.div``
-
-const Img = styled(IonImg)``
+//****************************************************** */
+//************** Card Controls Styling ***************** */
+//****************************************************** */
 
 const ControlsBar = styled.div`
   display: flex;
@@ -210,6 +223,37 @@ cursor: pointer;
   }
 `
 
+
+//****************************************************** */
+//************** Comment Form Styling ****************** */
+//****************************************************** */
+
+const NewCommentContainer = styled.div`
+  border: 1px solid;
+  border-radius: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  
+  form {
+    display: flex;
+    
+    ion-button {
+      --border-radius: 8px;
+      margin-right: 4px;
+    }
+  }
+  `
+
+const Input = styled(IonInput)`
+`
+
+const Button = styled(IonButton)`
+`
+
+//****************************************************** */
+//************** Card Comments Styling ***************** */
+//****************************************************** */
+
 const CommentsContainer = styled(IonList)`
   max-height: ${props => props.showComments ? '200px' : '0' };
   padding-top: ${props => props.showComments ? '8px' : '0' };
@@ -237,28 +281,4 @@ const Icon = styled(IonIcon)`
   font-size: 0.9rem;
   transform: ${props => props.showComments ? 'rotateX(180deg)' : 'rotateX(0deg)' };
   transition: 0.5s;
-`
-
-const NewCommentContainer = styled.div`
-  border: 1px solid;
-  border-radius: 10px;
-  margin-top: 8px;
-  margin-bottom: 8px;
-
-  form {
-    display: flex;
-
-  ion-button {
-      --border-radius: 8px;
-      margin-right: 4px;
-    }
-  }
-`
-
-const Input = styled(IonInput)`
-`
-
-const Button = styled(IonButton)`
-  position: relative;
-  overflow: hidden;
 `
