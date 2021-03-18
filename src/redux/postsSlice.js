@@ -6,10 +6,15 @@ export const postsSlice = createSlice({
   initialState: [
     ...testPosts
   ],
-  reducers: {}
+  reducers: {
+    updatePost(state, action){
+      const index = state.findIndex( post => post.id === action.payload.id)
+      state[index] = action.payload
+    }
+  }
 })
 
 // Action creators are generated for each case reducer function
-// export const { increment, decrement, incrementByAmount } = postsSlice.actions
+export const { updatePost } = postsSlice.actions
 
 export default postsSlice.reducer

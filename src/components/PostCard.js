@@ -1,24 +1,32 @@
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
 import { IonImg, IonRippleEffect } from '@ionic/react'
 import { heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { postsSlice, updatePost } from '../redux/postsSlice'
 
 export const PostCard = ({post}) => {
+  const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  const [userLikes, setUserLikes] = useState(true)
+  const commentsBottomRef = useRef()
+  const [userLike, setUserLike] = useState(true)
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
 
+  useEffect( () => {
+    if (!showComments) return
+    commentsBottomRef.current.scrollTop = post.comments.length*80
+  }, [showComments])
+
   function toggleLike(){
-    setUserLikes(userLikes => !userLikes)
+    setUserLike(userLike => !userLike)
   }
-  
+
   function handleShowComments(){
     setShowComments( showComments => !showComments)
   }
@@ -34,6 +42,16 @@ export const PostCard = ({post}) => {
 
   function handleAddComment(event){
     event.preventDefault()
+    const newComment = {
+      username: user.login.username,
+      content: newCommentText
+    }
+    const updatedPost = {...post, comments: [...post.comments, newComment]}
+    dispatch( updatePost(updatedPost) )
+    setNewCommentText("")
+    setTimeout( () => {
+      commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
+    }, 0)
   }
 
 
@@ -49,12 +67,12 @@ export const PostCard = ({post}) => {
         <HeaderContainer>
           <IonItem>
             <IonAvatar >
-              <img src = "https://randomuser.me/api/portraits/med/men/75.jpg" />
+              <img src = {user.picture.medium} />
             </IonAvatar>
           </IonItem>
           <HeaderText>
-            <IonCardTitle> Username </IonCardTitle>
-            <IonCardSubtitle> Photo Location </IonCardSubtitle>
+            <IonCardTitle> {user.login.username} </IonCardTitle>
+            <IonCardSubtitle> {post.location} </IonCardSubtitle>
           </HeaderText>
         </HeaderContainer>
 
@@ -66,8 +84,8 @@ export const PostCard = ({post}) => {
         </ImageContainer>
 
         <ControlsBar id="control">
-          <LikesContainer userLikes={userLikes} onClick={toggleLike}>
-            <IonIcon icon={userLikes ? heart : heartOutline} />
+          <LikesContainer userLike={userLike} onClick={toggleLike}>
+            <IonIcon icon={userLike ? heart : heartOutline} />
             {post.likes} Likes
           </LikesContainer>
           <LeaveCommentContainer onClick={handleShowNewCommentForm}>
@@ -83,13 +101,14 @@ export const PostCard = ({post}) => {
           and climb a mountain or spend a week in the woods. Wash your spirit clean.
         </DescriptionContainer>
         
-        <CommentsContainer showComments={showComments}>
-          {commentComponents}
-        </CommentsContainer>
+          <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
+            {commentComponents}
+            <div id="bottom" ref={commentsBottomRef}/>
+          </CommentsContainer>
         {showNewCommentForm && 
         <NewCommentContainer >
           <form onSubmit={handleAddComment}>
-            <Input type="text" placeholder="New Comment" value={newCommentText} onChange={handleCommentTextChange}/> 
+            <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
             <Button type="submit" >
               <IonIcon icon={send}/>
             </Button>
@@ -97,7 +116,7 @@ export const PostCard = ({post}) => {
         </NewCommentContainer>
         } 
 
-        <ShowCommentsButton button onClick={handleShowComments}>
+        <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
           <IonLabel>
             <Icon icon={chevronDownOutline} showComments={showComments} />
             {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
@@ -206,7 +225,7 @@ font-weight: bold;
 cursor: pointer;
 
   ion-icon {
-    color: ${ ({userLikes}) => userLikes && "#c90000" };
+    color: ${ ({userLike}) => userLike && "#c90000" };
     font-size: 1.3rem;
   }
 `
@@ -261,8 +280,17 @@ const CommentsContainer = styled(IonList)`
   padding-top: ${props => props.showComments ? '8px' : '0' };
   padding-bottom: ${props => props.showComments ? '8px' : '0' };
   transition: 0.3s;
-  overflow-y: ${props => props.showComments ? 'scroll' : 'hidden' };
+  overflow-y: scroll;
+  /* overflow-y: ${props => props.showComments ? 'scroll' : 'hidden' }; */
   background: transparent;
+  border: 1px solid;
+
+  #bottom{
+    /* height: 40px; */
+    /* width: 5px;
+    background: blue; */
+    margin-left: 50%;
+  }
 `
 
 const ShowCommentsButton = styled(IonItem)`

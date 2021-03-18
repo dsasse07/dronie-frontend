@@ -16,12 +16,15 @@ export default Comment
 const Item = styled(IonItem)`
 && {
     font-size: 0.9rem;
-
+    
     ion-label{
       margin: 0;
       padding: 0;
     }
     --min-height: 40px;
+  }
+  :last-of-type{
+    --border-color: transparent;
   }
   strong {
     padding-right: 0.3rem;
