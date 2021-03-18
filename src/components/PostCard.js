@@ -98,9 +98,11 @@ export const PostCard = ({post}) => {
         } 
 
         <ShowCommentsButton button onClick={handleShowComments}>
-          <Icon icon={chevronDownOutline} showComments={showComments} />
-          <IonLabel>{showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}</IonLabel>
-          <Icon icon={chevronDownOutline} showComments={showComments}/>
+          <IonLabel>
+            <Icon icon={chevronDownOutline} showComments={showComments} />
+            {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
+            <Icon icon={chevronDownOutline} showComments={showComments}/>
+          </IonLabel>
         </ShowCommentsButton>
 
       </CardContent>
@@ -270,9 +272,15 @@ const ShowCommentsButton = styled(IonItem)`
     --min-height: 35px;
     --border-color: transparent;
     ion-label{
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       margin: 0;
-      padding: 0;
+      ion-icon {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
     }
   }
 `
