@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useSelector } from 'react-redux'
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
 import styled from 'styled-components'
+import FileDrop from '../components/FileDrop'
 
 function NewPostForm() {
   const user = useSelector(state => state.user)
@@ -17,16 +18,14 @@ function NewPostForm() {
       <IonCardContent>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            <IonItem>
-              <IonLabel>
-                Photos
-              </IonLabel>
-              <IonInput type="file" multiple accepts='images/*' name='images' ref={register} />
-            </IonItem>
+            {/* <IonItem> */}
+              <FileDrop />
+            {/* </IonItem> */}
             
-            <IonItem>
-              <IonInput type="hidden" name="user_id" value={user.login.uuid} ref={register} />
-            </IonItem>
+
+
+            <IonInput type="hidden" name="user_id" value={user.login.uuid} ref={register} />
+
 
             <IonItem>
               <IonLabel>
