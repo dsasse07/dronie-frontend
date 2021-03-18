@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
-import { IonImg, IonRippleEffect } from '@ionic/react'
+import { IonImg } from '@ionic/react'
 import { heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
@@ -199,6 +199,7 @@ const DescriptionContainer = styled.div`
   font-size: 1rem;
   padding-left: 1rem;
   padding-right: 1rem;
+  margin-bottom: 10px;
 `
 
 //****************************************************** */
@@ -281,16 +282,8 @@ const CommentsContainer = styled(IonList)`
   padding-bottom: ${props => props.showComments ? '8px' : '0' };
   transition: 0.3s;
   overflow-y: scroll;
-  /* overflow-y: ${props => props.showComments ? 'scroll' : 'hidden' }; */
   background: transparent;
-  border: 1px solid;
-
-  #bottom{
-    /* height: 40px; */
-    /* width: 5px;
-    background: blue; */
-    margin-left: 50%;
-  }
+  border: ${props => props.showComments && "1px solid"} ;
 `
 
 const ShowCommentsButton = styled(IonItem)`

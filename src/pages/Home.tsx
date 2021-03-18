@@ -25,7 +25,7 @@ function Home () {
         </Header>
 
 
-      <IonContent fullscreen class="ion-justify-IonContent-center">
+      <IonContent fullscreen >
       
         <List>
           {postComponents}
@@ -54,11 +54,10 @@ const Title = styled(IonTitle)`
 `
 
 const Avatar = styled(IonAvatar)`
-  /* padding: 4px; */
-  border: 1px solid;
-  cursor: pointer;
+    width:50px !important;
+    height: auto !important;
+    border: 1px solid;
+    cursor: pointer;
 `
 
-const Item = styled(IonItem)`
-
-`
+const Item = styled(IonItem)``
