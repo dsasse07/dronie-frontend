@@ -41,8 +41,31 @@ function NewPostForm() {
   const { register, handleSubmit, errors, control } = useForm();  
   
   function onSubmit (formData){
-    console.log(`formData`, formData)
+    uploadPhotos(formData)
   } 
+
+  console.log(`process.env.REACT_APP_CLOUD_NAME`, process.env.REACT_APP_UPLOAD_PRESET)
+  
+  function uploadPhotos(formData){
+    // const url = `https://api.cloudinary.com/v1_1/******/upload`
+    
+    const imageFiles = new FormData()
+    for (let photo of formData.images){
+      imageFiles.append("file", photo)
+      // imageFiles.append("upload_preset", "")
+
+      const uploadConfig = {
+        method: "POST",
+        body: imageFiles
+      }
+
+      fetch(url, uploadConfig)
+        .then( response => response.json())
+        .then( console.log )
+    }
+  }
+
+
 
   return (
     <Card>
