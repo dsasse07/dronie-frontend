@@ -21,11 +21,9 @@ export function Droparea(props) {
   ));
 
   return (
-    
       <DropArea {...getRootProps()}>
         {files.length > 0 ?
-          files
-          :
+          files :
           <Thumbnail>
             <img src={avatarPlaceHolder} />
           </Thumbnail>
@@ -35,8 +33,6 @@ export function Droparea(props) {
           <IonLabel>Drag Profile Image Here, or Click To Select</IonLabel>
         </Item>
       </DropArea>
-    
-
   );
 }
 
@@ -47,7 +43,7 @@ function NewPostForm() {
   const [isUploading, setIsUploading] = useState(false)
 
   function onSubmit (formData){
-    // setIsUploading(true)
+    setIsUploading(true)
     uploadPhotos(formData)
   } 
 
@@ -55,7 +51,7 @@ function NewPostForm() {
   function uploadPhotos(formData){
     console.log(`formData`, formData)
     console.log(`formData.avatar === avatarPlaceHolder`, formData.avatar === avatarPlaceHolder)
-
+    
     // const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
     
     // const imageFiles = new FormData()
