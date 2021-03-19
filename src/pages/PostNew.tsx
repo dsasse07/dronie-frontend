@@ -18,7 +18,7 @@ const PostNew: React.FC = () => {
             <Title slot="start">Dronie</Title>
             <Item>
               <Avatar slot="end">
-                <img src={currentUser.avatar}/>
+                <img src={currentUser.avatar.secure_url}/>
               </Avatar>
             </Item>
           </Toolbar>
@@ -46,7 +46,7 @@ const Title = styled(IonTitle)`
 
 const Avatar = styled(IonAvatar)`
     width:50px !important;
-    height: auto !important;
+    height: 50px;
     border: 1px solid;
     cursor: pointer;
 `

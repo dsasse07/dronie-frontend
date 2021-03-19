@@ -11,6 +11,7 @@ function Home () {
   const posts = useSelector(state => state.posts)
   const postComponents = posts.map( (post, index) => <PostCard key={index} post={post} /> )
 
+  console.log(`currentUser`, currentUser)
   return (
     <IonPage>
         <Header >
@@ -18,12 +19,11 @@ function Home () {
             <Title slot="start">Dronie</Title>
             <Item>
               <Avatar slot="end">
-                <img src={currentUser.avatar}/>
+                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
               </Avatar>
             </Item>
           </Toolbar>
         </Header>
-
 
       <IonContent fullscreen >
       
@@ -55,7 +55,7 @@ const Title = styled(IonTitle)`
 
 const Avatar = styled(IonAvatar)`
     width:50px !important;
-    height: auto !important;
+    height: 50px !important;
     border: 1px solid;
     cursor: pointer;
 `

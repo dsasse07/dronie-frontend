@@ -6,6 +6,9 @@ import {useDropzone} from 'react-dropzone';
 import { useState } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { uploadAndSave } from '../hooks/useUploadAndSave'
+import { useDispatch } from 'react-redux'
+import { setCurrentUser } from '../redux/userSlice'
+
 
 export function Droparea(props) {
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
@@ -37,45 +40,92 @@ export function Droparea(props) {
   );
 }
 
-
-
 function NewPostForm() {
   const { register, handleSubmit, errors, control, watch, clearErrors, getValues } = useForm();  
+  const dispatch = useDispatch()
   const [isUploading, setIsUploading] = useState(false)
 
   function onSubmit (formData){
     setIsUploading(true)
     uploadPhotos(formData)
   } 
-
+  
   
   function uploadPhotos(formData){
     console.log(`formData`, formData)
+    if (formData.avatar === avatarPlaceHolder) {
+      debugger
+    }
     uploadAndSave(formData).then(console.log)
     
-    // console.log(`formData.avatar === avatarPlaceHolder`, formData.avatar === avatarPlaceHolder)
-    
-    // if (formData.avatar !== avatarPlaceHolder){
-    //   const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
-    //   const avatarFile = new FormData()
-
-    //   for (let photo of formData.avatar){
-    //       imageFiles.append("file", formData.avatar)
-    //       imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
-    //       const uploadConfig = {
-    //         method: "POST",
-    //         body: imageFiles
-    //       }
-    //       fetch(url, uploadConfig)
-    //         .then( response => response.json())
-    //         .then( data => {
-    //           console.log(data) 
-    //           setIsUploading(false)
-    //         })
-    //     }
-    // }  
   }
+  
+  async function uploadAndSave(formData){
+    const numPhotos = formData.avatar.length
+    const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
+    const avatarData = []
+    
+    formData.avatar.forEach(async (photo, index) => {
+        const imageFiles = new FormData()
+        imageFiles.append("file", photo)
+        imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
+        
+        const uploadConfig = {
+          method: "POST",
+          body: imageFiles
+        }
+        
+        const response = await fetch(url, uploadConfig)
+        const data = await response.json()
+        await avatarData.push(data)
+        
+        if (avatarData.length === numPhotos){
+          const objWithPhotos = {...formData, avatar: JSON.stringify(avatarData) }
+          const postConfig = {
+            method: "POST",
+            headers:{
+              "Content-type":"application/json"
+            },
+            body: JSON.stringify(objWithPhotos)
+          }
+          
+          fetch(`${process.env.REACT_APP_BACKEND}/signup`, postConfig)
+            .then( response => response.json() )
+            .then( data => {
+              dispatch( setCurrentUser( data.user) )
+            })
+        } 
+    })
+  }
+  
+  
 
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   console.log(`errors`, errors)
 
   return (

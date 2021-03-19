@@ -1,13 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import {testUser} from '../data'
+import avatarPlaceHolder from '../assets/avatar.jpg'
+
 
 export const currentUserSlice = createSlice({
   name: 'currentUser',
   initialState: null,
   reducers: {
     setCurrentUser(state, action){
-      console.log(`action`, action)
-      return state = action.payload
+      const avatar = action.payload.avatar ? JSON.parse(action.payload.avatar)[0] : {secure_url: avatarPlaceHolder}
+      const user = {...action.payload, avatar: avatar }
+      
+      return state = user
     }
   }
 })

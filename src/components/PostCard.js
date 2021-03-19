@@ -67,7 +67,7 @@ export const PostCard = ({post}) => {
         <HeaderContainer>
           <IonItem>
             <IonAvatar >
-              <img src={currentUser.avatar} alt="Bad"/>
+              <img src={currentUser.avatar.secure_url} alt="Bad"/>
             </IonAvatar>
           </IonItem>
           <HeaderText>
@@ -160,7 +160,7 @@ const HeaderContainer = styled(IonCardHeader)`
   && ion-avatar {
     cursor: pointer;
     width:50px !important;
-    height: auto !important;
+    height: 50px !important;
     border: 1px solid;
   }
 `

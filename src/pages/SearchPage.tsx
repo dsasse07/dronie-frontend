@@ -15,7 +15,7 @@ function SearchPage () {
         <IonToolbar>
           <IonTitle slot="start">Dronie</IonTitle>
           <IonAvatar slot="end">
-            <img src={currentUser.avatar}/>
+            <img src={currentUser.avatar.secure_url}/>
           </IonAvatar>
         </IonToolbar>
       </IonHeader>
