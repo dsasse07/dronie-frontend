@@ -1,21 +1,12 @@
 import { useForm, Controller } from "react-hook-form";
 import { useSelector } from 'react-redux'
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
+import { IonButton, IonTextarea, IonGrid, IonRow, IonCol } from "@ionic/react"
 import styled from 'styled-components'
-import FileDrop from '../components/FileDrop'
 import {useDropzone} from 'react-dropzone';
 
-function NewPostForm() {
-  const user = useSelector(state => state.user)
-  
-  const { register, handleSubmit, watch, errors, control } = useForm();  
-  const onSubmit = data => console.log(data);
 
-  console.log(watch("images")); // watch input value by passing the name of it
-
-
-
-function Basic(props) {
+export function Basic(props) {
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
     maxFiles: 5,
@@ -24,91 +15,144 @@ function Basic(props) {
   });
   
   const files = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
+    <Thumbnail key={file.path}>
+      <img src={URL.createObjectURL(file)} />
+    </Thumbnail>
   ));
 
   return (
-    <section className="container">
-      <div {...getRootProps({className: 'dropzone'})}>
+    <DropArea >
+      <PhotoPreviewsContainer>
+        {files}
+      </PhotoPreviewsContainer>
+      <Item {...getRootProps()}>
         <input {...getInputProps()} />
-        <p>Drag 'n' drop some files here, or click to select files</p>
-      </div>
-      <aside>
-        <h4>Files</h4>
-        <ul>{files}</ul>
-      </aside>
-    </section>
+        <IonLabel>Drag images here, or Click to select files</IonLabel>
+      </Item>
+    </DropArea>
   );
 }
 
 
 
+function NewPostForm() {
+  const user = useSelector(state => state.user)
+  
+  const { register, handleSubmit, errors, control } = useForm();  
+  
+  function onSubmit (formData){
+    console.log(`formData`, formData)
+  } 
+
   return (
-    <IonCard>
-      <IonCardContent>
+    <Card>
+      <Content>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
               
-          <Controller
-            control={control}
-            name="images"
-            render={(
-              { onChange, onBlur, value, name, ref },
-              { invalid, isTouched, isDirty }
-            ) => (
-              <Basic
-                onBlur={onBlur}
-                onChange={(e) => onChange(e)}
-                checked={value}
-                inputRef={ref}
-              />
-            )}
-          />
-              
-              
-              {/* <Basic /> */}
-            
-
+            <Controller control={control} name="images" rules={{required:true}} defaultValue={[]}
+              render={({ onChange, onBlur, value, ref }) => (
+                <Basic onBlur={onBlur} onChange={(e) => onChange(e)} checked={value} inputRef={ref}
+                />
+              )}
+            />
 
             <IonInput type="hidden" name="user_id" value={user.login.uuid} ref={register} />
 
-
-            <IonItem>
-              <IonLabel>
-                Description
-              </IonLabel>
-              <IonInput type="text" name="description" ref={register} />
-            </IonItem>
-
-            <IonItem>
-              <IonLabel>
+            <IonItem >
+              <CalLabel position="floating">
                 Date Taken
-              </IonLabel>
+              </CalLabel>
               <IonInput type="date" name="date_taken" ref={register} />
             </IonItem>
 
             <IonItem>
-              <IonLabel>
+              <IonLabel position="floating">
                 Location
               </IonLabel>
               <IonInput type="text" name="location" ref={register} />
             </IonItem>
-            {errors.exampleRequired && <span>This field is required</span>}
 
-            <input type="submit" />
-          </form> 
-        
+            <IonItem>
+              <IonLabel position="floating">
+                Description
+              </IonLabel>
+              <IonTextarea name="description" ref={register} />
+            </IonItem>
 
-    
-          
-      </IonCardContent>
-    </IonCard>
+            {errors.images && 
+              <ErrorItem>
+                <IonLabel>You must select choose a photo</IonLabel>
+              </ErrorItem>
+            }
+            <IonGrid>
+              <IonRow>
+                <Col >
+                  <IonButton type="submit" >
+                    Post
+                  </IonButton>
+                </Col>
+              </IonRow>
+            </IonGrid>
+          </Form> 
+
+      </Content>
+    </Card>
   )
 }
 
 export default NewPostForm
 
-const PhotoPreviewsContainer = styled.div``
+const Card = styled(IonCard)``
 
+const Content = styled(IonCardContent)``
+
+const Form = styled.form``
+
+const DropArea = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1rem;
+  border: 2px dashed;
+  border-radius: 8px;
+`
+const PhotoPreviewsContainer = styled.div`
+  width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+`
+
+const Thumbnail = styled(IonThumbnail)`
+  width: 30%;
+  height: auto;
+  img {
+    height: 100%;
+    width: 100%auto;
+  }
+`
+
+const Item = styled(IonItem)`
+  && {
+    text-align:center;
+    --background: transparent;
+  }
+`
+
+const CalLabel = styled(IonLabel)`
+  &&{
+    margin-bottom: 12px;
+  }
+`
+const ErrorItem = styled(Item)`
+  --border-color: transparent;
+`
+
+const Col = styled(IonCol)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
