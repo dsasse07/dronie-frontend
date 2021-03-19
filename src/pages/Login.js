@@ -1,13 +1,9 @@
-import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
-function SearchPage () {
-
-  const currentUser = useSelector(state => state.currentUser)
-
-
+function Login () {
+ 
   return (
     <IonPage>
 
@@ -15,22 +11,17 @@ function SearchPage () {
         <IonToolbar>
           <IonTitle slot="start">Dronie</IonTitle>
           <IonAvatar slot="end">
-            <img src={currentUser.avatar}/>
+            {/* <img src={currentUser.avatar}/> */}
           </IonAvatar>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen>
 
-            Search Page        
+            Login       
       </IonContent>
     </IonPage>
   );
 };
 
-export default SearchPage;
-
-
-
-
-
+export default Login;

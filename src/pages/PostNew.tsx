@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import NewPostForm from '../components/NewPostForm'
 
 const PostNew: React.FC = () => {
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
 
 
   return (
@@ -18,7 +18,7 @@ const PostNew: React.FC = () => {
             <Title slot="start">Dronie</Title>
             <Item>
               <Avatar slot="end">
-                <img src={user.picture.thumbnail}/>
+                <img src={currentUser.avatar}/>
               </Avatar>
             </Item>
           </Toolbar>

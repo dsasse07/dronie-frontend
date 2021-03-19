@@ -7,7 +7,7 @@ import PostCard from '../components/PostCard'
 
 function Home () {
 
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
   const postComponents = posts.map( (post, index) => <PostCard key={index} post={post} /> )
 
@@ -18,7 +18,7 @@ function Home () {
             <Title slot="start">Dronie</Title>
             <Item>
               <Avatar slot="end">
-                <img src={user.picture.thumbnail}/>
+                <img src={currentUser.avatar}/>
               </Avatar>
             </Item>
           </Toolbar>

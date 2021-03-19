@@ -36,7 +36,7 @@ export function Basic(props) {
 
 
 function NewPostForm() {
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
   const { register, handleSubmit, errors, control, watch, clearErrors } = useForm();  
   const [isUploading, setIsUploading] = useState(false)
 
@@ -81,7 +81,7 @@ function NewPostForm() {
               )}
             />
 
-            <IonInput type="hidden" name="user_id" value={user.login.uuid} ref={register} />
+            <IonInput type="hidden" name="user_id" value={currentUser.id} ref={register} />
 
             <IonItem >
               <CalLabel position="floating">

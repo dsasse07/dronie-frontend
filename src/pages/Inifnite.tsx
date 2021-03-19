@@ -10,7 +10,7 @@ const Search: React.FC = () => {
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [items, setItems] = useState([])
   const [isfetching, setIsfetching] = useState(false)
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
 
   useEffect(() => {
     fetchData()
@@ -49,7 +49,7 @@ const Search: React.FC = () => {
           <IonToolbar>
             <IonTitle slot="start">Dronie</IonTitle>
             <IonAvatar slot="end">
-              <img src={user.picture.thumbnail}/>
+              <img src={currentUser.avatar}/>
             </IonAvatar>
           </IonToolbar>
         </IonHeader>

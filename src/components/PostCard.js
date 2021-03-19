@@ -11,7 +11,7 @@ import { postsSlice, updatePost } from '../redux/postsSlice'
 
 export const PostCard = ({post}) => {
   const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
   const commentsBottomRef = useRef()
   const [userLike, setUserLike] = useState(true)
   const [showComments, setShowComments] = useState(false)
@@ -43,7 +43,7 @@ export const PostCard = ({post}) => {
   function handleAddComment(event){
     event.preventDefault()
     const newComment = {
-      username: user.login.username,
+      username: currentUser.username,
       content: newCommentText
     }
     const updatedPost = {...post, comments: [...post.comments, newComment]}
@@ -67,11 +67,11 @@ export const PostCard = ({post}) => {
         <HeaderContainer>
           <IonItem>
             <IonAvatar >
-              <img src = {user.picture.medium} />
+              <img src={currentUser.avatar} alt="Bad"/>
             </IonAvatar>
           </IonItem>
           <HeaderText>
-            <IonCardTitle> {user.login.username} </IonCardTitle>
+            <IonCardTitle> {currentUser.username} </IonCardTitle>
             <IonCardSubtitle> {post.location} </IonCardSubtitle>
           </HeaderText>
         </HeaderContainer>

@@ -1,15 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
 import {testUser} from '../data'
 
-export const userSlice = createSlice({
-  name: 'user',
-  initialState: {
-    ...testUser
-  },
-  reducers: {}
+export const currentUserSlice = createSlice({
+  name: 'currentUser',
+  initialState: null,
+  reducers: {
+    setCurrentUser(state, action){
+      console.log(`action`, action)
+      return state = action.payload
+    }
+  }
 })
 
 // Action creators are generated for each case reducer function
-// export const { increment, decrement, incrementByAmount } = userSlice.actions
+export const { setCurrentUser } = currentUserSlice.actions
 
-export default userSlice.reducer
+export default currentUserSlice.reducer
