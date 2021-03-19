@@ -1,10 +1,10 @@
 import { useForm, Controller } from "react-hook-form";
 import { useSelector } from 'react-redux'
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
-import { IonButton, IonTextarea, IonGrid, IonRow, IonCol } from "@ionic/react"
+import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
 import styled from 'styled-components'
 import {useDropzone} from 'react-dropzone';
-
+import { useState } from 'react'
 
 export function Basic(props) {
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
@@ -37,22 +37,22 @@ export function Basic(props) {
 
 function NewPostForm() {
   const user = useSelector(state => state.user)
-  
-  const { register, handleSubmit, errors, control } = useForm();  
-  
+  const { register, handleSubmit, errors, control, watch, clearErrors } = useForm();  
+  const [isUploading, setIsUploading] = useState(false)
+
   function onSubmit (formData){
+    setIsUploading(true)
     uploadPhotos(formData)
   } 
 
-  console.log(`CLOUD_NAME`, process.env.REACT_APP_TEST)
   
   function uploadPhotos(formData){
-    const url = `https://api.cloudinary.com/v1_1/******/upload`
+    const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
     
     const imageFiles = new FormData()
     for (let photo of formData.images){
       imageFiles.append("file", photo)
-      imageFiles.append("upload_preset", "")
+      imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
 
       const uploadConfig = {
         method: "POST",
@@ -63,17 +63,18 @@ function NewPostForm() {
         .then( response => response.json())
         .then( console.log )
     }
+    setIsUploading(false)
   }
 
-
-
+  console.log(`errors`, errors)
+  console.log(watch("images"))
   return (
     <Card>
       <Content>
 
           <Form onSubmit={handleSubmit(onSubmit)}>
               
-            <Controller control={control} name="images" rules={{required:true}} defaultValue={[]}
+            <Controller control={control} name="images" rules={{required:true, validate: value => value.length > 0}} defaultValue={[]}
               render={({ onChange, onBlur, value, ref }) => (
                 <Basic onBlur={onBlur} onChange={(e) => onChange(e)} checked={value} inputRef={ref}
                 />
@@ -90,34 +91,39 @@ function NewPostForm() {
             </IonItem>
 
             <IonItem>
-              <IonLabel position="floating">
+              <CalLabel position="floating">
                 Location
-              </IonLabel>
+              </CalLabel>
               <IonInput type="text" name="location" ref={register} />
             </IonItem>
 
             <IonItem>
-              <IonLabel position="floating">
+              <CalLabel position="floating">
                 Description
-              </IonLabel>
-              <IonTextarea name="description" ref={register} />
+              </CalLabel>
+              <IonTextarea name="description" placeholder="Tell us about the shot!" ref={register} />
             </IonItem>
 
-            {errors.images && 
-              <ErrorItem>
-                <IonLabel>You must select choose a photo</IonLabel>
-              </ErrorItem>
-            }
             <IonGrid>
               <IonRow>
                 <Col >
-                  <IonButton type="submit" >
+                  <IonButton type="submit" disabled={isUploading}>
                     Post
                   </IonButton>
                 </Col>
               </IonRow>
             </IonGrid>
           </Form> 
+
+          <Toast
+              isOpen={!!errors.images}
+              message="Select atleast one photo"
+              duration={1000}
+              position="middle"
+              header="Error :"
+              color="danger"
+              onDidDismiss={()=> clearErrors() }
+            />
 
       </Content>
     </Card>
@@ -128,7 +134,9 @@ export default NewPostForm
 
 const Card = styled(IonCard)``
 
-const Content = styled(IonCardContent)``
+const Content = styled(IonCardContent)`
+
+`
 
 const Form = styled.form``
 
@@ -154,7 +162,7 @@ const Thumbnail = styled(IonThumbnail)`
   height: auto;
   img {
     height: 100%;
-    width: 100%auto;
+    width: 100%;
   }
 `
 
@@ -170,8 +178,12 @@ const CalLabel = styled(IonLabel)`
     margin-bottom: 12px;
   }
 `
-const ErrorItem = styled(Item)`
-  --border-color: transparent;
+
+const Toast = styled(IonToast)`
+  &::part(message) {
+    background-color: green;
+  }
+
 `
 
 const Col = styled(IonCol)`
