@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import {useDropzone} from 'react-dropzone';
 import { useState } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
+import { uploadAndSave } from '../hooks/useUploadAndSave'
 
 export function Droparea(props) {
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
@@ -50,26 +51,33 @@ function NewPostForm() {
   
   function uploadPhotos(formData){
     console.log(`formData`, formData)
-    console.log(`formData.avatar === avatarPlaceHolder`, formData.avatar === avatarPlaceHolder)
+    uploadAndSave(formData).then(console.log)
     
-    // const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
+    // console.log(`formData.avatar === avatarPlaceHolder`, formData.avatar === avatarPlaceHolder)
     
-    // const imageFiles = new FormData()
-    // for (let photo of formData.avatar){
-    //   imageFiles.append("file", formData.avatar)
-    //   imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
+    // if (formData.avatar !== avatarPlaceHolder){
+    //   const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
+    //   const avatarFile = new FormData()
 
-    //   const uploadConfig = {
-    //     method: "POST",
-    //     body: imageFiles
-    //   }
-
-    //   fetch(url, uploadConfig)
-    //     .then( response => response.json())
-    //     .then( console.log )
-    // }
-    // setIsUploading(false)
+    //   for (let photo of formData.avatar){
+    //       imageFiles.append("file", formData.avatar)
+    //       imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
+    //       const uploadConfig = {
+    //         method: "POST",
+    //         body: imageFiles
+    //       }
+    //       fetch(url, uploadConfig)
+    //         .then( response => response.json())
+    //         .then( data => {
+    //           console.log(data) 
+    //           setIsUploading(false)
+    //         })
+    //     }
+    // }  
   }
+
+  console.log(`errors`, errors)
+
   return (
     <Card>
       <Content>
@@ -135,7 +143,6 @@ function NewPostForm() {
                       Confirm Password *
                     </InputLabel>
                     <IonInput type="password" name="password_confirmation" placeholder="Confirm Password" 
-                      // ref={register({validate: {passwordsMatch: value => (value === getValues().password) || "Passwords must match"} })} 
                       ref={register({
                         required: {value: true, message: "Passwords must match"},
                         validate: {passwordsMatch: value => (value === getValues().password) || "Passwords must match"} })} 
@@ -159,7 +166,7 @@ function NewPostForm() {
                     <InputLabel position="floating">
                       Last Name 
                     </InputLabel>
-                    <IonInput type="text" name="location" placeholder="Last Name" ref={register} />
+                    <IonInput type="text" name="last_name" placeholder="Last Name" ref={register} />
                   </IonItem>
                 </IonCol>
               </IonRow>
