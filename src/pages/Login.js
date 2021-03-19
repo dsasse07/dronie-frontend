@@ -1,4 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
+import LoginSignupForm from '../components/LoginSignupForm'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
@@ -6,19 +7,10 @@ function Login () {
  
   return (
     <IonPage>
-
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle slot="start">Dronie</IonTitle>
-          <IonAvatar slot="end">
-            {/* <img src={currentUser.avatar}/> */}
-          </IonAvatar>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent fullscreen>
 
-            Login       
+            <LoginSignupForm />
+                 
       </IonContent>
     </IonPage>
   );

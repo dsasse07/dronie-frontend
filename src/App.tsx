@@ -39,17 +39,17 @@ function App() {
   const history = useHistory()
   console.log(`currentUser`, currentUser)
 
-  useEffect(() => {
-    autologin()
-  }, [])
+  // useEffect(() => {
+  //   autologin()
+  // }, [])
 
-  function autologin(){
-    fetch(`${process.env.REACT_APP_BACKEND}/me`)
-      .then( response => response.json() )
-      .then( data => {
-        dispatch( setCurrentUser(data.user) )
-      })
-  }
+  // function autologin(){
+  //   fetch(`${process.env.REACT_APP_BACKEND}/me`)
+  //     .then( response => response.json() )
+  //     .then( data => {
+  //       dispatch( setCurrentUser(data.user) )
+  //     })
+  // }
 
   return (
     <IonApp>
