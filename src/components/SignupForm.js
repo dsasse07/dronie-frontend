@@ -1,12 +1,10 @@
 import { useForm, Controller } from "react-hook-form";
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonAvatar } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
-import { IonSegment, IonSegmentButton } from '@ionic/react'
 import styled from 'styled-components'
-import {useDropzone} from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import { useState } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
-import { uploadAndSave } from '../hooks/useUploadAndSave'
 import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
 
@@ -47,16 +45,10 @@ export function Droparea(props) {
 //******************* Login and Signup Form *************************** */
 //********************************************************************* */
 
-function LoginSignupForm() {
+function SignupForm() {
   const { register, handleSubmit, errors, control, watch, clearErrors, getValues } = useForm();  
-  const dispatch = useDispatch()
   const [isUploading, setIsUploading] = useState(false)
-  const [showLogin, setShowLogin] = useState(true)
-
-  function toggleFormDisplay(formToShow){
-    setShowLogin( formToShow === "login")
-    clearErrors()
-  }
+  const dispatch = useDispatch()
 
   function onSignup (formData){
     setIsUploading(true)
@@ -137,105 +129,20 @@ function LoginSignupForm() {
               dispatch( setCurrentUser( data.user) )
             })
   }
-
-  
-  function onLogin(formData){
-    console.log(`formData`, formData)
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   console.log(`errors`, errors)
+  console.log(`Signup errors`, (
+    Object.keys(errors).reduce( (string, key) => {
+      return `${string}${errors[key].message}.\n`
+    }, '')
+  ))
+
+  //********************************************************************* */
+  //************************* Signup Form ******************************* */
+  //********************************************************************* */
 
   return (
-    <Card>
-      <Content>
-        <IonSegment onIonChange={e => toggleFormDisplay(e.detail.value) } value={showLogin ? "login" : "signup"}>
-          <IonSegmentButton value="login">
-            <IonLabel>Login</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="signup">
-            <IonLabel>Signup</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-
-{/* ******************************************************************** */}
-{/* ******* Form Components ******************************************** */}
-{/* ******************************************************************** */}
-
-
-        {showLogin ? 
-          <LoginForm onSubmit={handleSubmit(onLogin)}>
-            <LoginGrid >
-
-              <IonRow>
-                <IonCol > 
-                  <IonItem>
-                    <InputLabel position="floating">
-                      Username *
-                    </InputLabel>
-                    <IonInput type="text" name="username" placeholder="First Name" 
-                      ref={register({
-                        required: {value: true, message:"Please enter a username"}
-                        })} 
-                      />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-
-              <IonRow>
-                <IonCol > 
-                  <IonItem>
-                    <InputLabel position="floating">
-                      Password *
-                    </InputLabel>
-                    <IonInput type="password" name="password" placeholder="Password" 
-                      ref={register({
-                        required: {value: true, message: "Please enter a password"},
-                        validate: {passwordsMatch: value => (value === getValues().password_confirmation) || "Passwords must match"} })} 
-                    />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-
-              <IonRow>
-                <Col >
-                  <IonButton type="submit" disabled={isUploading}>
-                    Login
-                  </IonButton>
-                </Col>
-              </IonRow>
-
-            </LoginGrid>
-          </LoginForm>
-
-// ************************************************************
-        : //************ Sign Up Form *************************
-// ************************************************************
-
-
-          <SignupForm onSubmit={handleSubmit(onSignup)} showLogin={showLogin}>
+        <>
+          <Form onSubmit={handleSubmit(onSignup)} >
             <SignupGrid>
               <IonRow>
                 <IonCol>
@@ -362,36 +269,35 @@ function LoginSignupForm() {
                   </Col>
                 </IonRow>
             </SignupGrid>
-          </SignupForm> 
-          }
+          </Form> 
 
           <Toast
-              isOpen={Object.keys(errors).length > 0}
-              message="Select atleast one photo"
-              duration={1000}
-              position="middle"
-              header="Error :"
-              color="danger"
-              onDidDismiss={()=> clearErrors() }
-            />
-
-      </Content>
-    </Card>
+            isOpen={Object.keys(errors).length > 0}
+            message={ 
+              Object.keys(errors).reduce( (string, key) => {
+                return `${string}${errors[key].message}.\n`
+              }, '')
+            }
+            duration={1500}
+            position="middle"
+            header="Error :"
+            color="danger"
+            onDidDismiss={()=> clearErrors() }
+            buttons= {[{
+              text: 'Done',
+              role: 'cancel',
+            }]}
+          />
+        </>
   )
 }
 
-export default LoginSignupForm
+export default SignupForm
 
-const Card = styled(IonCard)``
 
-const Content = styled(IonCardContent)``
-
-const SignupForm = styled.form``
+const Form = styled.form``
 
 const SignupGrid = styled(IonGrid)``
-
-const LoginForm = styled.form``
-const LoginGrid = styled(IonGrid)``
 
 const Col = styled(IonCol)`
   display: flex;
@@ -430,10 +336,6 @@ const InputLabel = styled(IonLabel)`
     margin-bottom: 12px;
   }
 `
-
-
-
-
 
 const Toast = styled(IonToast)`
   &::part(message) {

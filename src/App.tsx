@@ -6,13 +6,13 @@ import Home from './pages/Home';
 import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
 import Infinite from './pages/Inifnite'
-import Login from './pages/Login'
+import AuthPage from './pages/AuthPage'
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from './redux/userSlice'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useHistory } from 'react-router-dom'
 import DelayedRedirect from './components/DelayedRedirect'
+
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -100,7 +100,7 @@ function App() {
             <DelayedRedirect />
             <IonRouterOutlet>
               <Route path="/login">
-                <Login />
+                <AuthPage />
               </Route>
             </IonRouterOutlet>
           </>
