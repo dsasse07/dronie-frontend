@@ -1,18 +1,25 @@
 import { useForm, Controller } from "react-hook-form";
-import { IonInput, IonLabel, IonItem } from "@ionic/react"
+import { IonInput, IonLabel, IonItem, IonCardContent, IonCard } from "@ionic/react"
 import { IonButton, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 
-function LoginForm() {
-  const { register, handleSubmit, errors, clearErrors, getValues } = useForm();  
+function LoginForm({isOpen}) {
+  const { register, handleSubmit, errors, clearErrors } = useForm();  
   const [ isLoading, setIsLoading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
+  const [ isDisplayed, setIsDisplayed ] = useState(false)
   const { set } = useStorage()
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    setTimeout( () => {
+      setIsDisplayed(isOpen)
+    },0)
+  }, [isOpen])
 
   function onLogin(formData){
     setIsLoading(true)
@@ -42,30 +49,13 @@ function LoginForm() {
       .catch((data) => {
         setNetworkErrors(data.errors);
       });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   }
 
-  console.log(`Login errors`, errors)
 
   return (
-    <>
+  <CardAnimationWrapper isOpen={isDisplayed}>
+  <Card>
+    <Content>
       <Form onSubmit={handleSubmit(onLogin)}>
         <LoginGrid >
 
@@ -149,13 +139,22 @@ function LoginForm() {
           role: 'cancel',
         }]}
       />
-    </>
+    </Content>
+  </Card>
+  </CardAnimationWrapper>
   )
 }
 
 export default LoginForm
 
+const CardAnimationWrapper = styled.div`
+  transform: ${({isOpen}) => isOpen ? "translateX(0)" : "translateX(-100vw)" };
+  transition: 0.2s;
+`
+const Card = styled(IonCard)`
+`
 
+const Content = styled(IonCardContent)``
 
 
 const Form = styled.form``

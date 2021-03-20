@@ -16,8 +16,6 @@ function AuthPage () {
   return (
     <IonPage>
       <IonContent fullscreen>
-        <Card>
-          <Content>
             
             <IonSegment onIonChange={e => toggleFormDisplay(e.detail.value) } value={showLogin ? "login" : "signup"}>
               <IonSegmentButton value="login">
@@ -27,15 +25,18 @@ function AuthPage () {
                 <IonLabel>Signup</IonLabel>
               </IonSegmentButton>
             </IonSegment>
+        {/* <Card> */}
+
+          {/* <Content> */}
             
             {showLogin ?
-              <LoginForm />
+              <LoginForm isOpen={showLogin}/>
             :
-              <SignupForm />
+              <SignupForm isOpen={!showLogin}/>
             }
 
-          </Content>
-        </Card>
+          {/* </Content> */}
+        {/* </Card> */}
       </IonContent>
     </IonPage>
   );

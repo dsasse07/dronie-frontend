@@ -1,9 +1,9 @@
 import { useForm, Controller } from "react-hook-form";
-import { IonInput, IonLabel, IonItem, IonAvatar } from "@ionic/react"
+import { IonInput, IonLabel, IonItem, IonAvatar, IonCardContent, IonCard } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
 import styled from 'styled-components'
 import { useDropzone } from 'react-dropzone';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
@@ -36,7 +36,7 @@ export function Droparea(props) {
         }
         <input {...getInputProps()} />
         <Item>
-          <IonLabel>Drag Profile Image Here, or Click To Select</IonLabel>
+          <IonLabel>Drag or Select Photo</IonLabel>
         </Item>
       </DropArea>
   );
@@ -45,12 +45,20 @@ export function Droparea(props) {
 //******************* Login and Signup Form *************************** */
 //********************************************************************* */
 
-function SignupForm() {
+function SignupForm({isOpen}) {
   const { register, handleSubmit, errors, control, watch, clearErrors, getValues } = useForm();  
   const [ isUploading, setIsUploading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
+  const [ isDisplayed, setIsDisplayed ] = useState(false)
   const { set } = useStorage()
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    setTimeout( () => {
+      setIsDisplayed(isOpen)
+    },0)
+  }, [isOpen])
+
 
   function onSignup (formData){
     setIsUploading(true)
@@ -161,7 +169,9 @@ function SignupForm() {
   //********************************************************************* */
 
   return (
-    <>
+    <CardAnimationWrapper isOpen={isDisplayed}>
+    <Card>
+    <Content>
       <Form onSubmit={handleSubmit(onSignup)} >
         <SignupGrid>
           <IonRow>
@@ -330,12 +340,22 @@ function SignupForm() {
           role: 'cancel',
         }]}
       />
-    </>
+    </Content>
+  </Card>
+  </CardAnimationWrapper>
+
   )
 }
 
 export default SignupForm
 
+const CardAnimationWrapper = styled.div`
+  transform: ${({isOpen}) => isOpen ? "translateX(0)" : "translateX(100vw)" };
+  transition: 0.2s;
+`
+
+const Card = styled(IonCard)``
+const Content = styled(IonCardContent)``
 
 const Form = styled.form``
 
