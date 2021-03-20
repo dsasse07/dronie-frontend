@@ -12,6 +12,7 @@ import { setCurrentUser } from './redux/userSlice'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import DelayedRedirect from './components/DelayedRedirect'
+import { useStorage } from '@ionic/react-hooks/storage'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -36,18 +37,26 @@ import './theme/variables.css';
 function App() {
   const currentUser = useSelector(state => state.currentUser)
   const dispatch = useDispatch()
-
-  // useEffect(() => {
-  //   autologin()
+  const { get, remove } = useStorage()
+  // If error and need to reset system, comment out useEffect, and uncomment remove()
+  remove("token")
+  // useEffect( () => {
+  //   get("token")
+  //     .then( token => {
+  //       if (token) {
+  //         fetch(`${process.env.REACT_APP_BACKEND}/me`,{
+  //           headers: {
+  //             Authorization: `Bearer ${token}`
+  //           }
+  //         })
+  //           .then( response => response.json() )
+  //           .then( data => {
+  //             dispatch( setCurrentUser(data) )
+  //           })
+  //       }
+  //     })
   // }, [])
 
-  // function autologin(){
-  //   fetch(`${process.env.REACT_APP_BACKEND}/me`)
-  //     .then( response => response.json() )
-  //     .then( data => {
-  //       dispatch( setCurrentUser(data.user) )
-  //     })
-  // }
 
   return (
     <IonApp>

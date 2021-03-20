@@ -5,14 +5,61 @@ import styled from 'styled-components'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
+import { useStorage } from '@ionic/react-hooks/storage'
 
 function LoginForm() {
   const { register, handleSubmit, errors, clearErrors, getValues } = useForm();  
-  const [isUploading, setIsUploading] = useState(false)
+  const [ isLoading, setIsLoading ] = useState(false)
+  const [ networkErrors, setNetworkErrors ] = useState([])
+  const { set } = useStorage()
   const dispatch = useDispatch()
 
   function onLogin(formData){
-    console.log(`Login formData`, formData)
+    setIsLoading(true)
+    const loginConfig = {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    }
+
+    fetch(`${process.env.REACT_APP_BACKEND}/login`, loginConfig)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then((data) => {
+            throw data;
+          });
+        }
+      })
+      .then((data) => {
+        set("token", data.token)
+        setIsLoading(false)
+        dispatch( setCurrentUser( data.user) )
+      })
+      .catch((data) => {
+        setNetworkErrors(data.errors);
+      });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 
   console.log(`Login errors`, errors)
@@ -54,7 +101,7 @@ function LoginForm() {
 
           <IonRow>
             <Col >
-              <IonButton type="submit" disabled={isUploading}>
+              <IonButton type="submit" disabled={isLoading}>
                 Login
               </IonButton>
             </Col>
@@ -75,6 +122,28 @@ function LoginForm() {
         header="Error :"
         color="danger"
         onDidDismiss={()=> clearErrors() }
+        buttons= {[{
+          text: 'Done',
+          role: 'cancel',
+        }]}
+      />
+
+      <Toast
+        isOpen={networkErrors.length > 0}
+        message={ 
+          networkErrors.reduce( (string, error) => {
+            return `${string}${error}.\n`
+          }, '')
+        }
+        duration={1500}
+        position="middle"
+        header="Error :"
+        color="danger"
+        onDidDismiss={()=> {
+          clearErrors() 
+          setNetworkErrors([])
+          setIsLoading(false)
+        }}
         buttons= {[{
           text: 'Done',
           role: 'cancel',
