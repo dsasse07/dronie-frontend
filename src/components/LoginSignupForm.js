@@ -1,6 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonAvatar } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
+import { IonSegment, IonSegmentButton } from '@ionic/react'
 import styled from 'styled-components'
 import {useDropzone} from 'react-dropzone';
 import { useState } from 'react'
@@ -9,6 +10,9 @@ import { uploadAndSave } from '../hooks/useUploadAndSave'
 import { useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
 
+//********************************************************************* */
+//******************* DropZone Component ****************************** */
+//********************************************************************* */
 
 export function Droparea(props) {
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
@@ -39,27 +43,41 @@ export function Droparea(props) {
       </DropArea>
   );
 }
+//********************************************************************* */
+//******************* Login and Signup Form *************************** */
+//********************************************************************* */
 
-function NewPostForm() {
+function LoginSignupForm() {
   const { register, handleSubmit, errors, control, watch, clearErrors, getValues } = useForm();  
   const dispatch = useDispatch()
   const [isUploading, setIsUploading] = useState(false)
+  const [showLogin, setShowLogin] = useState(true)
 
-  function onSubmit (formData){
+  function toggleFormDisplay(formToShow){
+    setShowLogin( formToShow === "login")
+    clearErrors()
+  }
+
+  function onSignup (formData){
     setIsUploading(true)
     uploadPhotos(formData)
   } 
   
-  
   function uploadPhotos(formData){
     console.log(`formData`, formData)
     if (formData.avatar === avatarPlaceHolder) {
-      debugger
+      saveUser(formData)
+      setIsUploading(false)
+    } else {
+      uploadAndSave(formData)
+      setIsUploading(false)
     }
-    uploadAndSave(formData).then(console.log)
-    
   }
   
+//********************************************************************* */
+//******** Post Avatar(s) to Cloudinary Then Save to DB *************** */
+//********************************************************************* */
+
   async function uploadAndSave(formData){
     const numPhotos = formData.avatar.length
     const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
@@ -97,11 +115,33 @@ function NewPostForm() {
         } 
     })
   }
+
+//********************************************************************* */
+//******** Post Save to DB and Ignore Avatar Placeholder ************** */
+//********************************************************************* */
   
-  
+  function saveUser(formData){
+    const newUser = {...formData, avatar: null}
+
+    const postConfig = {
+      method: "POST",
+      headers:{
+        "Content-type":"application/json"
+      },
+      body: JSON.stringify(newUser)
+    }
+
+    fetch(`${process.env.REACT_APP_BACKEND}/signup`, postConfig)
+            .then( response => response.json() )
+            .then( data => {
+              dispatch( setCurrentUser( data.user) )
+            })
+  }
 
   
-
+  function onLogin(formData){
+    console.log(`formData`, formData)
+  }
   
   
   
@@ -131,10 +171,72 @@ function NewPostForm() {
   return (
     <Card>
       <Content>
+        <IonSegment onIonChange={e => toggleFormDisplay(e.detail.value) } value={showLogin ? "login" : "signup"}>
+          <IonSegmentButton value="login">
+            <IonLabel>Login</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="signup">
+            <IonLabel>Signup</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
 
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            
-            <Signup>
+{/* ******************************************************************** */}
+{/* ******* Form Components ******************************************** */}
+{/* ******************************************************************** */}
+
+
+        {showLogin ? 
+          <LoginForm onSubmit={handleSubmit(onLogin)}>
+            <LoginGrid >
+
+              <IonRow>
+                <IonCol > 
+                  <IonItem>
+                    <InputLabel position="floating">
+                      Username *
+                    </InputLabel>
+                    <IonInput type="text" name="username" placeholder="First Name" 
+                      ref={register({
+                        required: {value: true, message:"Please enter a username"}
+                        })} 
+                      />
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+              <IonRow>
+                <IonCol > 
+                  <IonItem>
+                    <InputLabel position="floating">
+                      Password *
+                    </InputLabel>
+                    <IonInput type="password" name="password" placeholder="Password" 
+                      ref={register({
+                        required: {value: true, message: "Please enter a password"},
+                        validate: {passwordsMatch: value => (value === getValues().password_confirmation) || "Passwords must match"} })} 
+                    />
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+              <IonRow>
+                <Col >
+                  <IonButton type="submit" disabled={isUploading}>
+                    Login
+                  </IonButton>
+                </Col>
+              </IonRow>
+
+            </LoginGrid>
+          </LoginForm>
+
+// ************************************************************
+        : //************ Sign Up Form *************************
+// ************************************************************
+
+
+          <SignupForm onSubmit={handleSubmit(onSignup)} showLogin={showLogin}>
+            <SignupGrid>
               <IonRow>
                 <IonCol>
                   <Controller control={control} name="avatar" rules={{required: {value: true, message:"required"}}} defaultValue={avatarPlaceHolder}
@@ -255,17 +357,16 @@ function NewPostForm() {
                 <IonRow>
                   <Col >
                     <IonButton type="submit" disabled={isUploading}>
-                      Post
+                      Signup
                     </IonButton>
                   </Col>
                 </IonRow>
-            </Signup>
-
-
-          </Form> 
+            </SignupGrid>
+          </SignupForm> 
+          }
 
           <Toast
-              isOpen={!!errors.images}
+              isOpen={Object.keys(errors).length > 0}
               message="Select atleast one photo"
               duration={1000}
               position="middle"
@@ -279,15 +380,24 @@ function NewPostForm() {
   )
 }
 
-export default NewPostForm
+export default LoginSignupForm
 
 const Card = styled(IonCard)``
 
-const Content = styled(IonCardContent)`
+const Content = styled(IonCardContent)``
 
+const SignupForm = styled.form``
+
+const SignupGrid = styled(IonGrid)``
+
+const LoginForm = styled.form``
+const LoginGrid = styled(IonGrid)``
+
+const Col = styled(IonCol)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
-
-const Form = styled.form``
 
 const DropArea = styled.section`
   display: flex;
@@ -296,14 +406,6 @@ const DropArea = styled.section`
   padding-top: 1rem;
   border: 2px dashed;
   border-radius: 8px;
-`
-const PhotoPreviewsContainer = styled.div`
-  width: 95%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
 `
 
 const Thumbnail = styled(IonAvatar)`
@@ -329,19 +431,13 @@ const InputLabel = styled(IonLabel)`
   }
 `
 
+
+
+
+
 const Toast = styled(IonToast)`
   &::part(message) {
     background-color: green;
   }
-
-`
-
-const Col = styled(IonCol)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const Signup = styled(IonGrid)`
 
 `

@@ -11,7 +11,6 @@ function Home () {
   const posts = useSelector(state => state.posts)
   const postComponents = posts.map( (post, index) => <PostCard key={index} post={post} /> )
 
-  console.log(`currentUser`, currentUser)
   return (
     <IonPage>
         <Header >
