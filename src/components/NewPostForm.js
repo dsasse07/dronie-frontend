@@ -1,12 +1,16 @@
 import { useForm, Controller } from "react-hook-form";
-import { useSelector } from 'react-redux'
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
 import styled from 'styled-components'
 import {useDropzone} from 'react-dropzone';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateUsersPosts } from '../redux/userSlice'
+import { useStorage } from '@ionic/react-hooks/storage'
 
 export function Basic(props) {
+  const [ files, setFiles ] = useState()
+  const user = useSelector(state => state.user)
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
     maxFiles: 5,
@@ -14,11 +18,19 @@ export function Basic(props) {
     multiple: true
   });
   
-  const files = acceptedFiles.map(file => (
-    <Thumbnail key={file.path}>
-      <img src={URL.createObjectURL(file)} />
-    </Thumbnail>
-  ));
+  // useEffect( () => {
+  //   const newFiles = acceptedFiles.map(file => (
+  //       <Thumbnail key={file.path}>
+  //         <img src={URL.createObjectURL(file)} />
+  //       </Thumbnail>
+  //     ));
+  //   setFiles(newFiles)  
+  // }, [acceptedFiles])
+
+  
+  // useEffect(() => {
+  //   setFiles([])
+  // }, [user])
 
   return (
     <DropArea >
@@ -27,8 +39,11 @@ export function Basic(props) {
       </PhotoPreviewsContainer>
       <Item {...getRootProps()}>
         <input {...getInputProps()} />
-        <IonLabel>Drag images here, or Click to select files</IonLabel>
+        <IonLabel>
+          Drag images here, or Click to select files
+        </IonLabel>
       </Item>
+        {/* <button type="button" onClick={ () => remove() } >Reset</button> */}
     </DropArea>
   );
 }
@@ -37,37 +52,95 @@ export function Basic(props) {
 
 function NewPostForm() {
   const currentUser = useSelector(state => state.currentUser)
-  const { register, handleSubmit, errors, control, watch, clearErrors } = useForm();  
+  const { register, handleSubmit, errors, control, reset, clearErrors } = useForm({
+    defaultValues: {
+      images: [],
+      date_take: "",
+      location: "",
+      description: ""
+    }
+  });  
   const [isUploading, setIsUploading] = useState(false)
+  const [ networkErrors, setNetworkErrors ] = useState([])
+  const dispatch = useDispatch()
+  const { get } = useStorage()
 
-  function onSubmit (formData){
+
+  function onSubmit (formData, e){
+
+    reset({
+      images: [],
+      date_take: "",
+      location: "",
+      description: ""
+    })
+
     setIsUploading(true)
-    uploadPhotos(formData)
+    uploadAndSave(formData)
+    
   } 
 
-  
-  function uploadPhotos(formData){
+
+  //********************************************************************* */
+  //******** Post Avatar(s) to Cloudinary Then Save to DB *************** */
+  //********************************************************************* */
+
+  async function uploadAndSave(formData){
+    const numPhotos = formData.images.length
     const url = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/upload`
-    
-    const imageFiles = new FormData()
-    for (let photo of formData.images){
-      imageFiles.append("file", photo)
-      imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
+    const imageData = []
+    get("token")
+      .then( token => {
+        if (!token) return
 
-      const uploadConfig = {
-        method: "POST",
-        body: imageFiles
-      }
-
-      fetch(url, uploadConfig)
-        .then( response => response.json())
-        .then( console.log )
-    }
-    setIsUploading(false)
+        formData.images.forEach(async (photo, index) => {
+            const imageFiles = new FormData()
+            imageFiles.append("file", photo)
+            imageFiles.append("upload_preset", `${process.env.REACT_APP_UPLOAD_PRESET}`)
+            
+            const uploadConfig = {
+              method: "POST",
+              body: imageFiles
+            }
+            
+            const response = await fetch(url, uploadConfig)
+            const data = await response.json()
+            await imageData.push(data)
+            
+            if (imageData.length === numPhotos){
+              const objWithPhotos = {...formData, images: JSON.stringify(imageData) }
+              const postConfig = {
+                method: "POST",
+                headers:{
+                  "Content-type":"application/json",
+                  Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(objWithPhotos)
+              }
+              fetch(`${process.env.REACT_APP_BACKEND}/posts/new`, postConfig)
+              .then((response) => {
+                if (response.ok) {
+                  return response.json();
+                } else {
+                  return response.json().then((data) => {
+                    throw data;
+                  });
+                }
+              })
+              .then((data) => {
+                setIsUploading(false)
+                dispatch( updateUsersPosts( data ) )
+              })
+              .catch((data) => {
+                setNetworkErrors(data.errors);
+              });
+            } 
+        })
+      })
   }
 
-  console.log(`errors`, errors)
-  console.log(watch("images"))
+  console.log(`currentUser`, currentUser)
+
   return (
     <Card>
       <Content>
@@ -116,14 +189,44 @@ function NewPostForm() {
           </Form> 
 
           <Toast
-              isOpen={!!errors.images}
-              message="Select atleast one photo"
-              duration={1000}
-              position="middle"
-              header="Error :"
-              color="danger"
-              onDidDismiss={()=> clearErrors() }
-            />
+            isOpen={Object.keys(errors).length > 0}
+            message={ 
+              Object.keys(errors).reduce( (string, key) => {
+                return `${string}${errors[key].message}.\n`
+              }, '')
+            }
+            duration={1500}
+            position="middle"
+            header="Error :"
+            color="danger"
+            onDidDismiss={()=> clearErrors() }
+            buttons= {[{
+              text: 'Done',
+              role: 'cancel',
+            }]}
+          />
+
+          <Toast
+            isOpen={networkErrors.length > 0}
+            message={ 
+              networkErrors.reduce( (string, error) => {
+                return `${string}${error}.\n`
+              }, '')
+            }
+            duration={1500}
+            position="middle"
+            header="Error :"
+            color="danger"
+            onDidDismiss={()=> {
+              clearErrors() 
+              setNetworkErrors([])
+              setIsUploading(false)
+            }}
+            buttons= {[{
+              text: 'Done',
+              role: 'cancel',
+            }]}
+          />
 
       </Content>
     </Card>

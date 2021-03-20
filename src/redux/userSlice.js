@@ -10,13 +10,23 @@ export const currentUserSlice = createSlice({
     setCurrentUser(state, action){
       const avatar = action.payload.avatar ? JSON.parse(action.payload.avatar)[0] : {secure_url: avatarPlaceHolder}
       const user = {...action.payload, avatar: avatar }
-      
       return state = user
+    },
+    updateUsersPosts(state, action){
+      const newPost = {
+        ...action.payload, 
+        images: JSON.parse(action.payload.images) 
+      }
+      if (state?.posts){
+        state.posts = [...state.posts, newPost]
+      } else {
+        state.posts = [newPost]
+      }
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setCurrentUser } = currentUserSlice.actions
+export const { setCurrentUser, updateUsersPosts } = currentUserSlice.actions
 
 export default currentUserSlice.reducer

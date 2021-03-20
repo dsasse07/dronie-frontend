@@ -39,23 +39,23 @@ function App() {
   const dispatch = useDispatch()
   const { get, remove } = useStorage()
   // If error and need to reset system, comment out useEffect, and uncomment remove()
-  remove("token")
-  // useEffect( () => {
-  //   get("token")
-  //     .then( token => {
-  //       if (token) {
-  //         fetch(`${process.env.REACT_APP_BACKEND}/me`,{
-  //           headers: {
-  //             Authorization: `Bearer ${token}`
-  //           }
-  //         })
-  //           .then( response => response.json() )
-  //           .then( data => {
-  //             dispatch( setCurrentUser(data) )
-  //           })
-  //       }
-  //     })
-  // }, [])
+  // remove("token")
+  useEffect( () => {
+    get("token")
+      .then( token => {
+        if (token) {
+          fetch(`${process.env.REACT_APP_BACKEND}/me`,{
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+            .then( response => response.json() )
+            .then( data => {
+              dispatch( setCurrentUser(data) )
+            })
+        }
+      })
+  }, [])
 
 
   return (

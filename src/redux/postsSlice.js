@@ -10,7 +10,7 @@ export const postsSlice = createSlice({
     updatePost(state, action){
       const index = state.findIndex( post => post.id === action.payload.id)
       state[index] = action.payload
-    }
+    },
   }
 })
 
