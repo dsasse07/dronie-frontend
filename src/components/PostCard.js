@@ -148,7 +148,7 @@ export const PostCard = ({post}) => {
             setNewCommentText("")
             dispatch( updatePost( data ) )
             setTimeout( () => {
-              commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
+              commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 1000
             }, 0)
           })
           .catch((data) => {
@@ -246,7 +246,7 @@ const Card = styled(IonCard)`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 1200px;
+  max-width: 95%;
 `
 //****************************************************** */
 //************** Card Header Styling ******************* */
@@ -392,6 +392,7 @@ const CommentsContainer = styled(IonList)`
   overflow-y: scroll;
   background: transparent;
   border: ${props => props.showComments && "1px solid"} ;
+  width: 100%;
 `
 
 const ShowCommentsButton = styled(IonItem)`

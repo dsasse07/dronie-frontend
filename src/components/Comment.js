@@ -1,10 +1,9 @@
-import React from 'react'
-import { IonItem, IonButton, IonIcon, IonText } from '@ionic/react'
-import styled from 'styled-components'
-import { trashOutline } from 'ionicons/icons';
+import { IonGrid, IonRow, IonCol, IonLabel, IonIcon } from '@ionic/react'
+import { ellipsisHorizontal } from 'ionicons/icons';
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useDispatch, useSelector } from 'react-redux'
 import { updatePost } from '../redux/postsSlice'
+import styled from 'styled-components'
 
 function Comment( { comment, showComments, post } ) {
   const { id, content, author, created_at } = comment
@@ -51,33 +50,87 @@ function Comment( { comment, showComments, post } ) {
 
 
   return (
-    <Item>
-      <p><strong> {author} </strong></p>
-      {content}
-      <IonButton slot="end" color="danger" onClick={handleDeleteComment}>
-        <IonIcon icon={trashOutline} />
-      </IonButton>
-    </Item>
+
+    <Grid>
+      <Row>
+        <IonLabel>
+
+          <IonCol>
+            <AuthorSpan> 
+              {author} 
+            </AuthorSpan>
+            <DateSpan>
+              {new Date(created_at).toDateString().slice(4) }
+            </DateSpan>
+          </IonCol>
+
+          <IonCol>
+            <DeleteButton icon={ellipsisHorizontal} onClick={handleDeleteComment} />
+          </IonCol>
+
+        </IonLabel>
+      </Row>
+
+      <IonRow>
+        <IonCol>
+          <IonLabel text-wrap>
+            {content}
+          </IonLabel>
+        </IonCol>
+      </IonRow>
+      <hr/>
+    </Grid>
   )
 }
 
 export default Comment
 
-const Item = styled(IonItem)`
-&& {
-    font-size: 0.9rem;
-    width: 300px;
-    ion-label{
-      margin: 0;
-      padding: 0;
+const Grid = styled(IonGrid)`
+  /* border-bottom: 1px solid; */
+  hr {
+    margin-top: 0.6rem;
+  }
+`
+
+const Row = styled(IonRow)`
+  ion-label{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    span{
+      display: flex;
+      align-items: center;
     }
-    --min-height: 40px;
+    ion-col{
+      display: flex;
+      :first-of-type{
+        align-items: flex-end;
+      }
+      :last-of-type{
+        justify-content: flex-end;
+        padding-right: 2rem;
+        ion-icon{
+          font-size: 1.2rem;
+        }
+      }
+    }
   }
-  :last-of-type{
-    --border-color: transparent;
-  }
-  strong {
-    padding-right: 0.3rem;
-    word-wrap: break-word;
-  }
+`
+
+const DateSpan = styled.span`
+  font-size: 0.8rem;
+`
+
+const AuthorSpan = styled.span`
+  font-weight: bold;
+  font-size: 1rem;
+  padding-right: 0.5rem;
+`
+
+const DeleteButton = styled(IonIcon)`
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  padding-left: 1rem;
 `
