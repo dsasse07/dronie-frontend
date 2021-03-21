@@ -37,9 +37,7 @@ export default PostNew;
 
 const Header = styled(IonHeader)``
 
-const Toolbar = styled(IonToolbar)`
-  padding-right: 10px;
-`
+const Toolbar = styled(IonToolbar)``
 const Title = styled(IonTitle)`
   font-size: 1.8rem;
 `
@@ -49,6 +47,7 @@ const Avatar = styled(IonAvatar)`
     height: 50px;
     border: 1px solid;
     cursor: pointer;
+    margin-right: 10px;
 `
 
 const Item = styled(IonItem)``

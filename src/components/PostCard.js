@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
 import { postsSlice, updatePost } from '../redux/postsSlice'
+import avatarPlaceHolder from '../assets/avatar.jpg'
 
 export const PostCard = ({post}) => {
   const dispatch = useDispatch()
@@ -17,10 +18,11 @@ export const PostCard = ({post}) => {
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
+  const {created_at, description, date_taken, id, images, location, user} = post
 
   useEffect( () => {
     if (!showComments) return
-    commentsBottomRef.current.scrollTop = post.comments.length*80
+    // commentsBottomRef.current.scrollTop = post.comments.length*80
   }, [showComments])
 
   function toggleLike(){
@@ -41,25 +43,25 @@ export const PostCard = ({post}) => {
   }
 
   function handleAddComment(event){
-    event.preventDefault()
-    const newComment = {
-      username: currentUser.username,
-      content: newCommentText
-    }
-    const updatedPost = {...post, comments: [...post.comments, newComment]}
-    dispatch( updatePost(updatedPost) )
-    setNewCommentText("")
-    setTimeout( () => {
-      commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
-    }, 0)
+    // event.preventDefault()
+    // const newComment = {
+    //   username: currentUser.username,
+    //   content: newCommentText
+    // }
+    // const updatedPost = {...post, comments: [...post.comments, newComment]}
+    // dispatch( updatePost(updatedPost) )
+    // setNewCommentText("")
+    // setTimeout( () => {
+    //   commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
+    // }, 0)
   }
 
 
-  const commentComponents = post.comments.map( (comment, index) => {
-    return (
-      <Comment key={index} comment={comment} showComments={showComments} />
-    )
-  })
+  // const commentComponents = post.comments.map( (comment, index) => {
+  //   return (
+  //     <Comment key={index} comment={comment} showComments={showComments} />
+  //   )
+  // })
 
   return (
     <Card>
@@ -67,12 +69,12 @@ export const PostCard = ({post}) => {
         <HeaderContainer>
           <IonItem>
             <IonAvatar >
-              <img src={currentUser.avatar.secure_url} alt="Bad"/>
+              <img src={user.avatar ? user.avatar[0].secure_url : avatarPlaceHolder} alt={user.username}/>
             </IonAvatar>
           </IonItem>
           <HeaderText>
-            <IonCardTitle> {currentUser.username} </IonCardTitle>
-            <IonCardSubtitle> {post.location} </IonCardSubtitle>
+            <IonCardTitle> {user.username} </IonCardTitle>
+            <IonCardSubtitle> {location} </IonCardSubtitle>
           </HeaderText>
         </HeaderContainer>
 
@@ -80,13 +82,13 @@ export const PostCard = ({post}) => {
       <CardContent>
 
         <ImageContainer >
-          <Img src={post.url} />
+          <Img src={images[0].secure_url} />
         </ImageContainer>
 
         <ControlsBar id="control">
           <LikesContainer userLike={userLike} onClick={toggleLike}>
             <IonIcon icon={userLike ? heart : heartOutline} />
-            {post.likes} Likes
+            {/* {post.likes} Likes */}
           </LikesContainer>
           <LeaveCommentContainer onClick={handleShowNewCommentForm}>
             <IonIcon icon={chatbubbleOutline} />
@@ -97,12 +99,11 @@ export const PostCard = ({post}) => {
         <hr></hr>
 
         <DescriptionContainer>
-          Keep close to Nature's heart... and break clear away, once in awhile,
-          and climb a mountain or spend a week in the woods. Wash your spirit clean.
+          {description}
         </DescriptionContainer>
         
           <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
-            {commentComponents}
+            {/* {commentComponents} */}
             <div id="bottom" ref={commentsBottomRef}/>
           </CommentsContainer>
         {showNewCommentForm && 
@@ -119,7 +120,7 @@ export const PostCard = ({post}) => {
         <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
           <IonLabel>
             <Icon icon={chevronDownOutline} showComments={showComments} />
-            {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
+            {/* {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`} */}
             <Icon icon={chevronDownOutline} showComments={showComments}/>
           </IonLabel>
         </ShowCommentsButton>

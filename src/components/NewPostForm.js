@@ -10,7 +10,7 @@ import { useStorage } from '@ionic/react-hooks/storage'
 
 export function Basic(props) {
   const [ files, setFiles ] = useState()
-  const user = useSelector(state => state.user)
+  const currentUser = useSelector(state => state.currentUser)
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
     maxFiles: 5,
@@ -18,19 +18,19 @@ export function Basic(props) {
     multiple: true
   });
   
-  // useEffect( () => {
-  //   const newFiles = acceptedFiles.map(file => (
-  //       <Thumbnail key={file.path}>
-  //         <img src={URL.createObjectURL(file)} />
-  //       </Thumbnail>
-  //     ));
-  //   setFiles(newFiles)  
-  // }, [acceptedFiles])
+  useEffect( () => {
+    const newFiles = acceptedFiles.map(file => (
+        <Thumbnail key={file.path}>
+          <img src={URL.createObjectURL(file)} />
+        </Thumbnail>
+      ));
+    setFiles(newFiles)  
+  }, [acceptedFiles])
 
-  
-  // useEffect(() => {
-  //   setFiles([])
-  // }, [user])
+  // Clear the file previews when the user is updated after the post is uploaded.
+  useEffect(() => {
+    setFiles([])
+  }, [currentUser])
 
   return (
     <DropArea >
@@ -237,9 +237,7 @@ export default NewPostForm
 
 const Card = styled(IonCard)``
 
-const Content = styled(IonCardContent)`
-
-`
+const Content = styled(IonCardContent)``
 
 const Form = styled.form``
 
