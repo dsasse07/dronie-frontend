@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
 import { updatePost } from '../redux/postsSlice'
+import { addCommentToUser } from '../redux/userSlice'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
 
@@ -146,7 +147,8 @@ export const PostCard = ({post}) => {
           })
           .then((data) => {
             setNewCommentText("")
-            dispatch( updatePost( data ) )
+            dispatch( addCommentToUser( data.comment ))
+            dispatch( updatePost( data.post ) )
             setTimeout( () => {
               commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 1000
             }, 0)

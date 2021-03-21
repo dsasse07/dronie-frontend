@@ -27,7 +27,6 @@ export const postsSlice = createSlice({
             avatar: JSON.parse(post.user.avatar)
           }}
       })
-
       state.push(...posts)
     }
   }

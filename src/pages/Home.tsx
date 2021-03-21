@@ -54,7 +54,6 @@ function Home () {
     (event.target).complete();
   }
 
-
   return (
     <IonPage>
         <Header >

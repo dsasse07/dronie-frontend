@@ -22,11 +22,14 @@ export const currentUserSlice = createSlice({
       } else {
         state.posts = [newPost]
       }
+    },
+    addCommentToUser(state, action){
+      state.comments.push( action.payload )
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setCurrentUser, updateUsersPosts } = currentUserSlice.actions
+export const { setCurrentUser, updateUsersPosts, addCommentToUser } = currentUserSlice.actions
 
 export default currentUserSlice.reducer

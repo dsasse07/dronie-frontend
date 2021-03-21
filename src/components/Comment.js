@@ -1,5 +1,5 @@
 import { IonGrid, IonRow, IonCol, IonLabel, IonIcon } from '@ionic/react'
-import { ellipsisHorizontal } from 'ionicons/icons';
+import { trashOutline } from 'ionicons/icons';
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useDispatch, useSelector } from 'react-redux'
 import { updatePost } from '../redux/postsSlice'
@@ -29,7 +29,7 @@ function Comment( { comment, showComments, post } ) {
         },
       }
 
-      fetch(`${process.env.REACT_APP_BACKEND}/comments/${post.id}`, deleteCommentConfig)
+      fetch(`${process.env.REACT_APP_BACKEND}/comments/${id}`, deleteCommentConfig)
           .then((response) => {
             if (response.ok) {
               return response.json();
@@ -63,10 +63,11 @@ function Comment( { comment, showComments, post } ) {
               {new Date(created_at).toDateString().slice(4) }
             </DateSpan>
           </IonCol>
-
-          <IonCol>
-            <DeleteButton icon={ellipsisHorizontal} onClick={handleDeleteComment} />
-          </IonCol>
+            <IonCol>
+              { belongsToCurrentUser() && 
+                <DeleteButton color="danger" icon={trashOutline} onClick={handleDeleteComment} />
+              }
+            </IonCol>
 
         </IonLabel>
       </Row>
