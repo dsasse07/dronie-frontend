@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { updatePost } from '../redux/postsSlice'
 import styled from 'styled-components'
 
-function Comment( { comment, showComments, post } ) {
+function Comment( { comment, showComments, post, onCommentDeleteClick } ) {
   const { id, content, author, created_at } = comment
   const dispatch = useDispatch()
   const currentUser = useSelector(state => state.currentUser)
@@ -16,38 +16,6 @@ function Comment( { comment, showComments, post } ) {
       return comment.id === id
     }).length > 0
   }
-
-  function handleDeleteComment(){
-    get("token")
-    .then( token => {
-
-      const deleteCommentConfig = {
-        method: "DELETE",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-      }
-
-      fetch(`${process.env.REACT_APP_BACKEND}/comments/${id}`, deleteCommentConfig)
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return response.json().then((data) => {
-                throw data;
-              });
-            }
-          })
-          .then((data) => {
-            dispatch( updatePost( data ) )
-          })
-          .catch((data) => {
-            console.log(data.errors);
-          });
-      })
-  }
-
 
   return (
 
@@ -65,7 +33,7 @@ function Comment( { comment, showComments, post } ) {
           </IonCol>
             <IonCol>
               { belongsToCurrentUser() && 
-                <DeleteButton color="danger" icon={trashOutline} onClick={handleDeleteComment} />
+                <DeleteButton color="danger" icon={trashOutline} onClick={() => onCommentDeleteClick(id)} />
               }
             </IonCol>
 

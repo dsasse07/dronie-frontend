@@ -1,20 +1,23 @@
 import './Tab1.css';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
 import { IonItem } from '@ionic/react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import PostCard from '../components/PostCard'
 import { useEffect, useState } from 'react'
-import { setPosts } from '../redux/postsSlice'
+import { setPosts, updatePost } from '../redux/postsSlice'
+import { useStorage } from '@ionic/react-hooks/storage'
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
   const dispatch = useDispatch()
-  const postComponents = posts.map( post => <PostCard key={post.id} post={post} />  )
+  const postComponents = posts.map( post => <PostCard key={post.id} post={post} onCommentDeleteClick={handleDeleteCommentClick}/>  )
   const [ isFetching, setIsFetching ] = useState(false)
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
+  const [ commentToDelete, setCommentToDelete ] = useState(null)
+  const { get } = useStorage()
 
   useEffect( () => {
     fetchPosts()
@@ -54,6 +57,41 @@ function Home () {
     (event.target).complete();
   }
 
+  function handleDeleteCommentClick(commentId){
+    setCommentToDelete(commentId)
+  }
+
+  function handleDeleteComment(commentId){
+    get("token")
+    .then( token => {
+
+      const deleteCommentConfig = {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/comments/${commentId}`, deleteCommentConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( updatePost( data ) )
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
   return (
     <IonPage>
         <Header >
@@ -68,6 +106,30 @@ function Home () {
         </Header>
 
       <IonContent fullscreen >
+        <IonAlert
+            isOpen={commentToDelete !== null}
+            onDidDismiss={() => setCommentToDelete(null) }
+            cssClass='my-custom-class'
+            header={'Confirm Delete'}
+            message={'Are you sure you wish to delete your comment?'}
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+              },
+              {
+                text: 'Delete',
+                role: 'delete',
+                handler: () => {
+                  handleDeleteComment(commentToDelete);
+                }
+              }
+            ]}
+          />
+
+
+
       
         <List>
           {postComponents}

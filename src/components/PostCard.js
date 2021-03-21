@@ -12,7 +12,7 @@ import { addCommentToUser } from '../redux/userSlice'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
 
-export const PostCard = ({post}) => {
+export const PostCard = ({post, onCommentDeleteClick}) => {
   const {created_at, description, date_taken, id, images, location, user} = post
   const currentUser = useSelector(state => state.currentUser)
   const dispatch = useDispatch()
@@ -161,7 +161,13 @@ export const PostCard = ({post}) => {
 
   const commentComponents = post.comments.map( (comment) => {
     return (
-      <Comment key={comment.id} comment={comment} showComments={showComments} post={post}/>
+      <Comment 
+        key={comment.id} 
+        comment={comment} 
+        showComments={showComments} 
+        post={post}
+        onCommentDeleteClick={onCommentDeleteClick}
+      />
     )
   })
 
