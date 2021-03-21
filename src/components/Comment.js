@@ -17,7 +17,7 @@ function Comment( { comment, showComments, post, onCommentDeleteClick } ) {
     }).length > 0
   }
 
-  return (
+  return ( 
 
     <Grid>
       <Row>
