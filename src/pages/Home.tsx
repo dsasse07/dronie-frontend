@@ -112,4 +112,4 @@ const Avatar = styled(IonAvatar)`
     cursor: pointer;
 `
 
-const Item = styled(IonItem)``
+const Item = styled(IonItem)`` 
