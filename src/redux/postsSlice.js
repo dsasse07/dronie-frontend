@@ -8,7 +8,14 @@ export const postsSlice = createSlice({
   reducers: {
     updatePost(state, action){
       const index = state.findIndex( post => post.id === action.payload.id)
-      state[index] = action.payload
+      state[index] = {
+        ...action.payload,
+        images: JSON.parse(action.payload.images), 
+          user: {
+            ...action.payload.user,
+            avatar: JSON.parse(action.payload.user.avatar)
+          }
+      }
     },
     setPosts(state, action){
       const posts = action.payload.map( post => {

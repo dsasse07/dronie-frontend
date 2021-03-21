@@ -7,26 +7,99 @@ import { heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 
 import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
-import { postsSlice, updatePost } from '../redux/postsSlice'
+import { updatePost } from '../redux/postsSlice'
 import avatarPlaceHolder from '../assets/avatar.jpg'
+import { useStorage } from '@ionic/react-hooks/storage'
 
 export const PostCard = ({post}) => {
-  const dispatch = useDispatch()
+  const {created_at, description, date_taken, id, images, location, user} = post
   const currentUser = useSelector(state => state.currentUser)
+  const dispatch = useDispatch()
+  const { get } = useStorage()
   const commentsBottomRef = useRef()
-  const [userLike, setUserLike] = useState(true)
+  const [userLike, setUserLike] = useState( currentUserLikes() )
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
-  const {created_at, description, date_taken, id, images, location, user} = post
 
   useEffect( () => {
     if (!showComments) return
-    // commentsBottomRef.current.scrollTop = post.comments.length*80
+    commentsBottomRef.current.scrollTop = post.comments.length*80
   }, [showComments])
 
   function toggleLike(){
-    setUserLike(userLike => !userLike)
+    userLike ? handleUnlike() : handleLike()
+  }
+
+  function handleLike(){
+    get("token")
+      .then( token => {
+        const likeConfig = {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            user_id: currentUser.id,
+            post_id: id
+          })
+        }
+    
+        fetch(`${process.env.REACT_APP_BACKEND}/likes/new`, likeConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( updatePost( data ) )
+            setUserLike(true)
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
+  function handleUnlike(){
+    get("token")
+      .then( token => {
+        const unlikeConfig = {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+    
+        fetch(`${process.env.REACT_APP_BACKEND}/likes/${id}`, unlikeConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( updatePost( data ) )
+            setUserLike(false)
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
+
+  function currentUserLikes(){
+    return currentUser.liked_posts.filter( post => post.id === id ).length > 0
   }
 
   function handleShowComments(){
@@ -43,25 +116,52 @@ export const PostCard = ({post}) => {
   }
 
   function handleAddComment(event){
-    // event.preventDefault()
-    // const newComment = {
-    //   username: currentUser.username,
-    //   content: newCommentText
-    // }
-    // const updatedPost = {...post, comments: [...post.comments, newComment]}
-    // dispatch( updatePost(updatedPost) )
-    // setNewCommentText("")
-    // setTimeout( () => {
-    //   commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
-    // }, 0)
+    event.preventDefault()
+    get("token")
+    .then( token => {
+      const newComment = {
+        user_id: currentUser.id,
+        post_id: id,
+        content: newCommentText
+      }
+
+      const newCommentConfig = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify( newComment )
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/comments/new`, newCommentConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            setNewCommentText("")
+            dispatch( updatePost( data ) )
+            setTimeout( () => {
+              commentsBottomRef.current.scrollTop = commentsBottomRef.current?.scrollTop + 50
+            }, 0)
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
   }
 
-
-  // const commentComponents = post.comments.map( (comment, index) => {
-  //   return (
-  //     <Comment key={index} comment={comment} showComments={showComments} />
-  //   )
-  // })
+  const commentComponents = post.comments.map( (comment) => {
+    return (
+      <Comment key={comment.id} comment={comment} showComments={showComments} post={post}/>
+    )
+  })
 
   return (
     <Card>
@@ -88,7 +188,7 @@ export const PostCard = ({post}) => {
         <ControlsBar id="control">
           <LikesContainer userLike={userLike} onClick={toggleLike}>
             <IonIcon icon={userLike ? heart : heartOutline} />
-            {/* {post.likes} Likes */}
+            {post.likes.length} Likes
           </LikesContainer>
           <LeaveCommentContainer onClick={handleShowNewCommentForm}>
             <IonIcon icon={chatbubbleOutline} />
@@ -103,24 +203,31 @@ export const PostCard = ({post}) => {
         </DescriptionContainer>
         
           <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
-            {/* {commentComponents} */}
+            {commentComponents.length > 0 ? 
+              commentComponents 
+            : 
+            <IonItem>
+              <IonLabel>No comments yet. Be the first!</IonLabel>
+            </IonItem>
+            }
             <div id="bottom" ref={commentsBottomRef}/>
           </CommentsContainer>
+
         {showNewCommentForm && 
-        <NewCommentContainer >
-          <form onSubmit={handleAddComment}>
-            <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
-            <Button type="submit" >
-              <IonIcon icon={send}/>
-            </Button>
-          </form>
-        </NewCommentContainer>
+          <NewCommentContainer >
+            <form onSubmit={handleAddComment}>
+              <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
+              <Button type="submit" >
+                <IonIcon icon={send}/>
+              </Button>
+            </form>
+          </NewCommentContainer>
         } 
 
         <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
           <IonLabel>
             <Icon icon={chevronDownOutline} showComments={showComments} />
-            {/* {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`} */}
+            {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
             <Icon icon={chevronDownOutline} showComments={showComments}/>
           </IonLabel>
         </ShowCommentsButton>
