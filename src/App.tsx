@@ -7,6 +7,7 @@ import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
 import Infinite from './pages/Inifnite'
 import AuthPage from './pages/AuthPage'
+import ProfilePage from './pages/ProfilePage'
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from './redux/userSlice'
 import { useEffect, useState } from 'react'
@@ -75,6 +76,9 @@ function App() {
               </Route>
               <Route path="/infinite">
                 <Infinite />
+              </Route>
+              <Route path="/users/:username">
+                <ProfilePage />
               </Route>
               <Route path="/login">
                 <Redirect to="/home" />

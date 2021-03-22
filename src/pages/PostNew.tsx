@@ -5,24 +5,27 @@ import {  } from 'ionicons/icons';
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import NewPostForm from '../components/NewPostForm'
-
+import { useHistory } from 'react-router-dom'
 const PostNew: React.FC = () => {
   const currentUser = useSelector(state => state.currentUser)
-
+  const history = useHistory()
+  
+  function goToProfile(){
+    history.push(`/users/${currentUser.username}`)
+  }
 
   return (
     <IonPage>
-
-        <Header >
-          <Toolbar>
-            <Title slot="start">Dronie</Title>
-            <Item>
-              <Avatar slot="end">
-                <img src={currentUser.avatar.secure_url}/>
-              </Avatar>
-            </Item>
-          </Toolbar>
-        </Header>
+      <Header >
+        <Toolbar>
+          <Title slot="start">Dronie</Title>
+          <Item>
+            <Avatar slot="end" onClick={goToProfile}>
+              <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+            </Avatar>
+          </Item>
+        </Toolbar>
+      </Header>
 
       <IonContent fullscreen>
 

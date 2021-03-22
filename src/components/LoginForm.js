@@ -183,5 +183,4 @@ const Toast = styled(IonToast)`
   &::part(message) {
     background-color: green;
   }
-
 `

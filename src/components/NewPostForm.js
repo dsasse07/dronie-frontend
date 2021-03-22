@@ -234,8 +234,10 @@ function NewPostForm() {
 
 export default NewPostForm
 
-const Card = styled(IonCard)``
-
+const Card = styled(IonCard)`
+  display: grid;
+  max-width: 95%;
+`
 const Content = styled(IonCardContent)``
 
 const Form = styled.form``

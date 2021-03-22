@@ -8,6 +8,7 @@ import PostCard from '../components/PostCard'
 import { useEffect, useState } from 'react'
 import { setPosts, updatePost } from '../redux/postsSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
+import { useHistory } from 'react-router-dom'
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
@@ -18,6 +19,7 @@ function Home () {
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const { get } = useStorage()
+  const history = useHistory()
 
   useEffect( () => {
     fetchPosts()
@@ -92,13 +94,17 @@ function Home () {
       })
   }
 
+  function goToProfile(){
+    history.push(`/users/${currentUser.username}`)
+  }
+
   return (
     <IonPage>
         <Header >
           <Toolbar>
             <Title slot="start">Dronie</Title>
             <Item>
-              <Avatar slot="end">
+              <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
               </Avatar>
             </Item>

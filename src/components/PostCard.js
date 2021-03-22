@@ -250,9 +250,8 @@ export default PostCard
 
 
 const Card = styled(IonCard)`
+  display: grid;
   align-items: center;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   max-width: 95%;
 `
