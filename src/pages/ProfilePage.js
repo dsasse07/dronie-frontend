@@ -1,8 +1,10 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonCardContent } from '@ionic/react';
-import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast } from '@ionic/react';
+import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast, IonIcon } from '@ionic/react';
 import { IonThumbnail, IonLabel, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/react';
-import {  } from 'ionicons/icons';
-import { useSelector } from 'react-redux'
+import { IonPopover, IonList, IonAlert } from '@ionic/react';
+import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
+import { useSelector, useDispatch } from 'react-redux'
+import { removeCurrentUser } from '../redux/userSlice'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -17,16 +19,19 @@ const ProfilePage = () => {
   const [ networkErrors, setNetworkErrors ] = useState([])
   const [ displayedUser, setDisplayedUser ] = useState({})
   const [ displayedPosts, setDisplayedPosts ] = useState([])
+  const [ showConfirmAccountDelete, setShowConfirmAccountDelete ] = useState(false)
+  const [ popoverState, setShowPopover] = useState({
+    showPopover: false,
+    event: undefined
+  })
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const history = useHistory()
-  const { get } = useStorage()
+  const dispatch = useDispatch()
+  const { get, remove } = useStorage()
   const params = useParams()
 
   useEffect( () => {
-    if (params.username === currentUser.username) {
-      setDisplayedUser(currentUser)
-      return 
-    }
+    setDisableInfiniteScroll(false);
     setIsLoading(true)
     get("token")
     .then( token => {
@@ -46,34 +51,40 @@ const ProfilePage = () => {
         })
         .then((data) => {
           setIsLoading(false)
-          setDisplayedUser({
-            ...data,
-            avatar: JSON.parse(data.avatar)[0],
-          })
+          const avatar = data.avatar && JSON.parse(data.avatar)[0]
+          setDisplayedUser( { ...data, avatar: avatar } )     
+          fetchPostPreviews(0)
         })
         .catch((data) => {
-          setNetworkErrors(data.errors);
+          if (data.errors) {
+            setNetworkErrors(data.errors);
+          } else {
+            console.log(data)
+          }
         });
       })
-  }, [] )
 
-  useEffect ( () => {
-    setDisplayedPosts([])
-    fetchPostPreviews()
-  }, [displayedUser])
+      return ( () => {
+        setDisableInfiniteScroll(false);
+      })
+  }, [ params.username ] )
+
+  console.log(`disable Infinite`, disableInfiniteScroll)
 
   async function fetchNext(event) {
+    console.log('fetch next')
     await fetchPostPreviews();
     (event.target).complete();
   }
 
-  function fetchPostPreviews(){
-    if ( Object.keys(displayedUser).length == 0 ) return
+  function fetchPostPreviews(startAt){
     if (isLoading) return
+    const fetchedCount = startAt === 0 ? 0 : displayedPosts.length
+    console.log('fetching', params.username, fetchedCount)
     setIsLoading(true)
     get("token")
     .then( token => {
-      fetch(`${process.env.REACT_APP_BACKEND}/users/${displayedUser.id}/posts?fetched_count=${displayedPosts.length}`, {
+      fetch(`${process.env.REACT_APP_BACKEND}/users/${params.username}/posts?fetched_count=${fetchedCount}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -89,13 +100,20 @@ const ProfilePage = () => {
         })
         .then((data) => {
           if (data && data.length > 0 ){
-            setDisplayedPosts([ ...displayedPosts, ...data.map( post => {
+            const parsedData = [
+              ...data.map( post => {
                 return {
                   ...post,
                   images: JSON.parse(post.images)
                 }
-            })
-            ])
+              })
+            ]
+            console.log(`data fetched`, parsedData )
+            if (fetchedCount === 0){
+              setDisplayedPosts(parsedData)
+            } else {
+              setDisplayedPosts([ ...displayedPosts, ...parsedData])
+            }
             setDisableInfiniteScroll(data.length < 20);
           } else {
             setDisableInfiniteScroll(true);
@@ -116,7 +134,55 @@ const ProfilePage = () => {
     history.push(`/users/${currentUser.username}`)
   }
 
-  const postPreviews = displayedPosts && displayedPosts.map( post => {
+  function handleDeleteAccount(password){
+    // get("token")
+    // .then( token => {
+
+    //   const deleteAccountConfig = {
+    //     method: "DELETE",
+    //     headers: {
+    //       "Content-type": "application/json",
+    //       Authorization: `Bearer ${token}`
+    //     },
+    //     body: JSON.stringify( password)
+    //   }
+
+    //   fetch(`${process.env.REACT_APP_BACKEND}/users/${currentUser.id}`, deleteAccountConfig)
+    //       .then((response) => {
+    //         if (response.ok) {
+    //           return response.json();
+    //         } else {
+    //           return response.json().then((data) => {
+    //             throw data;
+    //           });
+    //         }
+    //       })
+    //       .then((data) => {
+    //         remove("token")
+    //         .then( () => {
+    //           setShowPopover({ showPopover: false, event: undefined })
+    //           dispatch( removeCurrentUser() ) 
+    //           history.push('/login')
+    //         })
+    //       })
+    //       .catch((data) => {
+    //         setNetworkErrors(data.errors);
+    //       });
+    //   })
+  }
+
+  function handleLogOut(){
+    remove("token")
+      .then( () => {
+        setShowPopover({ showPopover: false, event: undefined })
+        dispatch( removeCurrentUser() ) 
+        history.push('/login')
+      })
+    
+  }
+
+
+  const postPreviews = displayedPosts.length > 0 && displayedPosts.map( post => {
     return (
       <GalleryThumbnail key={post.id} post={post} onClick={ () => openPost(post.id) }>
         <img src={post.images[0].secure_url} alt={post.description}/>
@@ -140,6 +206,15 @@ const ProfilePage = () => {
 
       <IonContent fullscreen>
         <Card>
+
+          <MenuButton onClick={ (e) => {
+                  e.persist();
+                  setShowPopover({ showPopover: true, event: e })
+                }}
+          >
+            <IonIcon icon={ellipsisHorizontal} />
+          </MenuButton>
+
           <IonCardContent>
             <Grid>
 
@@ -158,7 +233,7 @@ const ProfilePage = () => {
                     <IonRow>
                       <IonCol>
                         <IonItem>
-                          {displayedUser.username}
+                          <strong>{displayedUser.username}</strong>
                         </IonItem>
                       </IonCol>
                     </IonRow>
@@ -166,11 +241,11 @@ const ProfilePage = () => {
                     <IonRow>
                       <IonCol>
                         { (displayedUser.first_name || displayedUser.last_name) && 
-                          <IonItem>
+                          <NameItem>
                             <IonLabel text-wrap>
-                              (`${displayedUser.first_name} ${displayedUser.last_name}`)
+                              {`${displayedUser.first_name} ${displayedUser.last_name}`}
                             </IonLabel>
-                          </IonItem>
+                          </NameItem>
                         }
                       </IonCol>
                     </IonRow>
@@ -193,7 +268,7 @@ const ProfilePage = () => {
                 <IonCol>
                   <GalleryContainer>
                     {postPreviews}
-                    { postPreviews.length === 0 &&
+                    { !postPreviews &&
                       <IonItem>
                         <IonLabel>
                           No posts yet.
@@ -205,7 +280,7 @@ const ProfilePage = () => {
               </GalleryRow>
 
               <IonInfiniteScroll 
-                threshold="30%" 
+                threshold="15%" 
                 disabled={disableInfiniteScroll}
                 onIonInfinite={fetchNext}
               >
@@ -215,36 +290,86 @@ const ProfilePage = () => {
                 </IonInfiniteScrollContent>
               </IonInfiniteScroll>
 
-
-
-
-
             </Grid>
           </IonCardContent>
         </Card>
 
+        <IonPopover
+          cssClass='my-custom-class'
+          event={popoverState.event}
+          isOpen={popoverState.showPopover}
+          onDidDismiss={() => setShowPopover({ showPopover: false, event: undefined })}
+        >
+          <IonList>
+            <EditProfileItem>
+              <IonIcon icon={createOutline} slot="start"/>
+              <IonLabel>Edit Profile</IonLabel>
+            </EditProfileItem>
+            <LogOutItem onClick={handleLogOut}>
+              <IonIcon icon={logOutOutline} slot="start"/>
+              <IonLabel >Logout</IonLabel>
+            </LogOutItem>
+            <DeleteProfileItem onClick={ () => setShowConfirmAccountDelete(true) } >
+              <IonIcon icon={trashOutline} slot="start" />
+              <IonLabel color="danger" >Delete Account</IonLabel>
+            </DeleteProfileItem>
+          </IonList>
+        </IonPopover>
+
         <Toast
-        isOpen={networkErrors.length > 0}
-        message={ 
-          networkErrors.reduce( (string, error) => {
-            return `${string}${error}.\n`
-          }, '')
-        }
-        duration={1500}
-        position="middle"
-        header="Error :"
-        color="danger"
-        onDidDismiss={()=> {
-          setNetworkErrors([])
-          setIsLoading(false)
-        }}
-        buttons= {[{
-          text: 'Done',
-          role: 'cancel',
-        }]}
-      />
+          isOpen={networkErrors.length > 0}
+          message={ 
+            networkErrors.reduce( (string, error) => {
+              return `${string}${error}.\n`
+            }, '')
+          }
+          duration={1500}
+          position="middle"
+          header="Error :"
+          color="danger"
+          onDidDismiss={()=> {
+            setNetworkErrors([])
+            setIsLoading(false)
+          }}
+          buttons= {[{
+            text: 'Done',
+            role: 'cancel',
+          }]}
+        />
+
+        <DeleteAccountConfirm
+          isOpen={showConfirmAccountDelete}
+          onDidDismiss={() => setShowConfirmAccountDelete(false) }
+          cssClass='my-custom-class'
+          header={'Confirm Delete'}
+          message={'Are you sure you wish to delete your account? Type your password to confirm'}
+          inputs={[
+            {
+              name: 'password',
+              type: 'password',
+              placeholder: 'Current Password'
+            }
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Delete',
+              role: 'delete',
+              color: "danger",
+              handler: (e) => {
+                handleDeleteAccount(e)
+              }
+            }
+          ]}
+        />
 
       </IonContent>
+      
+
     </IonPage>
   );
 };
@@ -266,13 +391,26 @@ const Avatar = styled(IonAvatar)`
 const Item = styled(IonItem)``
 
 const Card = styled(IonCard)`
+  position: relative;
   display: grid;
   align-items: center;
   justify-content: center;
   max-width: 95%;
   height: 97%;
 `
+const MenuButton = styled.div`
+  position: absolute;
+  top: 1%;
+  right: 3%;
+  cursor: pointer;
+  font-size:1.3rem;
+  padding: 5px;
+  z-index: 1000;
 
+  ion-icon {
+    cursor: pointer;
+  }
+`
 /************************************ */
 
 const Grid = styled(IonGrid)``
@@ -319,6 +457,8 @@ const BioContainer = styled.div`
     height: 100%;
 `
 
+const NameItem = styled(IonItem)``
+
 const GalleryRow = styled(IonRow)`
   height: 40vh;
   overflow-y: scroll;
@@ -347,3 +487,21 @@ const GalleryThumbnail = styled(IonThumbnail)`
     object-fit: cover;
   }
 `
+
+/******************************************/
+
+const DeleteProfileItem = styled(IonItem)`
+  margin-top: 100px;
+  cursor: pointer;
+`
+
+const LogOutItem = styled(IonItem)`
+  margin-top: 15px;
+  cursor: pointer;
+`
+
+const EditProfileItem = styled(IonItem)`
+  cursor: pointer;
+`
+
+const DeleteAccountConfirm = styled(IonAlert)``

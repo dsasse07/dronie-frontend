@@ -123,7 +123,7 @@ function PostShowPage () {
             }
           })
           .then((data) => {
-            dispatch( resetPosts( [] ) )
+            dispatch( resetPosts() )
             history.push("/home")
           })
           .catch((data) => {
