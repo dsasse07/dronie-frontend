@@ -13,7 +13,7 @@ export const postsSlice = createSlice({
         images: JSON.parse(action.payload.images), 
           user: {
             ...action.payload.user,
-            avatar: JSON.parse(action.payload.user.avatar)
+            avatar: JSON.parse(action.payload.user.avatar) 
           }
       }
     },
