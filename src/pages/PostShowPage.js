@@ -11,6 +11,7 @@ import { useHistory } from 'react-router-dom'
 
 function PostShowPage () {
   const currentUser = useSelector(state => state.currentUser)
+  const posts = useSelector(state => state.posts)
   const [ isLoading, setIsLoading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
   const [ displayedPost, setDisplayedPost ] = useState({})
@@ -54,7 +55,7 @@ function PostShowPage () {
           setNetworkErrors(data.errors);
         });
       })
-  }, [params.id] )
+  }, [params.id, posts] )
 
   function handleDeleteCommentClick(commentId){
     setCommentToDelete(commentId)

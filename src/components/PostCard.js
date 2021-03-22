@@ -189,7 +189,8 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
           </IonItem>
           <HeaderText>
             <IonCardTitle> {user.username} </IonCardTitle>
-            <IonCardSubtitle> {location} </IonCardSubtitle>
+            <IonCardSubtitle> Location: {location} </IonCardSubtitle>
+            <IonCardSubtitle> Posted: {new Date(created_at).toDateString().slice(4) } </IonCardSubtitle>
           </HeaderText>
           { currentUser.id === user.id &&
             <DeleteContainer>
@@ -311,8 +312,9 @@ const DeleteContainer = styled.div`
   position: absolute;
   right: 15px;
   top: 15px;
-
+  cursor: pointer;
   color: var(--ion-color-danger-shade);
+  
   ion-icon {
     font-size: 1.7rem;
   }

@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateUsersPosts } from '../redux/userSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
+import { useHistory } from 'react-router-dom'
+import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 
 export function Basic(props) {
   const [ files, setFiles ] = useState()
@@ -19,9 +21,9 @@ export function Basic(props) {
   });
   
   useEffect( () => {
-    const newFiles = acceptedFiles.map(file => (
+    const newFiles = acceptedFiles.map( (file, index) => (
         <Thumbnail key={file.path}>
-          <img src={URL.createObjectURL(file)} />
+          <img src={URL.createObjectURL(file)} alt={`Image ${index+1}`}/>
         </Thumbnail>
       ));
     setFiles(newFiles)  
@@ -36,6 +38,11 @@ export function Basic(props) {
     <DropArea >
       <PhotoPreviewsContainer>
         {files}
+        {files?.length === 0 &&
+          <Placeholder >
+            <img src={uploadPlaceholder} alt="placeholder"/>
+          </Placeholder>
+        }
       </PhotoPreviewsContainer>
       <Item {...getRootProps()}>
         <input {...getInputProps()} />
@@ -63,6 +70,7 @@ function NewPostForm() {
   const [isUploading, setIsUploading] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
   const dispatch = useDispatch()
+  const history = useHistory()
   const { get } = useStorage()
 
 
@@ -129,6 +137,7 @@ function NewPostForm() {
               .then((data) => {
                 setIsUploading(false)
                 dispatch( updateUsersPosts( data ) )
+                history.push(`/users/${currentUser.username}`)
               })
               .catch((data) => {
                 setNetworkErrors(data.errors);
@@ -290,4 +299,14 @@ const Col = styled(IonCol)`
   display: flex;
   align-items: center;
   justify-content: center;
+`
+
+const Placeholder = styled(IonThumbnail)`
+  width: 30%;
+  height: auto;
+  img {
+    opacity: 20%;
+    height: 100%;
+    width: 100%;
+  }
 `
