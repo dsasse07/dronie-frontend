@@ -127,7 +127,7 @@ function Home () {
             }
           })
           .then((data) => {
-            dispatch( resetPosts( [] ) )
+            dispatch( resetPosts( data ) )
             history.push("/home")
           })
           .catch((data) => {

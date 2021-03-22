@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
-import { IonImg } from '@ionic/react'
-import { closeCircleOutline, heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
+import { IonImg, IonPopover, IonAlert } from '@ionic/react'
+import { trashOutline, ellipsisHorizontal, heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
+import { createOutline, logOutOutline} from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
@@ -23,6 +24,11 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
+  const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
+  const [ popoverState, setShowPopover] = useState({
+    showPopover: false,
+    event: undefined
+  })
   const history = useHistory()
 
   useEffect( () => {
@@ -165,6 +171,16 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
     history.push(`/users/${username}`)
   }
 
+
+  function handleEditClick(){
+    setShowPopover({ showPopover: false, event: undefined })
+
+  }
+
+  function handleLogOut(){
+    
+  }
+
   const commentComponents = post.comments.map( (comment) => {
     return (
       <Comment 
@@ -179,86 +195,122 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
   })
 
   return (
-    <Card>
+    <>
+      <Card>
 
-        <HeaderContainer>
-          <IonItem>
-            <IonAvatar onClick={() => openUsersPage(user.username)} >
-              <img src={user.avatar ? user.avatar[0].secure_url : avatarPlaceHolder} alt={user.username}/>
-            </IonAvatar>
-          </IonItem>
-          <HeaderText>
-            <IonCardTitle> {user.username} </IonCardTitle>
-            <IonCardSubtitle> Location: {location} </IonCardSubtitle>
-            <IonCardSubtitle> Posted: {new Date(created_at).toDateString().slice(4) } </IonCardSubtitle>
-          </HeaderText>
-          { currentUser.id === user.id &&
-            <DeleteContainer>
-              <IonIcon 
-                icon={closeCircleOutline} 
-                color="danger"
-                onClick={ () => onPostDeleteClick(post.id) }
-              />
-            </DeleteContainer>
-          }
-        </HeaderContainer>
-
-
-      <CardContent>
-
-        <ImageContainer >
-          <Img src={images[0].secure_url} />
-        </ImageContainer>
-
-        <ControlsBar id="control">
-          <LikesContainer userLike={userLike} onClick={toggleLike}>
-            <IonIcon icon={userLike ? heart : heartOutline} />
-            {post.likes.length} Likes
-          </LikesContainer>
-          <LeaveCommentContainer onClick={handleShowNewCommentForm}>
-            <IonIcon icon={chatbubbleOutline} />
-            Comment
-          </LeaveCommentContainer>
-        </ControlsBar >
-
-        <hr></hr>
-
-        <DescriptionContainer>
-          {description}
-        </DescriptionContainer>
-        
-          <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
-            {commentComponents.length > 0 ? 
-              commentComponents 
-            : 
+          <HeaderContainer>
             <IonItem>
-              <IonLabel>No comments yet. Be the first!</IonLabel>
+              <IonAvatar onClick={() => openUsersPage(user.username)} >
+                <img src={user.avatar ? user.avatar[0].secure_url : avatarPlaceHolder} alt={user.username}/>
+              </IonAvatar>
             </IonItem>
+            <HeaderText>
+              <IonCardTitle> {user.username} </IonCardTitle>
+              <IonCardSubtitle> Location: {location} </IonCardSubtitle>
+              <IonCardSubtitle> Posted: {new Date(created_at).toDateString().slice(4) } </IonCardSubtitle>
+            </HeaderText>
+            { currentUser.id === user.id &&
+                <MenuButton onClick={ (e) => {
+                    e.persist();
+                    setShowPopover({ showPopover: true, event: e })
+                  }}
+                >
+                  <IonIcon icon={ellipsisHorizontal} />
+                </MenuButton>
+
+
+
+
+
+              // <DeleteContainer>
+              //   <IonIcon 
+              //     icon={closeCircleOutline} 
+              //     color="danger"
+              //     onClick={ () => onPostDeleteClick(post.id) }
+              //   />
+              // </DeleteContainer>
             }
-            <div id="bottom" ref={commentsBottomRef}/>
-          </CommentsContainer>
+          </HeaderContainer>
 
-        {showNewCommentForm && 
-          <NewCommentContainer >
-            <form onSubmit={handleAddComment}>
-              <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
-              <Button type="submit" >
-                <IonIcon icon={send}/>
-              </Button>
-            </form>
-          </NewCommentContainer>
-        } 
 
-        <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
-          <IonLabel>
-            <Icon icon={chevronDownOutline} showComments={showComments} />
-            {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
-            <Icon icon={chevronDownOutline} showComments={showComments}/>
-          </IonLabel>
-        </ShowCommentsButton>
+        <CardContent>
 
-      </CardContent>
-    </Card>
+          <ImageContainer >
+            <Img src={images[0].secure_url} />
+          </ImageContainer>
+
+          <ControlsBar id="control">
+            <LikesContainer userLike={userLike} onClick={toggleLike}>
+              <IonIcon icon={userLike ? heart : heartOutline} />
+              {post.likes.length} Likes
+            </LikesContainer>
+            <LeaveCommentContainer onClick={handleShowNewCommentForm}>
+              <IonIcon icon={chatbubbleOutline} />
+              Comment
+            </LeaveCommentContainer>
+          </ControlsBar >
+
+          <hr></hr>
+
+          <DescriptionContainer>
+            {description}
+          </DescriptionContainer>
+          
+            <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
+              {commentComponents.length > 0 ? 
+                commentComponents 
+              : 
+              <IonItem>
+                <IonLabel>No comments yet. Be the first!</IonLabel>
+              </IonItem>
+              }
+              <div id="bottom" ref={commentsBottomRef}/>
+            </CommentsContainer>
+
+          {showNewCommentForm && 
+            <NewCommentContainer >
+              <form onSubmit={handleAddComment}>
+                <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
+                <Button type="submit" >
+                  <IonIcon icon={send}/>
+                </Button>
+              </form>
+            </NewCommentContainer>
+          } 
+
+          <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
+            <IonLabel>
+              <Icon icon={chevronDownOutline} showComments={showComments} />
+              {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
+              <Icon icon={chevronDownOutline} showComments={showComments}/>
+            </IonLabel>
+          </ShowCommentsButton>
+
+        </CardContent>
+      </Card>
+
+      <IonPopover
+        cssClass='my-custom-class'
+        event={popoverState.event}
+        isOpen={popoverState.showPopover}
+        onDidDismiss={() => setShowPopover({ showPopover: false, event: undefined })}
+        >
+        <IonList>
+          <EditPostItem onClick={handleEditClick}>
+            <IonIcon icon={createOutline} slot="start"/>
+            <IonLabel>Edit Post</IonLabel>
+          </EditPostItem>
+          <DeletePostItem onClick={ () => {
+              onPostDeleteClick(id) 
+              setShowPopover({ showPopover: false, event: undefined })
+            }}
+          >
+            <IonIcon icon={trashOutline} slot="start" />
+            <IonLabel color="danger" >Delete Post</IonLabel>
+          </DeletePostItem>
+        </IonList>
+      </IonPopover>
+    </>
   );
 };
 export default PostCard
@@ -314,7 +366,7 @@ const DeleteContainer = styled.div`
   top: 15px;
   cursor: pointer;
   color: var(--ion-color-danger-shade);
-  
+
   ion-icon {
     font-size: 1.7rem;
   }
@@ -461,4 +513,35 @@ const Icon = styled(IonIcon)`
   font-size: 0.9rem;
   transform: ${props => props.showComments ? 'rotateX(180deg)' : 'rotateX(0deg)' };
   transition: 0.5s;
+`
+
+
+const DeletePostItem = styled(IonItem)`
+  margin-top: 100px;
+  cursor: pointer;
+`
+
+const LogOutItem = styled(IonItem)`
+  margin-top: 15px;
+  cursor: pointer;
+`
+
+const EditPostItem = styled(IonItem)`
+  cursor: pointer;
+`
+
+const DeleteAccountConfirm = styled(IonAlert)``
+
+const MenuButton = styled.div`
+  position: absolute;
+  top: 1%;
+  right: 3%;
+  cursor: pointer;
+  font-size:1.3rem;
+  padding: 5px;
+  z-index: 1000;
+
+  ion-icon {
+    cursor: pointer;
+  }
 `

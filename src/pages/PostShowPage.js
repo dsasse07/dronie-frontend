@@ -55,7 +55,7 @@ function PostShowPage () {
           setNetworkErrors(data.errors);
         });
       })
-  }, [params.id, posts] )
+  }, [params.id] )
 
   function handleDeleteCommentClick(commentId){
     setCommentToDelete(commentId)
@@ -123,8 +123,8 @@ function PostShowPage () {
             }
           })
           .then((data) => {
-            dispatch( resetPosts() )
-            history.push("/home")
+            dispatch( resetPosts(data) )
+            history.push(`/home`)
           })
           .catch((data) => {
             console.log(data.errors);

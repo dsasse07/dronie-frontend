@@ -64,9 +64,9 @@ const ProfilePage = () => {
         });
       })
 
-      return ( () => {
-        setDisableInfiniteScroll(false);
-      })
+      // return ( () => {
+      //   setDisableInfiniteScroll(false);
+      // })
   }, [ params.username ] )
 
   console.log(`disable Infinite`, disableInfiniteScroll)
@@ -135,40 +135,40 @@ const ProfilePage = () => {
   }
 
   function handleDeleteAccount(password){
-    // get("token")
-    // .then( token => {
+    get("token")
+    .then( token => {
 
-    //   const deleteAccountConfig = {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-type": "application/json",
-    //       Authorization: `Bearer ${token}`
-    //     },
-    //     body: JSON.stringify( password)
-    //   }
+      const deleteAccountConfig = {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify( password)
+      }
 
-    //   fetch(`${process.env.REACT_APP_BACKEND}/users/${currentUser.id}`, deleteAccountConfig)
-    //       .then((response) => {
-    //         if (response.ok) {
-    //           return response.json();
-    //         } else {
-    //           return response.json().then((data) => {
-    //             throw data;
-    //           });
-    //         }
-    //       })
-    //       .then((data) => {
-    //         remove("token")
-    //         .then( () => {
-    //           setShowPopover({ showPopover: false, event: undefined })
-    //           dispatch( removeCurrentUser() ) 
-    //           history.push('/login')
-    //         })
-    //       })
-    //       .catch((data) => {
-    //         setNetworkErrors(data.errors);
-    //       });
-    //   })
+      fetch(`${process.env.REACT_APP_BACKEND}/users/${currentUser.id}`, deleteAccountConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            remove("token")
+            .then( () => {
+              setShowPopover({ showPopover: false, event: undefined })
+              dispatch( removeCurrentUser() ) 
+              history.push('/login')
+            })
+          })
+          .catch((data) => {
+            setNetworkErrors(data.errors);
+          });
+      })
   }
 
   function handleLogOut(){
@@ -181,6 +181,10 @@ const ProfilePage = () => {
     
   }
 
+  function handleEditClick(){
+    setShowPopover({ showPopover: false, event: undefined })
+    history.push('/edit-profile')
+  }
 
   const postPreviews = displayedPosts.length > 0 && displayedPosts.map( post => {
     return (
@@ -206,7 +210,7 @@ const ProfilePage = () => {
 
       <IonContent fullscreen>
         <Card>
-
+          { displayedUser.id === currentUser.id && 
           <MenuButton onClick={ (e) => {
                   e.persist();
                   setShowPopover({ showPopover: true, event: e })
@@ -214,6 +218,7 @@ const ProfilePage = () => {
           >
             <IonIcon icon={ellipsisHorizontal} />
           </MenuButton>
+          }
 
           <IonCardContent>
             <Grid>
@@ -280,7 +285,7 @@ const ProfilePage = () => {
               </GalleryRow>
 
               <IonInfiniteScroll 
-                threshold="15%" 
+                threshold="30%" 
                 disabled={disableInfiniteScroll}
                 onIonInfinite={fetchNext}
               >
@@ -301,7 +306,7 @@ const ProfilePage = () => {
           onDidDismiss={() => setShowPopover({ showPopover: false, event: undefined })}
         >
           <IonList>
-            <EditProfileItem>
+            <EditProfileItem onClick={handleEditClick}>
               <IonIcon icon={createOutline} slot="start"/>
               <IonLabel>Edit Profile</IonLabel>
             </EditProfileItem>

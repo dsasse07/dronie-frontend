@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { images } from 'ionicons/icons'
+import { atCircleOutline, images } from 'ionicons/icons'
 import {testPosts} from '../data'
 
 export const postsSlice = createSlice({
@@ -30,7 +30,9 @@ export const postsSlice = createSlice({
       state.push(...posts)
     },
     resetPosts(state, action){
-      return state = []
+      return state = state.filter( post => {
+        return post.id !== action.payload.id
+      })
     }
   }
 })

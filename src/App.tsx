@@ -9,6 +9,7 @@ import SearchPage from './pages/SearchPage';
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import PostShowPage from './pages/PostShowPage'
+import EditProfilePage from './pages/EditProfilePage'
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from './redux/userSlice'
 import { useEffect, useState } from 'react'
@@ -80,6 +81,9 @@ function App() {
               </Route>
               <Route path="/users/:username">
                 <ProfilePage />
+              </Route>
+              <Route path="/edit-profile">
+                <EditProfilePage />
               </Route>
               <Route path="/login">
                 <Redirect to="/home" />
