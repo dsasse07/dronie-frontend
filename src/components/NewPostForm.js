@@ -138,8 +138,6 @@ function NewPostForm() {
       })
   }
 
-  console.log(`currentUser`, currentUser)
-
   return (
     <Card>
       <Content>

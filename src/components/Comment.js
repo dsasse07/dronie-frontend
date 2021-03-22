@@ -5,11 +5,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { updatePost } from '../redux/postsSlice'
 import styled from 'styled-components'
 
-function Comment( { comment, showComments, post, onCommentDeleteClick } ) {
+function Comment( { comment, onCommentDeleteClick, onViewUser } ) {
   const { id, content, author, created_at } = comment
-  const dispatch = useDispatch()
   const currentUser = useSelector(state => state.currentUser)
-  const { get } = useStorage()
 
   function belongsToCurrentUser(){
     return currentUser.comments.filter( comment => {
@@ -24,7 +22,7 @@ function Comment( { comment, showComments, post, onCommentDeleteClick } ) {
         <IonLabel>
 
           <IonCol>
-            <AuthorSpan> 
+            <AuthorSpan onClick={ () => onViewUser(author) }> 
               {author} 
             </AuthorSpan>
             <DateSpan>

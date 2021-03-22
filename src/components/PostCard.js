@@ -11,6 +11,7 @@ import { updatePost } from '../redux/postsSlice'
 import { addCommentToUser } from '../redux/userSlice'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
+import { useHistory } from 'react-router-dom'
 
 export const PostCard = ({post, onCommentDeleteClick}) => {
   const {created_at, description, date_taken, id, images, location, user} = post
@@ -22,6 +23,7 @@ export const PostCard = ({post, onCommentDeleteClick}) => {
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
+  const history = useHistory()
 
   useEffect( () => {
     if (!showComments) return
@@ -159,6 +161,10 @@ export const PostCard = ({post, onCommentDeleteClick}) => {
       })
   }
 
+  function openUsersPage(username){
+    history.push(`/users/${username}`)
+  }
+
   const commentComponents = post.comments.map( (comment) => {
     return (
       <Comment 
@@ -167,16 +173,17 @@ export const PostCard = ({post, onCommentDeleteClick}) => {
         showComments={showComments} 
         post={post}
         onCommentDeleteClick={onCommentDeleteClick}
+        onViewUser={openUsersPage}
       />
     )
   })
-
+  console.log(`user`, user)
   return (
     <Card>
 
         <HeaderContainer>
           <IonItem>
-            <IonAvatar >
+            <IonAvatar onClick={() => openUsersPage(user.username)} >
               <img src={user.avatar ? user.avatar[0].secure_url : avatarPlaceHolder} alt={user.username}/>
             </IonAvatar>
           </IonItem>

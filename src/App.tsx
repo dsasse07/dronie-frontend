@@ -5,9 +5,10 @@ import { addCircleOutline, search, home, infinite } from 'ionicons/icons';
 import Home from './pages/Home';
 import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
-import Infinite from './pages/Inifnite'
+// import Infinite from './pages/Inifnite'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
+import PostShowPage from './pages/PostShowPage'
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from './redux/userSlice'
 import { useEffect, useState } from 'react'
@@ -74,8 +75,8 @@ function App() {
               <Route path="/search">
                 <SearchPage />
               </Route>
-              <Route path="/infinite">
-                <Infinite />
+              <Route path="/posts/:id">
+                <PostShowPage />
               </Route>
               <Route path="/users/:username">
                 <ProfilePage />
@@ -101,10 +102,10 @@ function App() {
                 <IonIcon icon={search} />
                 <IonLabel>Search</IonLabel>
               </IonTabButton>
-              <IonTabButton tab="infinite" href="/infinite">
+              {/* <IonTabButton tab="infinite" href="/infinite">
                 <IonIcon icon={infinite} />
                 <IonLabel>Infinite</IonLabel>
-              </IonTabButton>
+              </IonTabButton> */}
             </IonTabBar>
           </IonTabs>
 

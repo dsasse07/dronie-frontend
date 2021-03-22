@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
+import { useHistory } from 'react-router-dom'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 
@@ -17,14 +18,15 @@ const ProfilePage = () => {
   const [ displayedUser, setDisplayedUser ] = useState({})
   const [ displayedPosts, setDisplayedPosts ] = useState([])
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
+  const history = useHistory()
   const { get } = useStorage()
   const params = useParams()
 
   useEffect( () => {
-    // if (params.username === currentUser.username) {
-    //   setDisplayedUser(currentUser)
-    //   return 
-    // }
+    if (params.username === currentUser.username) {
+      setDisplayedUser(currentUser)
+      return 
+    }
     setIsLoading(true)
     get("token")
     .then( token => {
@@ -56,6 +58,7 @@ const ProfilePage = () => {
   }, [] )
 
   useEffect ( () => {
+    setDisplayedPosts([])
     fetchPostPreviews()
   }, [displayedUser])
 
@@ -105,9 +108,17 @@ const ProfilePage = () => {
       })
   }
 
+  function openPost(postId){
+    history.push(`/posts/${postId}`)
+  }
+
+  function goToProfile(){
+    history.push(`/users/${currentUser.username}`)
+  }
+
   const postPreviews = displayedPosts && displayedPosts.map( post => {
     return (
-      <GalleryThumbnail key={post.id} post={post} >
+      <GalleryThumbnail key={post.id} post={post} onClick={ () => openPost(post.id) }>
         <img src={post.images[0].secure_url} alt={post.description}/>
       </GalleryThumbnail>
     )
@@ -120,7 +131,7 @@ const ProfilePage = () => {
           <Toolbar>
             <Title slot="start">Dronie</Title>
             <Item>
-              <Avatar slot="end">
+              <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url}/>
               </Avatar>
             </Item>
@@ -182,12 +193,19 @@ const ProfilePage = () => {
                 <IonCol>
                   <GalleryContainer>
                     {postPreviews}
+                    { postPreviews.length === 0 &&
+                      <IonItem>
+                        <IonLabel>
+                          No posts yet.
+                        </IonLabel>
+                      </IonItem>
+                    }
                   </GalleryContainer>
                 </IonCol>
               </GalleryRow>
 
               <IonInfiniteScroll 
-                threshold="200px" 
+                threshold="30%" 
                 disabled={disableInfiniteScroll}
                 onIonInfinite={fetchNext}
               >
