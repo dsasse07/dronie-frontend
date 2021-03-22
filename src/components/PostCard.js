@@ -166,7 +166,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
           });
       })
   }
-  console.log(`post`, post)
+
   function openUsersPage(username){
     history.push(`/users/${username}`)
   }
