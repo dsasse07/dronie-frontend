@@ -2,7 +2,8 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from 
 import { IonToast, IonAlert, IonItem } from '@ionic/react';
 import PostCard from '../components/PostCard'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { resetPosts } from '../redux/postsSlice'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
@@ -14,6 +15,8 @@ function PostShowPage () {
   const [ networkErrors, setNetworkErrors ] = useState([])
   const [ displayedPost, setDisplayedPost ] = useState({})
   const [ commentToDelete, setCommentToDelete ] = useState(null)
+  const [ postToDelete, setPostToDelete ] = useState(null)
+  const dispatch = useDispatch()
   const history = useHistory()
   const { get } = useStorage()
   const params = useParams()
@@ -91,6 +94,43 @@ function PostShowPage () {
       })
   }
 
+
+  function handleDeletePostClick(postId){
+    setPostToDelete(postId)
+  }
+
+  function handleDeletePost(postId){
+    get("token")
+    .then( token => {
+
+      const deletePostConfig = {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/posts/${postId}`, deletePostConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( resetPosts( [] ) )
+            history.push("/home")
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
   function goToProfile(){
     history.push(`/users/${currentUser.username}`)
   }
@@ -131,10 +171,35 @@ function PostShowPage () {
             }
           ]}
         />
+
+        <IonAlert
+          isOpen={postToDelete !== null}
+          onDidDismiss={() => setPostToDelete(null) }
+          cssClass='my-custom-class'
+          header={'Confirm Delete'}
+          message={'Are you sure you wish to delete your post?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Delete',
+              role: 'delete',
+              handler: () => {
+                handleDeletePost(postToDelete);
+              }
+            }
+          ]}
+        />
+
+
         { Object.keys(displayedPost).length > 0 && 
           <PostCard 
             post={displayedPost} 
             onCommentDeleteClick={handleDeleteCommentClick} 
+            onPostDeleteClick={handleDeletePostClick}
           />
         }
 

@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
 import { IonImg } from '@ionic/react'
-import { heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
+import { closeCircleOutline, heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
@@ -13,7 +13,7 @@ import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
 
-export const PostCard = ({post, onCommentDeleteClick}) => {
+export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
   const {created_at, description, date_taken, id, images, location, user} = post
   const currentUser = useSelector(state => state.currentUser)
   const dispatch = useDispatch()
@@ -177,7 +177,7 @@ export const PostCard = ({post, onCommentDeleteClick}) => {
       />
     )
   })
-  console.log(`user`, user)
+
   return (
     <Card>
 
@@ -191,6 +191,15 @@ export const PostCard = ({post, onCommentDeleteClick}) => {
             <IonCardTitle> {user.username} </IonCardTitle>
             <IonCardSubtitle> {location} </IonCardSubtitle>
           </HeaderText>
+          { currentUser.id === user.id &&
+            <DeleteContainer>
+              <IonIcon 
+                icon={closeCircleOutline} 
+                color="danger"
+                onClick={ () => onPostDeleteClick(post.id) }
+              />
+            </DeleteContainer>
+          }
         </HeaderContainer>
 
 
@@ -267,6 +276,7 @@ const Card = styled(IonCard)`
 //****************************************************** */
 
 const HeaderContainer = styled(IonCardHeader)`
+  position: relative;
   align-items: center;
   display: flex;
   gap: 1rem;
@@ -295,6 +305,18 @@ const HeaderText = styled.div`
     cursor: pointer;
   }
 `
+
+const DeleteContainer = styled.div`
+  display: flex;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+
+  color: var(--ion-color-danger-shade);
+  ion-icon {
+    font-size: 1.7rem;
+  }
+`
 //****************************************************** */
 //************** Card Body Styling ********************* */
 //****************************************************** */
@@ -313,9 +335,13 @@ const CardContent = styled(IonCardContent)`
   }
 `
 
-const ImageContainer = styled.div``
+const ImageContainer = styled.div`
+`
 
-const Img = styled(IonImg)``
+const Img = styled(IonImg)`
+  max-width: 100%;
+  object-fit: contain;
+`
 
 const DescriptionContainer = styled.div`
   font-size: 1rem;

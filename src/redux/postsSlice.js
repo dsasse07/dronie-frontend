@@ -28,11 +28,14 @@ export const postsSlice = createSlice({
           }}
       })
       state.push(...posts)
+    },
+    resetPosts(state, action){
+      return state = []
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setPosts, updatePost } = postsSlice.actions
+export const { setPosts, updatePost, resetPosts } = postsSlice.actions
 
 export default postsSlice.reducer

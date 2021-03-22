@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import PostCard from '../components/PostCard'
 import { useEffect, useState } from 'react'
-import { setPosts, updatePost } from '../redux/postsSlice'
+import { setPosts, updatePost, resetPosts } from '../redux/postsSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
 
@@ -14,14 +14,15 @@ function Home () {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
   const dispatch = useDispatch()
-  const postComponents = posts.map( post => <PostCard key={post.id} post={post} onCommentDeleteClick={handleDeleteCommentClick}/>  )
   const [ isFetching, setIsFetching ] = useState(false)
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [ commentToDelete, setCommentToDelete ] = useState(null)
+  const [ postToDelete, setPostToDelete ] = useState(null)
   const { get } = useStorage()
   const history = useHistory()
 
   useEffect( () => {
+    if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
   }, [])
 
@@ -98,6 +99,55 @@ function Home () {
     history.push(`/users/${currentUser.username}`)
   }
 
+
+  function handleDeletePostClick(postId){
+    setPostToDelete(postId)
+  }
+
+  function handleDeletePost(postId){
+    get("token")
+    .then( token => {
+
+      const deletePostConfig = {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/posts/${postId}`, deletePostConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( resetPosts( [] ) )
+            history.push("/home")
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
+
+  const postComponents = posts.map( post => {
+    return (
+      <PostCard 
+        key={post.id} 
+        post={post} 
+        onCommentDeleteClick={handleDeleteCommentClick} 
+        onPostDeleteClick={handleDeletePostClick}
+      />  
+      )
+    })
+
   return (
     <IonPage>
         <Header >
@@ -133,6 +183,30 @@ function Home () {
               }
             ]}
           />
+
+          <IonAlert
+            isOpen={postToDelete !== null}
+            onDidDismiss={() => setPostToDelete(null) }
+            cssClass='my-custom-class'
+            header={'Confirm Delete'}
+            message={'Are you sure you wish to delete your post?'}
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+              },
+              {
+                text: 'Delete',
+                role: 'delete',
+                handler: () => {
+                  handleDeletePost(postToDelete);
+                }
+              }
+            ]}
+          />
+
+
 
 
 
