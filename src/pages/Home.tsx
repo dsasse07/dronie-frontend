@@ -18,6 +18,7 @@ function Home () {
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
+  const [ postToEdit, setPostToEdit ] = useState(null)
   const { get } = useStorage()
   const history = useHistory()
 
@@ -137,6 +138,44 @@ function Home () {
   }
 
 
+  function handleEditPostClick(postId){
+    setPostToEdit(postId)
+  }
+
+  function handleEditPost(formData){
+    get("token")
+    .then( token => {
+
+      const patchPostConfig = {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/posts/${postToEdit}`, patchPostConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( updatePost(data) )
+            history.push(`/home`)
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
+
   const postComponents = posts.map( post => {
     return (
       <PostCard 
@@ -144,6 +183,7 @@ function Home () {
         post={post} 
         onCommentDeleteClick={handleDeleteCommentClick} 
         onPostDeleteClick={handleDeletePostClick}
+        onEditPostClick={handleEditPostClick}
       />  
       )
     })
@@ -206,7 +246,44 @@ function Home () {
             ]}
           />
 
-
+          <IonAlert
+            isOpen={postToEdit !== null}
+            onDidDismiss={() => setPostToEdit(null) }
+            cssClass='my-custom-class'
+            header={'Edit Post'}
+            message={'Enter details about your photos below:'}
+            inputs={[
+              {
+                name: 'date_taken',
+                type: 'date',
+                placeholder: 'Date Taken'
+              },
+              {
+                name: 'location',
+                type: 'text',
+                placeholder: 'Location'
+              },
+              {
+                name: 'description',
+                type: 'textarea',
+                placeholder: 'Tell us about the photo'
+              },
+            ]}
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+              },
+              {
+                text: 'Save',
+                role: 'confirm',
+                handler: () => {
+                  handleEditPost(postToEdit);
+                }
+              }
+            ]}
+          />
 
 
 

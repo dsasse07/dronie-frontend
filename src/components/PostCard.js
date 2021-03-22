@@ -14,7 +14,7 @@ import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
 
-export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
+export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditPostClick}) => {
   const {created_at, description, date_taken, id, images, location, user} = post
   const currentUser = useSelector(state => state.currentUser)
   const dispatch = useDispatch()
@@ -166,20 +166,11 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
           });
       })
   }
-
+  console.log(`post`, post)
   function openUsersPage(username){
     history.push(`/users/${username}`)
   }
 
-
-  function handleEditClick(){
-    setShowPopover({ showPopover: false, event: undefined })
-
-  }
-
-  function handleLogOut(){
-    
-  }
 
   const commentComponents = post.comments.map( (comment) => {
     return (
@@ -296,7 +287,10 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick}) => {
         onDidDismiss={() => setShowPopover({ showPopover: false, event: undefined })}
         >
         <IonList>
-          <EditPostItem onClick={handleEditClick}>
+          <EditPostItem onClick={ () => {
+              onEditPostClick(id)
+              setShowPopover({ showPopover: false, event: undefined })
+            }}>
             <IonIcon icon={createOutline} slot="start"/>
             <IonLabel>Edit Post</IonLabel>
           </EditPostItem>

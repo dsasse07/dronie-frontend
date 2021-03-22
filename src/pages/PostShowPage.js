@@ -3,7 +3,7 @@ import { IonToast, IonAlert, IonItem } from '@ionic/react';
 import PostCard from '../components/PostCard'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
-import { resetPosts } from '../redux/postsSlice'
+import { resetPosts, updatePost } from '../redux/postsSlice'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
@@ -17,6 +17,7 @@ function PostShowPage () {
   const [ displayedPost, setDisplayedPost ] = useState({})
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
+  const [ postToEdit, setPostToEdit ] = useState(null)
   const dispatch = useDispatch()
   const history = useHistory()
   const { get } = useStorage()
@@ -55,7 +56,7 @@ function PostShowPage () {
           setNetworkErrors(data.errors);
         });
       })
-  }, [params.id] )
+  }, [params.id, posts] )
 
   function handleDeleteCommentClick(commentId){
     setCommentToDelete(commentId)
@@ -132,6 +133,43 @@ function PostShowPage () {
       })
   }
 
+  function handleEditPostClick(postId){
+    setPostToEdit(postId)
+  }
+
+  function handleEditPost(formData){
+    get("token")
+    .then( token => {
+
+      const patchPostConfig = {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND}/posts/${postToEdit}`, patchPostConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( updatePost(data) )
+            history.push(`/home`)
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
   function goToProfile(){
     history.push(`/users/${currentUser.username}`)
   }
@@ -195,12 +233,52 @@ function PostShowPage () {
           ]}
         />
 
+        <IonAlert
+          isOpen={postToEdit !== null}
+          onDidDismiss={() => setPostToEdit(null) }
+          cssClass='my-custom-class'
+          header={'Edit Post'}
+          message={'Enter details about your photos below:'}
+          inputs={[
+            {
+              name: 'date_taken',
+              type: 'date',
+              placeholder: 'Date Taken'
+            },
+            {
+              name: 'location',
+              type: 'text',
+              placeholder: 'Location'
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              placeholder: 'Tell us about the photo'
+            },
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Save',
+              role: 'confirm',
+              handler: (e) => {
+                handleEditPost(e);
+              }
+            }
+          ]}
+        />
+
 
         { Object.keys(displayedPost).length > 0 && 
           <PostCard 
             post={displayedPost} 
             onCommentDeleteClick={handleDeleteCommentClick} 
             onPostDeleteClick={handleDeletePostClick}
+            onEditPostClick={handleEditPostClick}
           />
         }
 
