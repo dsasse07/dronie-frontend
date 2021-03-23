@@ -11,7 +11,7 @@ function Comment( { comment, onCommentDeleteClick, onViewUser } ) {
 
   function belongsToCurrentUser(){
     return currentUser.comments.filter( comment => {
-      return comment.id === id
+      return comment.id === id 
     }).length > 0
   }
 
