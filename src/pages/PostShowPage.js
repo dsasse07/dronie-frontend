@@ -3,7 +3,7 @@ import { IonToast, IonAlert, IonItem } from '@ionic/react';
 import PostCard from '../components/PostCard'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
-import { resetPosts, updatePost } from '../redux/postsSlice'
+import { removePost, updatePost } from '../redux/postsSlice'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
@@ -124,7 +124,7 @@ function PostShowPage () {
             }
           })
           .then((data) => {
-            dispatch( resetPosts(data) )
+            dispatch( removePost(data) )
             history.push(`/home`)
           })
           .catch((data) => {

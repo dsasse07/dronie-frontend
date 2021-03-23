@@ -1,14 +1,15 @@
 import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
-import { IonItem } from '@ionic/react'
+import {IonSegment, IonSegmentButton, IonItem, IonLabel } from '@ionic/react';
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import PostCard from '../components/PostCard'
 import { useEffect, useState } from 'react'
-import { setPosts, updatePost, resetPosts } from '../redux/postsSlice'
+import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
+import { colorFillOutline, remove } from 'ionicons/icons';
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
@@ -21,17 +22,19 @@ function Home () {
   const [ postToEdit, setPostToEdit ] = useState(null)
   const { get } = useStorage()
   const history = useHistory()
+  const [ feedType, setFeedType ] = useState("recent")
+
 
   useEffect( () => {
     if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
-  }, [])
+  }, [feedType])
 
   function fetchPosts(){
     if (isFetching) return
     setIsFetching(true)
 
-    fetch(`${process.env.REACT_APP_BACKEND}/posts?fetched_count=${posts.length}`)
+    fetch(`${process.env.REACT_APP_BACKEND}/posts?fetched_count=${posts.length}&display=${feedType}&user_id=${currentUser.id}`)
       .then( response => {
         if (response.ok) {
           return response.json();
@@ -42,9 +45,10 @@ function Home () {
         }
       })
       .then((data) => {
+        console.log(`data`, data)
         if (data && data.length > 0){
           dispatch( setPosts(data) )
-          setDisableInfiniteScroll(data.length < 10);
+          setDisableInfiniteScroll(data.length < 5);
         } else {
           setDisableInfiniteScroll(true);
         }
@@ -57,8 +61,15 @@ function Home () {
   }
 
   async function fetchNext(event) {
+    console.log("ding)")
     await fetchPosts();
     (event.target).complete();
+  }
+
+  function handleFeedChange(feedType){
+    dispatch( clearPosts([]) )
+    setFeedType(feedType)
+    
   }
 
   function handleDeleteCommentClick(commentId){
@@ -128,7 +139,7 @@ function Home () {
             }
           })
           .then((data) => {
-            dispatch( resetPosts( data ) )
+            dispatch( removePost( data ) )
             history.push("/home")
           })
           .catch((data) => {
@@ -190,103 +201,112 @@ function Home () {
 
   return (
     <IonPage>
-        <Header >
-          <Toolbar>
-            <Title slot="start">Dronie</Title>
-            <Item>
-              <Avatar slot="end" onClick={goToProfile}>
-                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
-              </Avatar>
-            </Item>
-          </Toolbar>
-        </Header>
+      <Header >
+        <Toolbar>
+          <Item>
+            <Title slot="start">
+              Dronie
+            </Title>
+            <Avatar slot="end" onClick={goToProfile}>
+              <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+            </Avatar>
+          </Item>
+
+        <Segment onIonChange={e => handleFeedChange(e.detail.value) } value={feedType}>
+          <SegmentButton value="followed_by">
+            <SegmentLabel>Following</SegmentLabel>
+          </SegmentButton>
+          <SegmentButton value="recent">
+            <SegmentLabel>Recent</SegmentLabel>
+          </SegmentButton>
+        </Segment>
+
+        </Toolbar>
+      </Header>
 
       <IonContent fullscreen >
         <IonAlert
-            isOpen={commentToDelete !== null}
-            onDidDismiss={() => setCommentToDelete(null) }
-            cssClass='my-custom-class'
-            header={'Confirm Delete'}
-            message={'Are you sure you wish to delete your comment?'}
-            buttons={[
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                cssClass: 'secondary',
-              },
-              {
-                text: 'Delete',
-                role: 'delete',
-                handler: () => {
-                  handleDeleteComment(commentToDelete);
-                }
+          isOpen={commentToDelete !== null}
+          onDidDismiss={() => setCommentToDelete(null) }
+          cssClass='my-custom-class'
+          header={'Confirm Delete'}
+          message={'Are you sure you wish to delete your comment?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Delete',
+              role: 'delete',
+              handler: () => {
+                handleDeleteComment(commentToDelete);
               }
-            ]}
-          />
+            }
+          ]}
+        />
 
-          <IonAlert
-            isOpen={postToDelete !== null}
-            onDidDismiss={() => setPostToDelete(null) }
-            cssClass='my-custom-class'
-            header={'Confirm Delete'}
-            message={'Are you sure you wish to delete your post?'}
-            buttons={[
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                cssClass: 'secondary',
-              },
-              {
-                text: 'Delete',
-                role: 'delete',
-                handler: () => {
-                  handleDeletePost(postToDelete);
-                }
+        <IonAlert
+          isOpen={postToDelete !== null}
+          onDidDismiss={() => setPostToDelete(null) }
+          cssClass='my-custom-class'
+          header={'Confirm Delete'}
+          message={'Are you sure you wish to delete your post?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Delete',
+              role: 'delete',
+              handler: () => {
+                handleDeletePost(postToDelete);
               }
-            ]}
-          />
+            }
+          ]}
+        />
 
-          <IonAlert
-            isOpen={postToEdit !== null}
-            onDidDismiss={() => setPostToEdit(null) }
-            cssClass='my-custom-class'
-            header={'Edit Post'}
-            message={'Enter details about your photos below:'}
-            inputs={[
-              {
-                name: 'date_taken',
-                type: 'date',
-                placeholder: 'Date Taken'
-              },
-              {
-                name: 'location',
-                type: 'text',
-                placeholder: 'Location'
-              },
-              {
-                name: 'description',
-                type: 'textarea',
-                placeholder: 'Tell us about the photo'
-              },
-            ]}
-            buttons={[
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                cssClass: 'secondary',
-              },
-              {
-                text: 'Save',
-                role: 'confirm',
-                handler: (e) => {
-                  handleEditPost(e);
-                }
+        <IonAlert
+          isOpen={postToEdit !== null}
+          onDidDismiss={() => setPostToEdit(null) }
+          cssClass='my-custom-class'
+          header={'Edit Post'}
+          message={'Enter details about your photos below:'}
+          inputs={[
+            {
+              name: 'date_taken',
+              type: 'date',
+              placeholder: 'Date Taken'
+            },
+            {
+              name: 'location',
+              type: 'text',
+              placeholder: 'Location'
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              placeholder: 'Tell us about the photo'
+            },
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Save',
+              role: 'confirm',
+              handler: (e) => {
+                handleEditPost(e);
               }
-            ]}
-          />
-
-
-
+            }
+          ]}
+        />
       
         <List>
           {postComponents}
@@ -330,5 +350,12 @@ const Avatar = styled(IonAvatar)`
     border: 1px solid;
     cursor: pointer;
 `
+const Item = styled(IonItem)`
+  --border-color: transparent;
+` 
 
-const Item = styled(IonItem)`` 
+/***************** Segment Bar ******************** */
+
+const Segment = styled(IonSegment)``
+const SegmentButton = styled(IonSegmentButton)``
+const SegmentLabel = styled(IonLabel)``
