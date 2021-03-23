@@ -136,7 +136,8 @@ function NewPostForm() {
               })
               .then((data) => {
                 setIsUploading(false)
-                dispatch( updateUsersPosts( data ) )
+                // dispatch( updateUsersPosts( data ) )
+                
                 history.push(`/users/${currentUser.username}`)
               })
               .catch((data) => {

@@ -5,6 +5,7 @@ import { IonPopover, IonList, IonAlert } from '@ionic/react';
 import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { removeCurrentUser } from '../redux/userSlice'
+import { setProfileUser, setProfilePosts, updateProfilePosts, resetProfile } from '../redux/profileSlice'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -15,10 +16,11 @@ import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 
 const ProfilePage = () => {
   const currentUser = useSelector(state => state.currentUser)
+  const posts = useSelector(state => state.posts)
+  const profilePosts = useSelector(state => state.profile.posts)
+  const profileUser = useSelector(state => state.profile.user)
   const [ isLoading, setIsLoading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
-  const [ displayedUser, setDisplayedUser ] = useState({})
-  const [ displayedPosts, setDisplayedPosts ] = useState([])
   const [ showConfirmAccountDelete, setShowConfirmAccountDelete ] = useState(false)
   const [ popoverState, setShowPopover] = useState({
     showPopover: false,
@@ -50,10 +52,9 @@ const ProfilePage = () => {
           }
         })
         .then((data) => {
-          setIsLoading(false)
-          const avatar = data.avatar && JSON.parse(data.avatar)[0]
-          setDisplayedUser( { ...data, avatar: avatar } )     
-          fetchPostPreviews(0)
+          setIsLoading(false)   
+          dispatch( setProfileUser( data) )
+          fetchPostPreviews(0, data)
         })
         .catch((data) => {
           if (data.errors) {
@@ -64,10 +65,11 @@ const ProfilePage = () => {
         });
       })
 
-      // return ( () => {
-      //   setDisableInfiniteScroll(false);
-      // })
-  }, [ params.username ] )
+      return ( () => {
+        // setDisableInfiniteScroll(false);
+        dispatch( resetProfile() )
+      })
+  }, [ params.username] )
 
   console.log(`disable Infinite`, disableInfiniteScroll)
 
@@ -77,10 +79,9 @@ const ProfilePage = () => {
     (event.target).complete();
   }
 
-  function fetchPostPreviews(startAt){
+  function fetchPostPreviews(startAt, data){
     if (isLoading) return
-    const fetchedCount = startAt === 0 ? 0 : displayedPosts.length
-    console.log('fetching', params.username, fetchedCount)
+    const fetchedCount = startAt === 0 ? 0 : profilePosts.length
     setIsLoading(true)
     get("token")
     .then( token => {
@@ -90,6 +91,7 @@ const ProfilePage = () => {
         }
       })
         .then( response => {
+          console.log(`response.`, response)
           if (response.ok) {
             return response.json();
           } else {
@@ -100,20 +102,7 @@ const ProfilePage = () => {
         })
         .then((data) => {
           if (data && data.length > 0 ){
-            const parsedData = [
-              ...data.map( post => {
-                return {
-                  ...post,
-                  images: JSON.parse(post.images)
-                }
-              })
-            ]
-            console.log(`data fetched`, parsedData )
-            if (fetchedCount === 0){
-              setDisplayedPosts(parsedData)
-            } else {
-              setDisplayedPosts([ ...displayedPosts, ...parsedData])
-            }
+            dispatch( setProfilePosts(data) )
             setDisableInfiniteScroll(data.length < 20);
           } else {
             setDisableInfiniteScroll(true);
@@ -186,7 +175,7 @@ const ProfilePage = () => {
     history.push('/edit-profile')
   }
 
-  const postPreviews = displayedPosts.length > 0 && displayedPosts.map( post => {
+  const postPreviews = profilePosts.length > 0 && profilePosts.map( post => {
     return (
       <GalleryThumbnail key={post.id} post={post} onClick={ () => openPost(post.id) }>
         <img src={post.images[0].secure_url} alt={post.description}/>
@@ -210,14 +199,14 @@ const ProfilePage = () => {
 
       <IonContent fullscreen>
         <Card>
-          { displayedUser.id === currentUser.id && 
-          <MenuButton onClick={ (e) => {
-                  e.persist();
-                  setShowPopover({ showPopover: true, event: e })
-                }}
-          >
-            <IonIcon icon={ellipsisHorizontal} />
-          </MenuButton>
+          { profileUser?.id === currentUser.id && 
+            <MenuButton onClick={ (e) => {
+                    e.persist();
+                    setShowPopover({ showPopover: true, event: e })
+                  }}
+            >
+              <IonIcon icon={ellipsisHorizontal} />
+            </MenuButton>
           }
 
           <IonCardContent>
@@ -227,8 +216,8 @@ const ProfilePage = () => {
                 <Col>
                   <ImageContainer>
                     <img 
-                      src={displayedUser.avatar ? displayedUser.avatar.secure_url : avatarPlaceHolder }
-                      alt={displayedUser.username}
+                      src={profileUser?.avatar ? profileUser?.avatar.secure_url : avatarPlaceHolder }
+                      alt={profileUser?.username}
                     />
                   </ImageContainer>
                 </Col>
@@ -238,17 +227,17 @@ const ProfilePage = () => {
                     <IonRow>
                       <IonCol>
                         <IonItem>
-                          <strong>{displayedUser.username}</strong>
+                          <strong>{profileUser?.username}</strong>
                         </IonItem>
                       </IonCol>
                     </IonRow>
 
                     <IonRow>
                       <IonCol>
-                        { (displayedUser.first_name || displayedUser.last_name) && 
+                        { (profileUser?.first_name || profileUser?.last_name) && 
                           <NameItem>
                             <IonLabel text-wrap>
-                              {`${displayedUser.first_name} ${displayedUser.last_name}`}
+                              {`${profileUser?.first_name} ${profileUser?.last_name}`}
                             </IonLabel>
                           </NameItem>
                         }
@@ -263,7 +252,7 @@ const ProfilePage = () => {
                 <IonCol>
                   <BioContainer>
                     <strong>Bio: </strong>
-                    {displayedUser.bio}
+                    {profileUser?.bio}
                     addition to calling toggleDarkTheme when the app loads and when the media query changes, the toggleDa
                   </BioContainer>
                 </IonCol>

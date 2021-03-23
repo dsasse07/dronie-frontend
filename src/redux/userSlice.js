@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import {testUser} from '../data'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 
 
