@@ -216,7 +216,11 @@ function Home () {
             </Avatar>
           </Item>
 
-        <Segment onIonChange={e => handleFeedChange(e.detail.value) } value={feedType}>
+        <Segment 
+          value={currentUser.following.length > 0 ? feedType : "recent"}
+          disabled={currentUser.following.length === 0}
+          onIonChange={e => handleFeedChange(e.detail.value) }
+        >
           <SegmentButton value="followed_by">
             <SegmentLabel>Following</SegmentLabel>
           </SegmentButton>
