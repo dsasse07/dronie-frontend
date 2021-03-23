@@ -3,6 +3,7 @@ import { IonCard, IonCardContent, IonAvatar, IonItem, IonInput } from '@ionic/re
 import { IonRow, IonCol, IonTextarea, IonGrid, IonButton, IonToast } from '@ionic/react';
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from '../redux/userSlice'
+import { setProfileUser } from '../redux/profileSlice'
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useDropzone } from 'react-dropzone';
@@ -72,7 +73,6 @@ function EditProfilePage () {
 
   const [ isUploading, setIsUploading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
-  const [ isDisplayed, setIsDisplayed ] = useState(false)
   const { get } = useStorage()
   const dispatch = useDispatch()
   const history = useHistory()
@@ -141,7 +141,9 @@ function EditProfilePage () {
               })
               .then((updatedUser) => {
                 setIsUploading(false)
-                dispatch( setCurrentUser( updatedUser) )
+                dispatch( setCurrentUser( updatedUser ) )
+                dispatch( setProfileUser( updatedUser ))
+                history.push(`/users/${updatedUser.username}`)
               })
               .catch((data) => {
                 console.log(`data.errors`, data)
@@ -183,7 +185,10 @@ function saveChangesWithoutPhoto(formData){
         })
         .then((updatedUser) => {
           setIsUploading(false)
-          dispatch( setCurrentUser( updatedUser) )
+          dispatch( setCurrentUser( updatedUser ) )
+          dispatch( setProfileUser( updatedUser ) )
+          history.push(`/users/${updatedUser.username}`)
+
         })
         .catch((data) => {
           setNetworkErrors(data.errors);

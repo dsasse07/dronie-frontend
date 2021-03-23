@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import {useDropzone} from 'react-dropzone';
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateUsersPosts } from '../redux/userSlice'
+import { updateProfilePosts } from '../redux/profileSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
 import uploadPlaceholder from '../assets/uploadPlaceholder.png'
@@ -137,7 +137,7 @@ function NewPostForm() {
               .then((data) => {
                 setIsUploading(false)
                 // dispatch( updateUsersPosts( data ) )
-                
+                dispatch( updateProfilePosts( data ))
                 history.push(`/users/${currentUser.username}`)
               })
               .catch((data) => {

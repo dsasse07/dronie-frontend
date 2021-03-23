@@ -278,8 +278,8 @@ function Home () {
               {
                 text: 'Save',
                 role: 'confirm',
-                handler: () => {
-                  handleEditPost(postToEdit);
+                handler: (e) => {
+                  handleEditPost(e);
                 }
               }
             ]}

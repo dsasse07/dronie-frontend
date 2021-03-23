@@ -24,19 +24,15 @@ export const profileSlice = createSlice({
             avatar: JSON.parse(post.user.avatar)
           }}
       })
-      console.log(`posts`, posts)
       state.posts.push(...posts)
     },
     updateProfilePosts(state, action){
+      console.log(`action`, action)
       const newPost = {
         ...action.payload, 
         images: JSON.parse(action.payload.images) 
       }
-      if (state?.posts){
-        state.posts = [...state.posts, newPost]
-      } else {
-        state.posts = [newPost]
-      }
+      state.posts.unshift(newPost)
     },
     resetProfile( state, action ){
       return state = {

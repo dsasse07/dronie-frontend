@@ -67,6 +67,7 @@ const ProfilePage = () => {
 
       return ( () => {
         // setDisableInfiniteScroll(false);
+
         dispatch( resetProfile() )
       })
   }, [ params.username] )
@@ -91,7 +92,6 @@ const ProfilePage = () => {
         }
       })
         .then( response => {
-          console.log(`response.`, response)
           if (response.ok) {
             return response.json();
           } else {
@@ -103,7 +103,7 @@ const ProfilePage = () => {
         .then((data) => {
           if (data && data.length > 0 ){
             dispatch( setProfilePosts(data) )
-            setDisableInfiniteScroll(data.length < 20);
+            setDisableInfiniteScroll(data.length < 15);
           } else {
             setDisableInfiniteScroll(true);
           }
@@ -199,7 +199,7 @@ const ProfilePage = () => {
 
       <IonContent fullscreen>
         <Card>
-          { profileUser?.id === currentUser.id && 
+          {/* { profileUser?.id === currentUser.id && 
             <MenuButton onClick={ (e) => {
                     e.persist();
                     setShowPopover({ showPopover: true, event: e })
@@ -207,19 +207,32 @@ const ProfilePage = () => {
             >
               <IonIcon icon={ellipsisHorizontal} />
             </MenuButton>
-          }
+          } */}
 
           <IonCardContent>
             <Grid>
 
               <Row>
                 <Col>
-                  <ImageContainer>
-                    <img 
-                      src={profileUser?.avatar ? profileUser?.avatar.secure_url : avatarPlaceHolder }
-                      alt={profileUser?.username}
-                    />
-                  </ImageContainer>
+                  <Row>
+                    <ImageContainer>
+                      <img 
+                        src={profileUser?.avatar ? profileUser?.avatar.secure_url : avatarPlaceHolder }
+                        alt={profileUser?.username}
+                      />
+                    </ImageContainer>
+                  </Row>
+                  <Row>
+                    { profileUser?.id === currentUser.id && 
+                      <MenuButton onClick={ (e) => {
+                              e.persist();
+                              setShowPopover({ showPopover: true, event: e })
+                            }}
+                      >
+                        <IonIcon icon={ellipsisHorizontal} />
+                      </MenuButton>
+                    }
+                  </Row>
                 </Col>
 
                 <Col>
@@ -393,13 +406,13 @@ const Card = styled(IonCard)`
   height: 97%;
 `
 const MenuButton = styled.div`
-  position: absolute;
-  top: 1%;
-  right: 3%;
+  /* position: absolute; */
+  /* top: 1%; */
+  /* right: 3%; */
   cursor: pointer;
   font-size:1.3rem;
   padding: 5px;
-  z-index: 1000;
+  /* z-index: 1000; */
 
   ion-icon {
     cursor: pointer;
@@ -420,8 +433,8 @@ const Toast = styled(IonToast)`
 /************************************ */
 
 const ImageContainer = styled.div`
-  height: 25vw;
-  width: 25vw;
+  height: 22vw;
+  width: 22vw;
   max-width: 250px;
   max-height: 250px;
   overflow: hidden;
@@ -442,13 +455,13 @@ const UserDetailsGrid = styled(IonGrid)`
 `
 
 const BioRow = styled(IonRow)`
-  height: 150px;
+  height: 18vh;
   overflow-y: scroll;
   
 `
 const BioContainer = styled.div`
-    overflow-y: scroll;
-    height: 100%;
+  overflow-y: scroll;
+  height: 100%;
 `
 
 const NameItem = styled(IonItem)``
