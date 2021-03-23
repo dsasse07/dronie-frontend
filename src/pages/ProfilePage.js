@@ -1,18 +1,18 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonCardContent } from '@ionic/react';
 import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast, IonIcon } from '@ionic/react';
 import { IonThumbnail, IonLabel, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/react';
-import { IonPopover, IonList, IonAlert } from '@ionic/react';
+import { IonPopover, IonList, IonAlert, IonButton } from '@ionic/react';
 import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
+import { checkmark, add } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
-import { removeCurrentUser } from '../redux/userSlice'
-import { setProfileUser, setProfilePosts, updateProfilePosts, resetProfile } from '../redux/profileSlice'
+import { setCurrentUser, removeCurrentUser } from '../redux/userSlice'
+import { setProfileUser, setProfilePosts, updateProfileUser, resetProfile } from '../redux/profileSlice'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
 import { useHistory } from 'react-router-dom'
 import avatarPlaceHolder from '../assets/avatar.jpg'
-import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 
 const ProfilePage = () => {
   const currentUser = useSelector(state => state.currentUser)
@@ -24,6 +24,11 @@ const ProfilePage = () => {
   const [ showConfirmAccountDelete, setShowConfirmAccountDelete ] = useState(false)
   const [ popoverState, setShowPopover] = useState({
     showPopover: false,
+    event: undefined
+  })
+  const [ showFollowPopover, setShowFollowPopover ] = useState ({
+    showPopover: false,
+    users: undefined,
     event: undefined
   })
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
@@ -66,13 +71,9 @@ const ProfilePage = () => {
       })
 
       return ( () => {
-        // setDisableInfiniteScroll(false);
-
         dispatch( resetProfile() )
       })
   }, [ params.username] )
-
-  console.log(`disable Infinite`, disableInfiniteScroll)
 
   async function fetchNext(event) {
     console.log('fetch next')
@@ -113,6 +114,13 @@ const ProfilePage = () => {
           setNetworkErrors(data.errors);
         });
       })
+  }
+
+  function followedByCurrentUser(){
+    if (!profileUser) return
+    return currentUser.following.filter( otherUser => {
+      return otherUser.id === profileUser.id
+    }).length > 0
   }
 
   function openPost(postId){
@@ -167,12 +175,61 @@ const ProfilePage = () => {
         dispatch( removeCurrentUser() ) 
         history.push('/login')
       })
-    
   }
 
   function handleEditClick(){
     setShowPopover({ showPopover: false, event: undefined })
     history.push('/edit-profile')
+  }
+
+  function handleFollowToggle(){
+    get("token")
+      .then( token => { 
+        let route
+        const followConfig = {
+          headers: {
+            "Content-type":"application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+
+        if (followedByCurrentUser()) {
+          followConfig.method = "DELETE"
+          route = `/follows/${profileUser.id}`
+        } else {
+          followConfig.method = "POST"
+          followConfig.body = JSON.stringify( {following_id: profileUser.id} )
+          route = `/follows`
+        } 
+        console.log(`followConfig`, followConfig)
+        console.log(`route`, route)
+        fetch(`${process.env.REACT_APP_BACKEND}${route}`, followConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            dispatch( setProfileUser( data.followed_user ) )
+            dispatch( setCurrentUser( data.user ) )
+          })
+          .catch((data) => {
+            console.log(data.errors);
+          });
+      })
+  }
+
+  function loadProfile( user ){
+    setShowFollowPopover({ 
+      showPopover: false, 
+      users: undefined, 
+      event: undefined 
+    })
+    history.push(`/users/${user.username}`)
   }
 
   const postPreviews = profilePosts.length > 0 && profilePosts.map( post => {
@@ -199,15 +256,6 @@ const ProfilePage = () => {
 
       <IonContent fullscreen>
         <Card>
-          {/* { profileUser?.id === currentUser.id && 
-            <MenuButton onClick={ (e) => {
-                    e.persist();
-                    setShowPopover({ showPopover: true, event: e })
-                  }}
-            >
-              <IonIcon icon={ellipsisHorizontal} />
-            </MenuButton>
-          } */}
 
           <IonCardContent>
             <Grid>
@@ -222,40 +270,104 @@ const ProfilePage = () => {
                       />
                     </ImageContainer>
                   </Row>
-                  <Row>
-                    { profileUser?.id === currentUser.id && 
-                      <MenuButton onClick={ (e) => {
-                              e.persist();
-                              setShowPopover({ showPopover: true, event: e })
-                            }}
-                      >
-                        <IonIcon icon={ellipsisHorizontal} />
-                      </MenuButton>
-                    }
-                  </Row>
+
+                  <IonRow>
+                    <IonCol>
+                      { (profileUser?.first_name || profileUser?.last_name) && 
+                        <FullNameLabel text-wrap>
+                          {`${profileUser?.first_name} ${profileUser?.last_name}`}
+                        </FullNameLabel>
+                      }
+                    </IonCol>
+                  </IonRow>
+
                 </Col>
 
                 <Col>
                   <UserDetailsGrid>
-                    <IonRow>
-                      <IonCol>
-                        <IonItem>
-                          <strong>{profileUser?.username}</strong>
-                        </IonItem>
-                      </IonCol>
-                    </IonRow>
 
-                    <IonRow>
+                    <UserDetailsRow1>  
                       <IonCol>
-                        { (profileUser?.first_name || profileUser?.last_name) && 
-                          <NameItem>
-                            <IonLabel text-wrap>
-                              {`${profileUser?.first_name} ${profileUser?.last_name}`}
-                            </IonLabel>
-                          </NameItem>
-                        }
+                        <UsernameLabel>
+                          <strong>{profileUser?.username}</strong>
+                        </UsernameLabel>
                       </IonCol>
-                    </IonRow>
+
+                      { profileUser?.id === currentUser.id && 
+                        <IonCol>
+                            <MenuButton onClick={ (e) => {
+                                    e.persist();
+                                    setShowPopover({ showPopover: true, event: e })
+                                  }}
+                            >
+                              <IonIcon icon={ellipsisHorizontal} />
+                            </MenuButton>
+                        </IonCol>
+                      }
+                    </UserDetailsRow1>
+
+                    <UserDetailsRow2>
+                      <IonCol onClick={ (e) => {
+                                    if (profileUser?.followers.length === 0) return
+                                    e.persist();
+                                    setShowFollowPopover({ 
+                                      showPopover: true, 
+                                      users: profileUser.followers, 
+                                      event: e })
+                                  }}
+                      >
+                        <IonRow>
+                          <strong>{profileUser?.followers.length}</strong>
+                        </IonRow>
+                        <IonRow>
+                          <FullNameLabel text-wrap>
+                            Followers
+                          </FullNameLabel>
+                        </IonRow>
+                      </IonCol>
+                      <IonCol onClick={ (e) => {
+                                    if (profileUser?.following.length === 0) return
+                                    e.persist();
+                                    setShowFollowPopover({ 
+                                      showPopover: true,
+                                      users: profileUser.following, 
+                                      event: e })
+                                  }}
+                      >
+                        <IonRow>
+                          <strong>{profileUser?.following.length}</strong>
+                        </IonRow>
+                        <IonRow>
+                          <FullNameLabel text-wrap>
+                            Following
+                          </FullNameLabel>
+                        </IonRow>
+                      </IonCol>
+                    </UserDetailsRow2>
+                    
+                    { profileUser?.id !== currentUser.id && 
+                      <UserDetailsRow3>
+                        <IonCol>
+                          <FollowButton size="block" onClick={handleFollowToggle}>
+                            { followedByCurrentUser() ? 
+                              <>
+                                <IonLabel>
+                                  Following 
+                                </IonLabel>
+                                <IonIcon slot="end" icon={checkmark}/> 
+                              </>
+                            : 
+                              <>
+                                <IonLabel>
+                                  Follow
+                                </IonLabel>
+                                <IonIcon slot="end" icon={add} />
+                              </>
+                            }
+                          </FollowButton>
+                        </IonCol>
+                      </UserDetailsRow3>
+                    }
 
                   </UserDetailsGrid>
                 </Col>
@@ -283,25 +395,27 @@ const ProfilePage = () => {
                       </IonItem>
                     }
                   </GalleryContainer>
+            
+                  <IonInfiniteScroll 
+                    threshold="15%" 
+                    disabled={disableInfiniteScroll}
+                    onIonInfinite={fetchNext}
+                  >
+
+                    <IonInfiniteScrollContent
+                      loadingText="Loading Posts...">
+                    </IonInfiniteScrollContent>
+                  </IonInfiniteScroll>
                 </IonCol>
               </GalleryRow>
 
-              <IonInfiniteScroll 
-                threshold="30%" 
-                disabled={disableInfiniteScroll}
-                onIonInfinite={fetchNext}
-              >
-
-                <IonInfiniteScrollContent
-                  loadingText="Loading Posts...">
-                </IonInfiniteScrollContent>
-              </IonInfiniteScroll>
+          
 
             </Grid>
           </IonCardContent>
         </Card>
 
-        <IonPopover
+        <MenuPopover
           cssClass='my-custom-class'
           event={popoverState.event}
           isOpen={popoverState.showPopover}
@@ -321,7 +435,36 @@ const ProfilePage = () => {
               <IonLabel color="danger" >Delete Account</IonLabel>
             </DeleteProfileItem>
           </IonList>
-        </IonPopover>
+        </MenuPopover>
+
+        <FollowPopover
+          cssClass='my-custom-class'
+          event={showFollowPopover.event}
+          isOpen={showFollowPopover.showPopover}
+          onDidDismiss={() => {
+              setShowFollowPopover({ 
+                showPopover: false, 
+                users: undefined, 
+                event: undefined 
+              })
+            }}
+        >
+          <FollowList>
+            { showFollowPopover.users?.map( user => {
+              return (
+                <UserItem key={user.id} onClick={ () => loadProfile(user) }>
+                  <UserAvatarPreview slot="start">
+                    <img src={ user.avatar ? JSON.parse(user.avatar)[0].secure_url : avatarPlaceHolder } />
+                  </UserAvatarPreview>
+                  <UserLabel>
+                    {user.username}
+                  </UserLabel>
+                </UserItem>
+              )
+            })
+          }
+          </FollowList>
+        </FollowPopover>
 
         <Toast
           isOpen={networkErrors.length > 0}
@@ -405,14 +548,10 @@ const Card = styled(IonCard)`
   max-width: 95%;
   height: 97%;
 `
-const MenuButton = styled.div`
-  /* position: absolute; */
-  /* top: 1%; */
-  /* right: 3%; */
+const MenuButton = styled(IonButton)`
   cursor: pointer;
-  font-size:1.3rem;
+  font-size:1rem;
   padding: 5px;
-  /* z-index: 1000; */
 
   ion-icon {
     cursor: pointer;
@@ -433,8 +572,8 @@ const Toast = styled(IonToast)`
 /************************************ */
 
 const ImageContainer = styled.div`
-  height: 22vw;
-  width: 22vw;
+  height: 20vw;
+  width: 20vw;
   max-width: 250px;
   max-height: 250px;
   overflow: hidden;
@@ -455,21 +594,53 @@ const UserDetailsGrid = styled(IonGrid)`
 `
 
 const BioRow = styled(IonRow)`
-  height: 18vh;
+  height: 13vh;
   overflow-y: scroll;
-  
+  border: 1px solid;
 `
 const BioContainer = styled.div`
   overflow-y: scroll;
   height: 100%;
 `
 
-const NameItem = styled(IonItem)``
+const UsernameLabel = styled(IonLabel)`
+  font-size: 1rem;
+  line-height: 1rem;
+`
+
+const FullNameLabel = styled(IonLabel)`
+  font-size: 0.8rem;
+  line-height: 1rem;
+`
+
+const UserDetailsRow1 = styled(IonRow)`
+  ion-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`
+
+const UserDetailsRow2 = styled(IonRow)`
+  ion-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  strong, ion-label {
+    cursor: pointer;
+  }
+`
+
+const UserDetailsRow3 = styled(IonRow)``
+const FollowButton = styled(IonButton)``
 
 const GalleryRow = styled(IonRow)`
-  height: 40vh;
+  height: 41vh;
   overflow-y: scroll;
-
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border: 1px solid;
 `
 
 const GalleryContainer = styled.div`
@@ -478,6 +649,7 @@ const GalleryContainer = styled.div`
   gap: 10px;
   align-items: center;
   justify-content: center;
+  margin-top: 10px;
 `
 
 const GalleryThumbnail = styled(IonThumbnail)`
@@ -487,6 +659,7 @@ const GalleryThumbnail = styled(IonThumbnail)`
   max-height: 250px;
   overflow: hidden;
   border: 2px solid;
+  cursor: pointer;
 
   img {
     width: 100%;
@@ -496,6 +669,7 @@ const GalleryThumbnail = styled(IonThumbnail)`
 `
 
 /******************************************/
+const MenuPopover = styled(IonPopover)``
 
 const DeleteProfileItem = styled(IonItem)`
   margin-top: 100px;
@@ -512,3 +686,10 @@ const EditProfileItem = styled(IonItem)`
 `
 
 const DeleteAccountConfirm = styled(IonAlert)``
+
+/******************************************/
+const FollowPopover = styled(IonPopover)``
+const FollowList = styled(IonList)``
+const UserItem = styled(IonItem)``
+const UserAvatarPreview = styled(IonAvatar)``
+const UserLabel = styled(IonLabel)``

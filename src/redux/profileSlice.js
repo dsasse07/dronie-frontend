@@ -27,7 +27,6 @@ export const profileSlice = createSlice({
       state.posts.push(...posts)
     },
     updateProfilePosts(state, action){
-      console.log(`action`, action)
       const newPost = {
         ...action.payload, 
         images: JSON.parse(action.payload.images) 
@@ -44,6 +43,6 @@ export const profileSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setProfileUser, setProfilePosts, updateProfilePosts, resetProfile } = profileSlice.actions
+export const { setProfileUser, updateProfileUser, setProfilePosts, updateProfilePosts, resetProfile } = profileSlice.actions
 
 export default profileSlice.reducer

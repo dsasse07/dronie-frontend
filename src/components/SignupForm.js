@@ -203,7 +203,8 @@ function SignupForm({isOpen}) {
                 </InputLabel>
                 <IonInput type="text" name="username" placeholder="First Name" 
                   ref={register({
-                    required: {value: true, message:"Please enter a username"}
+                    required: {value: true, message:"Please enter a username"},
+                    maxLength: {value: 20, message: "Username must be less than 20 characters"}
                     })} 
                   />
               </IonItem>

@@ -208,18 +208,6 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
                 >
                   <IonIcon icon={ellipsisHorizontal} />
                 </MenuButton>
-
-
-
-
-
-              // <DeleteContainer>
-              //   <IonIcon 
-              //     icon={closeCircleOutline} 
-              //     color="danger"
-              //     onClick={ () => onPostDeleteClick(post.id) }
-              //   />
-              // </DeleteContainer>
             }
           </HeaderContainer>
 
