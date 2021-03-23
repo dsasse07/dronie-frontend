@@ -378,7 +378,6 @@ const ProfilePage = () => {
                   <BioContainer>
                     <strong>Bio: </strong>
                     {profileUser?.bio}
-                    addition to calling toggleDarkTheme when the app loads and when the media query changes, the toggleDa
                   </BioContainer>
                 </IonCol>
               </BioRow>

@@ -28,6 +28,10 @@ function Home () {
   useEffect( () => {
     if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
+
+    return () => {
+      dispatch( clearPosts([]) )
+    }
   }, [feedType])
 
   function fetchPosts(){
