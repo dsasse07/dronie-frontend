@@ -60,7 +60,7 @@ function Home () {
       });
   }
 
-  async function fetchNext(event) {
+  async function fetchNext(event) { 
     console.log("ding)")
     await fetchPosts();
     (event.target).complete();
