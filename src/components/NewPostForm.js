@@ -1,14 +1,16 @@
-import { useForm, Controller } from "react-hook-form";
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
-import styled from 'styled-components'
-import {useDropzone} from 'react-dropzone';
+import { useForm, Controller } from "react-hook-form";
+import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateProfilePosts } from '../redux/profileSlice'
+import { postFormSlice } from '../redux/postFormSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
+import styled from 'styled-components'
 import uploadPlaceholder from '../assets/uploadPlaceholder.png'
+import TagInput from '../components/TagInput'
 
 export function Basic(props) {
   const [ files, setFiles ] = useState()
@@ -59,7 +61,9 @@ export function Basic(props) {
 
 function NewPostForm() {
   const currentUser = useSelector(state => state.currentUser)
-  const { register, handleSubmit, errors, control, reset, clearErrors } = useForm({
+  const postForm = useSelector(state => state.postForm)
+  const tags = useSelector(state => state.tags)
+  const { register, handleSubmit, errors, control, reset, clearErrors, setValue } = useForm({
     defaultValues: {
       images: [],
       date_take: "",
@@ -73,19 +77,16 @@ function NewPostForm() {
   const history = useHistory()
   const { get } = useStorage()
 
-
   function onSubmit (formData, e){
-
+    formData.tags = postForm.tags
     reset({
       images: [],
       date_take: "",
       location: "",
       description: ""
     })
-
     setIsUploading(true)
     uploadAndSave(formData)
-    
   } 
 
   //********************************************************************* */
@@ -162,29 +163,65 @@ function NewPostForm() {
             />
 
             <IonInput type="hidden" name="user_id" value={currentUser.id} ref={register} />
-
-            <IonItem >
-              <CalLabel position="floating">
-                Date Taken
-              </CalLabel>
-              <IonInput type="date" name="date_taken" ref={register} />
-            </IonItem>
-
-            <IonItem>
-              <CalLabel position="floating">
-                Location
-              </CalLabel>
-              <IonInput type="text" name="location" ref={register} />
-            </IonItem>
-
-            <IonItem>
-              <CalLabel position="floating">
-                Description
-              </CalLabel>
-              <IonTextarea name="description" placeholder="Tell us about the shot!" ref={register} />
-            </IonItem>
-
+            
             <IonGrid>
+            
+                    <TagInput />
+              {/* <IonRow>
+                <IonCol>
+                  <IonItem>
+                  </IonItem>
+                </IonCol>
+              </IonRow> */}
+
+              <IonRow>
+                <IonCol>
+                  <IonItem >
+                    <CalLabel position="floating">
+                      Date Taken
+                    </CalLabel>
+                    <IonInput type="date" name="date_taken" ref={register} />
+                  </IonItem >
+                </IonCol>    
+              </IonRow>
+              
+              <IonRow>
+                <IonCol>
+                  <IonItem>
+                    <CalLabel position="floating">
+                      Location
+                    </CalLabel>
+                    <IonInput type="text" name="location" ref={register} />
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+              <IonRow>
+                <IonCol>
+                  <IonItem>
+                    <CalLabel position="floating">
+                      Description
+                    </CalLabel>
+                    <IonTextarea name="description" placeholder="Tell us about the shot!" ref={register} />
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+
+
+            {/* <IonItem>
+              <CalLabel position="floating">
+                Tags
+              </CalLabel>
+              <ReactTags
+                ref={reactTags}
+                tags={postTags}
+                suggestions={tags}
+                onDelete={ handleOnDelete }
+                onAddition={ handleOnAddition } 
+              />
+            </IonItem> */}
+
               <IonRow>
                 <Col >
                   <IonButton type="submit" disabled={isUploading}>

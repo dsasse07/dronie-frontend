@@ -2,12 +2,16 @@ import { configureStore } from '@reduxjs/toolkit'
 import currentUserReducer from './userSlice'
 import postsReducer from './postsSlice'
 import profileReducer from './profileSlice'
+import tagsReducer from './tagsSlice'
+import postFormReducer from './postFormSlice'
 
 export default configureStore({
   reducer: {
     currentUser: currentUserReducer,
     posts: postsReducer,
-    profile: profileReducer
+    profile: profileReducer,
+    tags: tagsReducer,
+    postForm: postFormReducer
   }
 })
 

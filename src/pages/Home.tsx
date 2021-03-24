@@ -2,18 +2,19 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
 import {IonSegment, IonSegmentButton, IonItem, IonLabel } from '@ionic/react';
-import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
+import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
+import { setTags } from '../redux/tagsSlice'
+import styled from 'styled-components'
 import PostCard from '../components/PostCard'
 import { useEffect, useState } from 'react'
-import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
-import { colorFillOutline, remove } from 'ionicons/icons';
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
+  const tags = useSelector(state => state.tags)
   const dispatch = useDispatch()
   const [ isFetching, setIsFetching ] = useState(false)
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
@@ -28,6 +29,7 @@ function Home () {
   useEffect( () => {
     if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
+    fetchTags()
 
     return () => {
       dispatch( clearPosts([]) )
@@ -68,6 +70,25 @@ function Home () {
     console.log("ding)")
     await fetchPosts();
     (event.target).complete();
+  }
+
+  function fetchTags() {
+    fetch(`${process.env.REACT_APP_BACKEND}/tags`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then((data) => {
+            throw data;
+          });
+        }
+      })
+      .then((data) => {
+        dispatch( setTags(data) )
+      })
+      .catch((data) => {
+        console.log(data.errors);
+      })
   }
 
   function handleFeedChange(feedType){

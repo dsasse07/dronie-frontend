@@ -3,12 +3,12 @@ import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
 import { IonImg, IonPopover, IonAlert } from '@ionic/react'
-import { trashOutline, ellipsisHorizontal, heart, heartOutline, chatbubbleOutline, chevronDownOutline, send} from 'ionicons/icons'
-import { createOutline, logOutOutline} from 'ionicons/icons'
+import { trashOutline, ellipsisHorizontal, heart, heartOutline, chatbubbleOutline} from 'ionicons/icons'
+import { createOutline, chevronDownOutline, send, pricetagOutline} from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
-import { updatePost } from '../redux/postsSlice'
+import { postsSlice, updatePost } from '../redux/postsSlice'
 import { addCommentToUser } from '../redux/userSlice'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useStorage } from '@ionic/react-hooks/storage'
@@ -25,6 +25,10 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
   const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
+  const [ showPostTags, setShowPostTags ] = useState({
+    showPopover: false,
+    event: undefined
+  })
   const [ popoverState, setShowPopover] = useState({
     showPopover: false,
     event: undefined
@@ -167,6 +171,11 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
       })
   }
 
+  function handleShowPostTags(e){
+    e.persist();
+    setShowPostTags({ showPopover: true, event: e })
+  }
+
   function openUsersPage(username){
     history.push(`/users/${username}`)
   }
@@ -219,14 +228,18 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
           </ImageContainer>
 
           <ControlsBar id="control">
-            <LikesContainer userLike={userLike} onClick={toggleLike}>
+            <ControlContainer userLike={userLike} onClick={toggleLike}>
               <IonIcon icon={userLike ? heart : heartOutline} />
               {post.likes.length} Likes
-            </LikesContainer>
-            <LeaveCommentContainer onClick={handleShowNewCommentForm}>
+            </ControlContainer>
+            <ControlContainer onClick={handleShowPostTags}>
+              <IonIcon icon={pricetagOutline} />
+              Tags
+            </ControlContainer>
+            <ControlContainer onClick={handleShowNewCommentForm}>
               <IonIcon icon={chatbubbleOutline} />
               Comment
-            </LeaveCommentContainer>
+            </ControlContainer>
           </ControlsBar >
 
           <hr></hr>
@@ -292,6 +305,34 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
           </DeletePostItem>
         </IonList>
       </IonPopover>
+
+
+      <PostTagsPopover
+        cssClass='my-custom-class'
+        event={popoverState.event}
+        isOpen={showPostTags.showPopover}
+        onDidDismiss={() => setShowPostTags({ showPopover: false, event: undefined })}
+        >
+        <IonList>
+          { post.tags.length > 0 ?
+            post.tags.map( tag => {
+              return(
+                <IonItem key={tag.id}>
+                  <IonLabel>
+                    {tag.name}
+                  </IonLabel>
+                </IonItem>
+              )
+            })
+          :
+          <IonItem>
+            <IonLabel>
+              Not Yet Tagged
+            </IonLabel>
+          </IonItem>
+          }
+        </IonList>
+      </PostTagsPopover>
     </>
   );
 };
@@ -400,7 +441,7 @@ const ControlsBar = styled.div`
   padding-bottom: 3px;
 `
 
-const LikesContainer = styled.div`
+const ControlContainer = styled.div`
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -527,3 +568,5 @@ const MenuButton = styled.div`
     cursor: pointer;
   }
 `
+
+const PostTagsPopover = styled(IonPopover)``
