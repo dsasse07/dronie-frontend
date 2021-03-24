@@ -33,6 +33,11 @@ export const profileSlice = createSlice({
       }
       state.posts.unshift(newPost)
     },
+    deleteProfilePost( state, action ){
+      state.posts = state.posts.filter( post => {
+        return post.id !== action.payload
+      })
+    },
     resetProfile( state, action ){
       return state = {
         user: null,
@@ -43,6 +48,6 @@ export const profileSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setProfileUser, updateProfileUser, setProfilePosts, updateProfilePosts, resetProfile } = profileSlice.actions
+export const { setProfileUser, updateProfileUser, setProfilePosts, updateProfilePosts, deleteProfilePost, resetProfile } = profileSlice.actions
 
 export default profileSlice.reducer

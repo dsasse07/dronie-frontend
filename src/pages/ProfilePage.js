@@ -71,7 +71,11 @@ const ProfilePage = () => {
       })
 
       return ( () => {
-        dispatch( resetProfile() )
+        dispatch( resetProfile({
+            user: null,
+            posts: []
+          }
+        ))
       })
   }, [ params.username] )
 

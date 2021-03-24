@@ -11,10 +11,10 @@ export const postsSlice = createSlice({
       state[index] = {
         ...action.payload,
         images: JSON.parse(action.payload.images), 
-          user: {
-            ...action.payload.user,
-            avatar: JSON.parse(action.payload.user.avatar) 
-          }
+        user: {
+          ...action.payload.user,
+          avatar: JSON.parse(action.payload.user.avatar) 
+        }
       }
     },
     setPosts(state, action){
@@ -31,8 +31,20 @@ export const postsSlice = createSlice({
     },
     removePost(state, action){
       return state = state.filter( post => {
-        return post.id !== action.payload.id
+        return post.id !== action.payload
+        // return post.id !== action.payload.id
       })
+    },
+    addPost( state, action ){
+      const post = {
+        ...action.payload,
+        images: JSON.parse(action.payload.images), 
+        user: {
+          ...action.payload.user,
+          avatar: JSON.parse(action.payload.user.avatar)
+        }
+      }
+      state.unshift(post)
     },
     clearPosts( state, action ){
       return state = []
@@ -41,6 +53,6 @@ export const postsSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setPosts, updatePost, removePost, clearPosts } = postsSlice.actions
+export const { setPosts, addPost, updatePost, removePost, clearPosts } = postsSlice.actions
 
 export default postsSlice.reducer

@@ -123,6 +123,7 @@ function Home () {
             }
           })
           .then((data) => {
+            console.log(`data`, data)
             dispatch( updatePost( data ) )
           })
           .catch((data) => {

@@ -159,6 +159,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
           })
           .then((data) => {
             setNewCommentText("")
+            setShowComments(true)
             dispatch( addCommentToUser( data.comment ))
             dispatch( updatePost( data.post ) )
             setTimeout( () => {
@@ -327,7 +328,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
           :
           <IonItem>
             <IonLabel>
-              Not Yet Tagged
+              Not Tagged
             </IonLabel>
           </IonItem>
           }
