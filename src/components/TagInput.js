@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { close } from 'ionicons/icons'
+import { close, add, chevronDownOutline } from 'ionicons/icons'
 import { IonInput, IonLabel, IonItem, IonIcon, IonPopover, IonList } from "@ionic/react"
 import { IonRow, IonCol, IonNote } from "@ionic/react"
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +20,7 @@ function TagInput() {
     setInputText(event.target.value)
     if ( event.key === "Enter" && event.target.value !== "") {
       dispatch( addPostTag( inputText.trim() ) )
+      setInputText("")
       event.target.value = "";
     }
   };
@@ -38,20 +39,18 @@ function TagInput() {
   })
 
   const unusedTags = tags.filter(tag => {
-    console.log(`testing`, tag, !postForm.tags.find( postTag => postTag === tag.name))
     return !postForm.tags.find( postTag => postTag === tag.name)
   })
 
   const filteredTags = unusedTags.filter( tag => {
-    return tag.name.includes(inputText) &&
-      postForm.tags.filter(tag => {})
+    return tag.name.includes(inputText) 
   })
 
   const suggestionComponents = filteredTags.map( (tag, index) => {
     return (
       <TagItem key={index} onClick={ () => handleAddTag(tag.name) } >
           <IonLabel>{tag.name}</IonLabel>
-          <IonIcon slot="end" src={close} onClick={() => removeTag(tag)} />
+          <IonIcon slot="end" src={add} />
       </TagItem>
     )
   })
@@ -65,7 +64,15 @@ function TagInput() {
     <>
       <IonRow>
         <IonCol>
-          <IonItem  >
+          <IonRow>
+            <IonCol>
+              <SuggestionsLabel>
+                Added Tags:
+              </SuggestionsLabel>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
             <TagsList >
               {tagComponents.length > 0 ?
                 tagComponents
@@ -73,32 +80,48 @@ function TagInput() {
                 <MissingTagsLabel >No Tags Have Been Added Yet </MissingTagsLabel>
               }
             </TagsList>
-          </IonItem>
+          </IonRow>
         </IonCol>
       </IonRow>
 
-      <IonRow>
+      <SuggestionsRow>
         <IonCol>
-          <IonLabel>
-            Suggestions:
-          </IonLabel>
-          <IonItem  >
+          <IonRow>
+            <IonCol>
+              <SuggestionsLabel>
+                Tag Suggestions:
+              </SuggestionsLabel>
+            </IonCol>
+            <IonCol>
+              {(inputText.length >= 2 && suggestionComponents.length > 0) &&
+                "Click to select"
+              }
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
             <TagsList >
               {(inputText.length >= 2 && suggestionComponents.length > 0) &&
-                suggestionComponents
+                suggestionComponents.slice(0,5)
               }
               { inputText.length < 2 &&
-                <IonNote>
-                  Begin Typing Above for Suggestions
-                </IonNote>
+                <>
+                  <BeginTypingNote>
+                    <IonIcon icon={chevronDownOutline} />
+                    Begin typing below for suggestions
+                    <IonIcon icon={chevronDownOutline} />
+                  </BeginTypingNote>
+                </>
               }
               { (inputText.length >= 2 && suggestionComponents.length === 0) &&
-                <MissingTagsLabel> No Matches Found </MissingTagsLabel>
+                <MissingTagsLabel> 
+                  No Matches Found 
+                </MissingTagsLabel>
               }
             </TagsList>
-          </IonItem>
+          </IonRow>
         </IonCol>
-      </IonRow>
+      </SuggestionsRow>
 
       <IonRow>
         <IonCol>
@@ -122,9 +145,10 @@ function TagInput() {
 
 export default TagInput
 
-const TagsList = styled.ul`
+const TagsList = styled(IonCol)`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
   padding: 0;
   margin-top: 7px;
@@ -144,6 +168,11 @@ const TagItem = styled(IonItem)`
     margin: 0;
   }
 `
+const SuggestionsRow = styled(IonRow)`
+`
+const SuggestionsLabel = styled(IonLabel)`
+  font-weight: bold;
+`
 
 const MissingTagsLabel = styled(IonNote)``
 
@@ -154,4 +183,8 @@ const TagLabel = styled(IonLabel)`
 `
 const InputArea = styled(IonInput)``
 
-const TagSuggestionsPopover = styled(IonPopover)``
+const BeginTypingNote = styled(IonNote)`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`

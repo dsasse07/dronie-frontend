@@ -94,7 +94,6 @@ function Home () {
   function handleFeedChange(feedType){
     dispatch( clearPosts([]) )
     setFeedType(feedType)
-    
   }
 
   function handleDeleteCommentClick(commentId){
