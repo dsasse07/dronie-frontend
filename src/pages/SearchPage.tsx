@@ -1,21 +1,66 @@
 import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
-import { setQuery, setFilter, setResults, clearResults } from '../redux/searchSlice'
+import { IonGrid, IonRow, IonCol, IonThumbnail, IonImg, IonInfiniteScroll } from '@ionic/react';
+import { IonInfiniteScrollContent } from '@ionic/react';
+import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 function SearchPage () {
-
+  // const posts = useSelector(state => state.posts)
+  const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
-  const search = useSelector(state => state.search)
+  const [ isFetching, setIsFetching ] = useState(false)
+  const [ disableInfiniteScroll , setDisableInfiniteScroll ] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
 
   function handleFilterChange(newFilterValue){
-      // dispatch( clearPosts([]) )
-      // setFeedType(feedType)
+    dispatch( setFilter( newFilterValue ) )
+  }
+
+  useEffect( () => {
+    if ( query === "" || results[filter].length > 0 ) return
+    fetchResults()
+
+  }, [filter])
+
+function handleSearchSubmit(e){
+    if (e.key !== "Enter" || query === "") return
+    dispatch( clearResults([]) )
+    fetchResults()
+  }
+
+  function fetchResults(){
+    console.log('fetching')
+    console.log(`filter in fetch`, filter)
+    const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
+    fetch(`${process.env.REACT_APP_BACKEND}${urlParams}`)
+      .then( response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then((data) => {
+            throw data;
+          });
+        }
+      })
+      .then((data) => {
+        if (data && data.length > 0){
+          (filter === "users") ? dispatch( setUserResults(data) ) : dispatch( setPostResults(data) )
+          setDisableInfiniteScroll(data.length < 30);
+        } else {          
+          setDisableInfiniteScroll(true);
+        }
+        setIsFetching(false)
+      })
+      .catch(error => {
+        setIsFetching(false)
+        console.error(error)
+      });
   }
 
   function goToProfile(){
@@ -25,6 +70,34 @@ function SearchPage () {
   function openUsersPage(username){
     history.push(`/users/${username}`)
   }
+
+  function openPost(postId){
+    history.push(`/posts/${postId}`)
+  }
+
+  function postResultComponents(){
+    return results[filter]?.map( post => {
+      return (
+          <ResultPreview key={post.id} post={post} onClick={ () => openPost(post.id) }>
+            <img src={post.images[0].secure_url} alt={post.description}/>
+            {post.id}
+          </ResultPreview>
+      )
+    })
+  }
+
+  function userResultComponents(){
+    return results.users?.map( user => {
+      return (
+          <ResultPreview key={user.id} user={user} onClick={ () => openUsersPage(user.username) }>
+            <img src={user.avatar.secure_url} alt={user.username}/>
+            <span>{user.username}</span>
+          </ResultPreview>
+      )
+    })
+  }
+  
+  const displayedComponents = filter === "users" ? userResultComponents() : postResultComponents()
 
   return (
     <IonPage>
@@ -41,19 +114,22 @@ function SearchPage () {
             </Item>
 
             <IonSearchbar 
-              value={search.query} 
+              value={query} 
               onIonChange={e => {
                 dispatch( setQuery( (e.detail.value!) ) )
                 }
               } 
+              onKeyUp={handleSearchSubmit}
+              // onIonClear
               animated
+              showClearButton="always"
               placeholder="Search..."
             >
             </IonSearchbar>
 
 
           <Segment 
-            value={search.filter}
+            value={filter}
             onIonChange={e => handleFilterChange(e.detail.value) }
           >
             <SegmentButton value="users">
@@ -73,22 +149,29 @@ function SearchPage () {
           </Toolbar>
         </Header>
 
-
-
-
-
-
-
-
-
-
-
-
-
       <IonContent fullscreen>
+        { displayedComponents?.length > 0 ?
+          <ResultsGrid>
+            {displayedComponents}
+          </ResultsGrid>
+        :
+          <NoMatches>  
+            No Matches Found
+          </NoMatches>
+        }
+            
+        <IonInfiniteScroll 
+          threshold="20%" 
+          disabled={disableInfiniteScroll}
+          onIonInfinite={console.log}
+        >
+          <IonInfiniteScrollContent
+            loadingText="Fetching more results">
+          </IonInfiniteScrollContent>
+        </IonInfiniteScroll>
 
-            Search Page        
       </IonContent>
+
     </IonPage>
   );
 };
@@ -97,14 +180,12 @@ export default SearchPage;
 
 
 const Header = styled(IonHeader)``
-
 const Toolbar = styled(IonToolbar)`
   padding-right: 10px;
 `
 const Title = styled(IonTitle)`
   font-size: 1.8rem;
 `
-
 const Avatar = styled(IonAvatar)`
     width:50px !important;
     height: 50px !important;
@@ -117,9 +198,56 @@ const Item = styled(IonItem)`
 
 /***************** Segment Bar ******************** */
 
-const Segment = styled(IonSegment)``
+const Segment = styled(IonSegment)`
+`
 const SegmentButton = styled(IonSegmentButton)``
 const SegmentLabel = styled(IonLabel)``
 
+/***************** Results grid ******************* */
 
+const ResultsGrid = styled(IonGrid)`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vw;
+  justify-content: center;
+  overflow-y: scroll;
+  margin-top:10px;
+`
+const ResultPreview = styled.div`
+  position: relative;
+  max-width: 30vw;
+  max-height: 30vw;
+  cursor: pointer;
+  transition: .2s ease-in-out; 
 
+  img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  span{
+    background: rgba(51, 51, 51, 0.6); 
+    align-items: center;
+    bottom: 0;
+    color: white;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    margin-bottom: 10%;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+  }
+
+  :hover{
+    transform: scale(1.05)
+  }
+`
+
+const NoMatches = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`

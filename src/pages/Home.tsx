@@ -51,7 +51,6 @@ function Home () {
         }
       })
       .then((data) => {
-        console.log(`data`, data)
         if (data && data.length > 0){
           dispatch( setPosts(data) )
           setDisableInfiniteScroll(data.length < 5);
@@ -123,7 +122,6 @@ function Home () {
             }
           })
           .then((data) => {
-            console.log(`data`, data)
             dispatch( updatePost( data ) )
           })
           .catch((data) => {
