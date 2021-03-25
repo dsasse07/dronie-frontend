@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonCardContent } from '@ionic/react';
 import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast, IonIcon } from '@ionic/react';
 import { IonThumbnail, IonLabel, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/react';
-import { IonPopover, IonList, IonAlert, IonButton } from '@ionic/react';
+import { IonPopover, IonList, IonAlert, IonButton, IonLoading } from '@ionic/react';
 import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
 import { checkmark, add } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
@@ -259,6 +259,10 @@ const ProfilePage = () => {
         </Header>
 
       <IonContent fullscreen>
+        <IonLoading
+          isOpen={isLoading}
+          message={'Loading...'}
+        />
         <Card>
 
           <IonCardContent>

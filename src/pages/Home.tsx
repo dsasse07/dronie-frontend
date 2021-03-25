@@ -354,6 +354,7 @@ function Home () {
             <IonIcon icon={scrollPosition > 800 ? arrowUpOutline : refreshOutline } onClick={handleFabClick}/>
           </FabButton>
         </IonFab>
+        
         <div id="top" ref={topOfFeedRef} />
         <List >
           {postComponents.length > 0 ?

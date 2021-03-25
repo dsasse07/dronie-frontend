@@ -2,7 +2,7 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonThumbnail, IonImg, IonInfiniteScroll } from '@ionic/react';
-import { IonInfiniteScrollContent, IonButtons, IonBackButton } from '@ionic/react';
+import { IonInfiniteScrollContent, IonButtons, IonBackButton, IonLoading } from '@ionic/react';
 import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -36,8 +36,6 @@ function handleSearchSubmit(e){
   }
 
   function fetchResults(){
-    console.log('fetching')
-    console.log(`filter in fetch`, filter)
     const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
     fetch(`${process.env.REACT_APP_BACKEND}${urlParams}`)
       .then( response => {
@@ -63,8 +61,6 @@ function handleSearchSubmit(e){
         console.error(error)
       });
   }
-
-  console.log(disableInfiniteScroll)
 
   async function fetchNext(event) { 
     console.log('ding')
@@ -158,6 +154,11 @@ function handleSearchSubmit(e){
         </Header>
 
       <IonContent fullscreen>
+        <IonLoading
+          isOpen={isFetching}
+          message={'Searching...'}
+        />
+
         { displayedComponents?.length > 0 ?
           <ResultsGrid>
             {displayedComponents}

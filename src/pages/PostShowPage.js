@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
-import { IonToast, IonAlert, IonItem } from '@ionic/react';
+import { IonToast, IonAlert, IonItem, IonLoading } from '@ionic/react';
 import PostCard from '../components/PostCard'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
@@ -283,6 +283,11 @@ function PostShowPage () {
               }
             }
           ]}
+        />
+
+        <IonLoading
+          isOpen={isLoading}
+          message={'Loading...'}
         />
 
 

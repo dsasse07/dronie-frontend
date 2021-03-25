@@ -1,5 +1,6 @@
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
+import { IonLoading } from "@ionic/react"
 import { useForm, Controller } from "react-hook-form";
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react'
@@ -71,7 +72,7 @@ function NewPostForm() {
       description: ""
     }
   });  
-  const [isUploading, setIsUploading] = useState(false)
+  const [ isUploading, setIsUploading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
   const dispatch = useDispatch()
   const history = useHistory()
@@ -151,6 +152,11 @@ function NewPostForm() {
   }
 
   return (
+    <>
+    <IonLoading
+      isOpen={isUploading}
+      message={'Posting...'}
+    />
     <Card>
       <Content>
 
@@ -167,13 +173,7 @@ function NewPostForm() {
             
             <IonGrid>
             
-                    <TagInput />
-              {/* <IonRow>
-                <IonCol>
-                  <IonItem>
-                  </IonItem>
-                </IonCol>
-              </IonRow> */}
+              <TagInput />
 
               <IonRow>
                 <IonCol>
@@ -275,6 +275,7 @@ function NewPostForm() {
 
       </Content>
     </Card>
+  </>
   )
 }
 

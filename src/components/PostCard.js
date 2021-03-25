@@ -184,7 +184,6 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
   }
 
   function handleImageChange(nextIndex){
-    console.log('nextIndex', nextIndex)
     switch (true){
       case (nextIndex === images.length):
         setDisplayedImageIndex(0)
@@ -481,10 +480,12 @@ const PrevImage = styled.div`
   position: absolute;
   top: 0;
   left: 0;
+  margin-left: 5px;
+  margin-top: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: calc(100% - 11px);
   width: 5vw;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
@@ -504,9 +505,11 @@ const NextImage = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 5px;
+  margin-top: 5px;
   right: 0;
   top: 0;
-  height: 100%;
+  height: calc(100% - 11px);
   width: 5vw;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
