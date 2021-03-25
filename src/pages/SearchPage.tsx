@@ -2,7 +2,7 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonThumbnail, IonImg, IonInfiniteScroll } from '@ionic/react';
-import { IonInfiniteScrollContent } from '@ionic/react';
+import { IonInfiniteScrollContent, IonButtons, IonBackButton } from '@ionic/react';
 import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -19,6 +19,7 @@ function SearchPage () {
   const history = useHistory()
 
   function handleFilterChange(newFilterValue){
+    setDisableInfiniteScroll(false)
     dispatch( setFilter( newFilterValue ) )
   }
 
@@ -61,6 +62,14 @@ function handleSearchSubmit(e){
         setIsFetching(false)
         console.error(error)
       });
+  }
+
+  console.log(disableInfiniteScroll)
+
+  async function fetchNext(event) { 
+    console.log('ding')
+    await fetchResults();
+    (event.target).complete();
   }
 
   function goToProfile(){
@@ -120,7 +129,6 @@ function handleSearchSubmit(e){
                 }
               } 
               onKeyUp={handleSearchSubmit}
-              // onIonClear
               animated
               showClearButton="always"
               placeholder="Search..."
@@ -163,7 +171,7 @@ function handleSearchSubmit(e){
         <IonInfiniteScroll 
           threshold="20%" 
           disabled={disableInfiniteScroll}
-          onIonInfinite={console.log}
+          onIonInfinite={fetchNext}
         >
           <IonInfiniteScrollContent
             loadingText="Fetching more results">
