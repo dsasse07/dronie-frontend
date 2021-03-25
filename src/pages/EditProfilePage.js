@@ -20,7 +20,7 @@ import avatarPlaceHolder from '../assets/avatar.jpg'
 export function Droparea(props) {
   const currentUser = useSelector(state => state.currentUser)
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
-    accept: 'image/*',
+    accept: 'image/*', 
     maxFiles: 1,
     onDrop: props.onChange,
     multiple: false
