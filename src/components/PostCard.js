@@ -223,7 +223,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
 
 
         <CardContent>
-
+          
           <ImageContainer >
             <Img src={images[0].secure_url} />
           </ImageContainer>
