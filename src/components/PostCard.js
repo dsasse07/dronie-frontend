@@ -374,8 +374,8 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
         onDidDismiss={() => setShowPostTags({ showPopover: false, event: undefined })}
         >
         <IonList>
-          { post.tags.length > 0 ?
-            post.tags.map( tag => {
+          { post?.tags?.length > 0 ?
+            post?.tags.map( tag => {
               return(
                 <IonItem key={tag.id}>
                   <IonLabel>
