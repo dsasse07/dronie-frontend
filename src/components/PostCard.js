@@ -2,9 +2,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from '@ionic/react';
 import { IonAvatar, IonIcon, IonList, IonItem, IonLabel, IonInput, IonButton } from '@ionic/react';
-import { IonImg, IonPopover, IonAlert } from '@ionic/react'
+import { IonImg, IonPopover, IonAlert, IonGrid, IonRow, IonCol } from '@ionic/react'
 import { trashOutline, ellipsisHorizontal, heart, heartOutline, chatbubbleOutline} from 'ionicons/icons'
 import { createOutline, chevronDownOutline, send, pricetagOutline} from 'ionicons/icons'
+import { ellipseOutline, ellipse, chevronForwardOutline, chevronBackOutline } from 'ionicons/icons'
 import styled from 'styled-components'
 import Comment from './Comment'
 import { useSelector, useDispatch } from 'react-redux'
@@ -25,6 +26,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
   const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
+  const [ displayedImageIndex, setDisplayedImageIndex ] = useState(0)
   const [ showPostTags, setShowPostTags ] = useState({
     showPopover: false,
     event: undefined
@@ -181,6 +183,21 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
     history.push(`/users/${username}`)
   }
 
+  function handleImageChange(nextIndex){
+    console.log('nextIndex', nextIndex)
+    switch (true){
+      case (nextIndex === images.length):
+        setDisplayedImageIndex(0)
+        break
+      case (nextIndex < 0 ):
+        setDisplayedImageIndex( images.length - 1 )
+        break
+      default:
+        setDisplayedImageIndex(nextIndex)
+        break
+    }
+  }
+
 
   const commentComponents = post.comments.map( (comment) => {
     return (
@@ -191,6 +208,17 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
         post={post}
         onCommentDeleteClick={onCommentDeleteClick}
         onViewUser={openUsersPage}
+      />
+    )
+  })
+
+  const trackerDots = images.map( ( _ , index) => {
+    return(
+      <IonIcon 
+        icon={index === displayedImageIndex ? ellipse : ellipseOutline } 
+        onClick={ () => setDisplayedImageIndex(index) }
+        key={index}
+        index={index}
       />
     )
   })
@@ -221,64 +249,96 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
             }
           </HeaderContainer>
 
-
         <CardContent>
-          
-          <ImageContainer >
-            <Img src={images[0].secure_url} />
-          </ImageContainer>
+          <IonGrid>
+            <IonRow>
+              <ImageContainer >
+                <Img src={images[displayedImageIndex].secure_url} />
+                { images.length > 1 && 
+                  <>
+                    <PrevImage onClick={() => handleImageChange(displayedImageIndex-1) }>
+                      <IonIcon icon={chevronBackOutline} />
+                    </PrevImage>
+                    <NextImage onClick={() => handleImageChange(displayedImageIndex+1) }>
+                      <IonIcon icon={chevronForwardOutline} />
+                    </NextImage>
+                  </>
+                }
+              </ImageContainer>
+            </IonRow>
+            
+            <IonRow>
+              <IonCol>
+                {trackerDots.length > 1 &&
+                  <ImageTracker>
+                    {trackerDots}
+                  </ImageTracker>
+                }
+              </IonCol>
+            </IonRow>
 
-          <ControlsBar id="control">
-            <ControlContainer userLike={userLike} onClick={toggleLike}>
+          <ControlsRow id="control">
+            <ControlCol userLike={userLike} onClick={toggleLike}>
               <IonIcon icon={userLike ? heart : heartOutline} />
               {post.likes.length} Likes
-            </ControlContainer>
-            <ControlContainer onClick={handleShowPostTags}>
+            </ControlCol>
+            <ControlCol onClick={handleShowPostTags}>
               <IonIcon icon={pricetagOutline} />
               Tags
-            </ControlContainer>
-            <ControlContainer onClick={handleShowNewCommentForm}>
+            </ControlCol>
+            <ControlCol onClick={handleShowNewCommentForm}>
               <IonIcon icon={chatbubbleOutline} />
               Comment
-            </ControlContainer>
-          </ControlsBar >
+            </ControlCol>
+          </ControlsRow >
 
           <hr></hr>
 
-          <DescriptionContainer>
-            {description}
-          </DescriptionContainer>
+          <DescriptionRow>
+            <IonCol>
+              {description}
+            </IonCol>
+          </DescriptionRow>
           
-            <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
-              {commentComponents.length > 0 ? 
-                commentComponents 
-              : 
-              <IonItem>
-                <IonLabel>No comments yet. Be the first!</IonLabel>
-              </IonItem>
-              }
-              <div id="bottom" ref={commentsBottomRef}/>
-            </CommentsContainer>
+          <CommentsRow>
+            <CommentsCol>
+              <CommentsContainer showComments={showComments} ref={commentsBottomRef}>
+                {commentComponents.length > 0 ? 
+                  commentComponents 
+                : 
+                <IonItem>
+                  <IonLabel>No comments yet. Be the first!</IonLabel>
+                </IonItem>
+                }
+                <div id="bottom" ref={commentsBottomRef}/>
+              </CommentsContainer>
+            </CommentsCol>
+          </CommentsRow>
 
           {showNewCommentForm && 
-            <NewCommentContainer >
-              <form onSubmit={handleAddComment}>
-                <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
-                <Button type="submit" >
-                  <IonIcon icon={send}/>
-                </Button>
-              </form>
-            </NewCommentContainer>
+            <NewCommentRow>
+              <NewCommentCol >
+                <form onSubmit={handleAddComment}>
+                  <Input type="text" placeholder="New Comment" value={newCommentText} onIonChange={handleCommentTextChange}/> 
+                  <Button type="submit" size="small">
+                    <IonIcon icon={send}/>
+                  </Button>
+                </form>
+              </NewCommentCol>
+            </NewCommentRow>
           } 
-
-          <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
-            <IonLabel>
-              <Icon icon={chevronDownOutline} showComments={showComments} />
-              {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
-              <Icon icon={chevronDownOutline} showComments={showComments}/>
-            </IonLabel>
-          </ShowCommentsButton>
-
+            <ShowCommentsRow>
+              <ShowCommentsCol>
+                <ShowCommentsButton button onClick={handleShowComments} scroller={post}>
+                  <IonLabel>
+                    <Icon icon={chevronDownOutline} showComments={showComments} />
+                    {showComments ? 'Hide' : 'Show'} Comments {`(${post.comments.length})`}
+                    <Icon icon={chevronDownOutline} showComments={showComments}/>
+                  </IonLabel>
+                </ShowCommentsButton>
+              </ShowCommentsCol>
+            </ShowCommentsRow>
+          </IonGrid>
         </CardContent>
       </Card>
 
@@ -413,15 +473,76 @@ const CardContent = styled(IonCardContent)`
   }
 `
 
-const ImageContainer = styled.div`
+const ImageRow = styled(IonRow)``
+const ImageContainer = styled(IonCol)`
+  position: relative;
 `
+const PrevImage = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 5vw;
+  background: rgba(45, 45, 45, 0.2);
+  transition: 0.1s ease-in-out;
+  cursor: pointer;
+  ion-icon{
+    font-size: 1.4rem;
+    opacity: 0.7;
+  }
+
+  :hover{
+    background: rgba(45, 45, 45, 0.5);
+    width: 8vw;
+  }
+`
+const NextImage = styled.div`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 5vw;
+  background: rgba(45, 45, 45, 0.2);
+  transition: 0.1s ease-in-out;
+  cursor: pointer;
+
+  ion-icon{
+    font-size: 1.4rem;
+    opacity: 0.7;
+  }
+  :hover{
+    background: rgba(45, 45, 45, 0.5);
+    width: 8vw;
+  }
+`
+
+const ImageTracker = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 5px;
+  cursor: pointer;
+  
+
+  ion-icon{
+    font-size: 0.7rem;
+  }
+`
+
 
 const Img = styled(IonImg)`
   max-width: 100%;
   object-fit: contain;
 `
 
-const DescriptionContainer = styled.div`
+const DescriptionRow = styled(IonRow)`
   font-size: 1rem;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -432,7 +553,7 @@ const DescriptionContainer = styled.div`
 //************** Card Controls Styling ***************** */
 //****************************************************** */
 
-const ControlsBar = styled.div`
+const ControlsRow = styled(IonRow)`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -442,7 +563,7 @@ const ControlsBar = styled.div`
   padding-bottom: 3px;
 `
 
-const ControlContainer = styled.div`
+const ControlCol = styled(IonCol)`
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -457,26 +578,12 @@ cursor: pointer;
   }
 `
 
-const LeaveCommentContainer = styled.div`
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-font-size: 0.8rem;
-font-weight: bold;
-cursor: pointer;
-
-  ion-icon {
-    font-size: 1.3rem;
-  }
-`
-
-
 //****************************************************** */
 //************** Comment Form Styling ****************** */
 //****************************************************** */
 
-const NewCommentContainer = styled.div`
+const NewCommentRow = styled(IonRow)``
+const NewCommentCol = styled(IonCol)`
   border: 1px solid;
   border-radius: 10px;
   margin-top: 8px;
@@ -502,6 +609,8 @@ const Button = styled(IonButton)`
 //************** Card Comments Styling ***************** */
 //****************************************************** */
 
+const CommentsRow = styled(IonRow)``
+const CommentsCol = styled(IonCol)``
 const CommentsContainer = styled(IonList)`
   max-height: ${props => props.showComments ? '200px' : '0' };
   padding-top: ${props => props.showComments ? '8px' : '0' };
@@ -513,6 +622,8 @@ const CommentsContainer = styled(IonList)`
   width: 100%;
 `
 
+const ShowCommentsRow = styled(IonRow)``
+const ShowCommentsCol = styled(IonCol)``
 const ShowCommentsButton = styled(IonItem)`
   && {
     font-size: 0.8rem;
