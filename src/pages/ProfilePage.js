@@ -39,7 +39,6 @@ const ProfilePage = () => {
 
   useEffect( () => {
     setDisableInfiniteScroll(false);
-    setIsLoading(true)
     get("token")
     .then( token => {
       fetch(`${process.env.REACT_APP_BACKEND}/users/${params.username}`, {
@@ -57,7 +56,6 @@ const ProfilePage = () => {
           }
         })
         .then((data) => {
-          setIsLoading(false)   
           dispatch( setProfileUser( data) )
           fetchPostPreviews(0, data)
         })
@@ -106,13 +104,13 @@ const ProfilePage = () => {
           }
         })
         .then((data) => {
+          setIsLoading(false)
           if (data && data.length > 0 ){
             dispatch( setProfilePosts(data) )
             setDisableInfiniteScroll(data.length < 15);
           } else {
             setDisableInfiniteScroll(true);
           }
-          setIsLoading(false)
         })
         .catch((data) => {
           setNetworkErrors(data.errors);
@@ -205,8 +203,7 @@ const ProfilePage = () => {
           followConfig.body = JSON.stringify( {following_id: profileUser.id} )
           route = `/follows`
         } 
-        console.log(`followConfig`, followConfig)
-        console.log(`route`, route)
+        
         fetch(`${process.env.REACT_APP_BACKEND}${route}`, followConfig)
           .then((response) => {
             if (response.ok) {

@@ -1,14 +1,15 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { addCircleOutline, search, home, infinite } from 'ionicons/icons';
+import { addCircleOutline, search, home, infinite, mailOutline, mailUnreadOutline } from 'ionicons/icons';
 import Home from './pages/Home';
 import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
-// import Infinite from './pages/Inifnite'
-import AuthPage from './pages/AuthPage'
+import MessagesPage from './pages/MessagesPage'
+import ContactsPage from './pages/ContactsPage'
 import ProfilePage from './pages/ProfilePage'
 import PostShowPage from './pages/PostShowPage'
+import AuthPage from './pages/AuthPage'
 import EditProfilePage from './pages/EditProfilePage'
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser } from './redux/userSlice'
@@ -85,6 +86,12 @@ function App() {
               <Route path="/edit-profile">
                 <EditProfilePage />
               </Route>
+              <Route exact path="/messages/:username">
+                <MessagesPage />
+              </Route>
+              <Route path="/contacts">
+                <ContactsPage />
+              </Route>
               <Route path="/login">
                 <Redirect to="/home" />
               </Route>
@@ -106,10 +113,10 @@ function App() {
                 <IonIcon icon={search} />
                 <IonLabel>Search</IonLabel>
               </IonTabButton>
-              {/* <IonTabButton tab="infinite" href="/infinite">
-                <IonIcon icon={infinite} />
-                <IonLabel>Infinite</IonLabel>
-              </IonTabButton> */}
+              <IonTabButton tab="contacts" href="/contacts">
+                <IonIcon icon={mailOutline} />
+                <IonLabel>Messages</IonLabel>
+              </IonTabButton>
             </IonTabBar>
           </IonTabs>
 
