@@ -1,36 +1,50 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote } from '@ionic/react';
-import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
-import { IonGrid, IonRow, IonCol, IonList, IonLoading } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote, IonTextarea, IonText } from '@ionic/react';
+import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
+import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
+import { send, mailOutline, checkmark } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { setChat, addMessage, clearChat } from '../redux/chatSlice'
 import { useState, useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
+import { useForm } from 'react-hook-form';
+import { useStorage } from '@ionic/react-hooks/storage'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
-import { current } from 'immer';
 
 function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const {id, participants, messages } = useSelector( state => state.chat )
+  const { register, handleSubmit, reset, setValue } = useForm({
+    defaultValues: {
+      newMessageContent: ""
+    }
+  })
   const [ isFetching, setIsFetching ] = useState(false)
+  const [ newMessageContent, setNewMessageContent ] = useState("")
   const [ otherUser, setOtherUser ] = useState({})
+  const { get } = useStorage()
   const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
 
   useEffect( () => {
-    const thisChat = currentUser.chats.filter( ({participants}) => {
+    const existingChat = currentUser.chats.filter( ({participants}) => {
       return ( 
         participants[0].username === params.username ||
         participants[1].username === params.username
       )
     })[0]
-    setOtherUser( thisChat?.participants.filter( participant => {
-      return participant.username === params.username
-    })[0]
-    )
-    dispatch( setChat( thisChat ) )
+
+    if (existingChat){
+      setOtherUser( existingChat?.participants.filter( participant => {
+        return participant.username === params.username
+      })[0]
+      )
+      dispatch( setChat( existingChat ) )
+    } else {
+      setOtherUser({username: params.username})
+    }
 
     return( () => {
       dispatch( clearChat([]) )
@@ -63,6 +77,71 @@ function MessagesPage () {
     //     console.error(error)
     //   });
   }
+  console.log(`otherUser`, otherUser)
+  function handleSendMessage(formData, e){
+    const newMessage = {
+      chat_id: id,
+      content: formData.newMessageContent,
+      other_username: params.username
+    }
+    setValue("newMessageContent", "")
+    get("token")
+      .then( token => {
+        const newMessageConfig = {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(newMessage)
+        }
+
+        fetch(`${process.env.REACT_APP_BACKEND}/messages`, newMessageConfig)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw data;
+              });
+            }
+          })
+          .then((data) => {
+            console.log(data)
+            if (!otherUser.avatar){
+              setOtherUser( data.participants.filter( participant => {
+                return participant.username === params.username
+              })[0] 
+              )
+            }
+            dispatch( setChat( data ) )
+            // setIsUploading(false)
+            // dispatch( updateUsersPosts( data ) )
+            // dispatch( addPost( data ) )
+            // dispatch( updateProfilePosts( data ))
+            // history.push(`/users/${currentUser.username}`)
+          })
+          .catch((data) => {
+            console.log(data)
+            // setNetworkErrors(data.errors);
+          });
+
+
+
+
+
+
+
+
+
+
+
+
+
+      })
+    console.log(`newMessage`, newMessage)
+    // dispatch( addMessage(newMessage) )
+  }
 
   function goToProfile(){
     history.push(`/users/${currentUser.username}`)
@@ -72,29 +151,37 @@ function MessagesPage () {
     history.push(`/users/${username}`)
   }
 
-//   const MessageRow = styled(IonRow)``
-// const Message = styled(IonCol)``
-// const StatusText = styled(IonNote)``
-// const userAvatar = styled(I
-
-// function me(userId){
-//   return currentUser.id === userId
-// }
+function belongsToMe(userId){
+  return currentUser.id === userId
+}
 
   const messageComponents = messages?.map( message => {
+    const time = new Date(message.created_at).toLocaleString()
     return (
-      <MessageRow me={currentUser.id} sender={message.user_id}>
+      <MessageRow me={currentUser.id} sender={message.user_id} key={message.id}>
         <Message me={currentUser.id} sender={message.user_id}>
+          { !belongsToMe(message.user_id) && 
+            <UserAvatar>
+                <img src={otherUser.avatar ? JSON.parse(otherUser.avatar)[0].secure_url : avatarPlaceHolder } />
+            </UserAvatar> 
+          }
           <MessageContent me={currentUser.id} sender={message.user_id} >
+            <IonNote>
+              {time}
+            </IonNote>
+            <br/>
             {message.content}
+            <SeenIndicator icon={message.read ? checkmark : mailOutline } me={currentUser.id} sender={message.user_id}/>
           </MessageContent>
+          { belongsToMe(message.user_id) && 
+            <UserAvatar>
+                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+            </UserAvatar> 
+          }
         </Message>
       </MessageRow>
     )
   })
-
-console.log(`message`, messages)
-
 
   return (
     <IonPage>
@@ -109,6 +196,13 @@ console.log(`message`, messages)
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
           </Item>
+          <OtherUserRow>
+            <OtherUserCol>
+              <OtherUserNameText>
+                {otherUser.username}
+              </OtherUserNameText>
+            </OtherUserCol>
+          </OtherUserRow>
         </Toolbar>
       </Header>
 
@@ -123,8 +217,34 @@ console.log(`message`, messages)
             </NoMessages>
           }
         </MessageGrid>
-
       </IonContent>
+{/* 
+      <form onSubmit={handleSubmit(onSubmit)}>
+      <textarea   />
+
+      <input type="submit" />
+    </form> */}
+
+
+      <IonFooter>
+        <IonToolbar>
+          <NewMessageForm onSubmit={handleSubmit(handleSendMessage)}>
+              <NewMessageTextarea
+                name="newMessageContent"
+                placeholder="Enter message"
+                enterkeyhint="send"
+                inputMode="text"
+                ref={register({required: true, min: 1})}
+                // onIonChange={(e) => setNewMessageContent(e.target.value)}
+                // value={newMessageContent}
+              />
+
+            <SendButton size="small" slot="end" type="submit">
+              <IonIcon icon={send} />
+            </SendButton>
+          </NewMessageForm>
+      </IonToolbar>
+      </IonFooter>
     </IonPage>
   );
 };
@@ -149,6 +269,15 @@ const Item = styled(IonItem)`
   --border-color: transparent;
 ` 
 
+const OtherUserRow = styled(IonRow)``
+const OtherUserCol = styled(IonCol)`
+  align-items: center;
+  justify-content: center;
+`
+const OtherUserNameText = styled(IonTitle)`
+  background: pink;
+  text-align: center;
+`
 /***************** Segment Bar ******************** */
 
 const Segment = styled(IonSegment)`
@@ -198,12 +327,56 @@ const MessageGrid = styled(IonGrid)`
 const MessageRow = styled(IonRow)`
   width: 100%;
   border: 2px solid blue;
+
 `
 const Message = styled(IonCol)`
   border: 2px solid pink;
+  display: flex;
+  justify-content: ${ ({sender, me}) => sender === me ? "flex-end" : "flex-start"};
+  align-items: flex-end;
+  gap: 2vw;
 `
 const MessageContent = styled(IonLabel)`
+  position: relative;
+  width: 60%;
+  border-radius: 5px;
+  padding: 10px;
+  padding-top: 5px;
+  padding-bottom: 20px;
+  padding-left: 25px;
   background: ${ ({sender, me}) => sender === me ? "pink" : "blue"};
 `
+const SeenIndicator = styled(IonIcon)`
+  position: absolute;
+  bottom: 10%;
+  font-size: 0.7rem;
+  right: ${ ({sender, me}) => sender === me ? "" : "3%"};
+  left: ${ ({sender, me}) => sender === me ? "3%" : ""};
+
+`
 const StatusText = styled(IonNote)``
-const userAvatar = styled(IonAvatar)``
+const UserAvatar = styled(IonAvatar)`
+  height: 8vw;
+  width: 8vw;
+
+`
+
+/************************************************** */
+
+const NewMessageForm = styled.form`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 3vw;
+  margin-right: 3vw;
+  gap: 2vw;
+`
+
+const NewMessageTextarea = styled(IonTextarea)`
+  background: mistyrose;
+  margin-bottom: 2vw;
+
+`
+
+const SendButton = styled(IonButton)`
+`
