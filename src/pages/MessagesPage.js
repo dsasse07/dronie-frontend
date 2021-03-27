@@ -2,24 +2,23 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNot
 import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
 import { useIonViewDidLeave } from '@ionic/react';
-import { send, mailOutline, checkmark } from 'ionicons/icons';
-import { useSelector, useDispatch } from 'react-redux'
-// import { setChat, addMessage, clearChat } from '../redux/chatSlice'
+import { send, mailOutline, checkmark, arrowBack } from 'ionicons/icons';
+import { useSelector } from 'react-redux'
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
 import { useForm } from 'react-hook-form';
+import { useHistory } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
+import { setChat } from '../redux/chatSlice';
 
-function MessagesPage () {
+function MessagesPage ({ chatWith, setChatWith}) {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const [ isFetching, setIsFetching ] = useState(false)
   const { register, handleSubmit, reset, setValue } = useForm( { defaultValues: { newMessageContent: "" } } )
   const messagesFeedRef = useRef()
   const history = useHistory()
-  const params = useParams()
   const { get } = useStorage()
 
 
@@ -28,19 +27,24 @@ function MessagesPage () {
 
   const existingChat = findExistingChat()
   const messages = existingChat?.messages
-  const otherUser = existingChat ? getOtherParticipant(existingChat) : {username: params.username}
+  const otherUser = existingChat ? getOtherParticipant(existingChat) : {username: chatWith}
   let theirUnreadMessages = messages?.filter( message => {
     return (message.user_id !== currentUser.id && message.read === false)
   })
-
   
   useEffect( () => {
     messagesFeedRef.current.scrollToBottom()
-    if (theirUnreadMessages && theirUnreadMessages.length > 0) markRead(theirUnreadMessages)
+    if (chatWith && theirUnreadMessages?.length > 0) markRead(theirUnreadMessages)
+
+    return ( () => {
+      console.log('dismount')
+    })
+
   }, [messages])
 
   useIonViewDidLeave( () => {
-    console.log(params)
+    console.log('left View')
+    setChatWith(null)
   })
 
 
@@ -50,7 +54,7 @@ function MessagesPage () {
     const newMessage = {
       chat_id: existingChat?.id,
       content: formData.newMessageContent,
-      other_username: params.username
+      other_username: chatWith
     }
     setValue("newMessageContent", "")
     get("token")
@@ -114,15 +118,15 @@ function MessagesPage () {
   function findExistingChat(){
     return currentUser.chats.filter( ({participants}) => {
       return ( 
-        participants[0].username === params.username ||
-        participants[1].username === params.username
+        participants[0].username === chatWith ||
+        participants[1].username === chatWith
         )
       })[0]
   }
 
   function getOtherParticipant(existingChat){
     return existingChat.participants.filter( participant => {
-      return participant.username === params.username
+      return participant.username === chatWith
     })[0]
   }
 
@@ -158,8 +162,8 @@ function MessagesPage () {
   })
 
   return (
-    <IonPage>
-
+    // <IonPage>
+    <>
       <Header >
         <Toolbar>
           <Item>
@@ -171,9 +175,13 @@ function MessagesPage () {
             </Avatar>
           </Item>
           <OtherUserRow>
+                <IonButton size="small" onClick={ () => setChatWith(null) } >
+                  <IonIcon icon={arrowBack} />
+                </IonButton>
             <OtherUserCol>
               <OtherUserNameText onClick={ () => messagesFeedRef.current.scrollToBottom() }>
                 {otherUser.username}
+                
               </OtherUserNameText>
             </OtherUserCol>
           </OtherUserRow>
@@ -219,7 +227,8 @@ function MessagesPage () {
           </NewMessageForm>
       </IonToolbar>
       </IonFooter>
-    </IonPage>
+      </>
+  // </IonPage>
   );
 };
 

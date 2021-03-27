@@ -5,7 +5,7 @@ import profileReducer from './profileSlice'
 import tagsReducer from './tagsSlice'
 import postFormReducer from './postFormSlice'
 import searchReducer from './searchSlice'
-import chatReducer from './chatSlice'
+import chatWithReducer from './chatWithSlice'
 
 export default configureStore({
   reducer: {
@@ -15,7 +15,7 @@ export default configureStore({
     tags: tagsReducer,
     postForm: postFormReducer,
     search: searchReducer,
-    chat: chatReducer
+    chatWith: chatWithReducer
   }
 })
 

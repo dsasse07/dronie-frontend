@@ -8,12 +8,15 @@ import { useHistory, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
+import MessagePage from '../pages/MessagesPage'
 import { current } from 'immer';
+import { setChat } from '../redux/chatSlice';
 
 function ContactsPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const [ isFetching, setIsFetching ] = useState(false)
+  const [ chatWith, setChatWith ] = useState(null)
   const dispatch = useDispatch()
   const history = useHistory()
 
@@ -61,8 +64,9 @@ function ContactsPage () {
   }
   
   function openChat(username){
-    console.log(`opening`, username)
-    history.push(`/messages/${username}`, {params: username})
+    // console.log(`opening`, username)
+    // history.push(`/messages/${username}`, {params: username})
+    setChatWith(username)
   }
 
   function getOtherParticipant(existingChat){
@@ -108,9 +112,11 @@ function ContactsPage () {
               <ContactLabel>
                 {contact.participant?.username}
               </ContactLabel>
-              <IonBadge color="primary" >
-                {contact.unreadCount}
-              </IonBadge>
+              { (contact?.unreadCount > 0) &&
+                <IonBadge color="primary" >
+                  { contact.unreadCount } 
+                </IonBadge>
+              }
             </IonRow> 
             <IonRow>
               <LastMessage read={contact.lastMessage?.read} >
@@ -125,7 +131,12 @@ function ContactsPage () {
 
   return (
     <IonPage>
+      { chatWith ?
+        <MessagePage chatWith={chatWith} setChatWith={setChatWith}/>
+      :
 
+ 
+      <>
       <Header >
         <Toolbar>
           <Item>
@@ -161,11 +172,9 @@ function ContactsPage () {
           {recentContactComponents}
         </ContactList>
 
-
-      
-
       </IonContent>
-
+      </>
+    } 
     </IonPage>
   );
 };

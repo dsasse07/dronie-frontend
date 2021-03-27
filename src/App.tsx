@@ -99,9 +99,9 @@ function App() {
               <Route path="/edit-profile">
                 <EditProfilePage />
               </Route>
-              <Route exact path="/messages/:username">
+              {/* <Route exact path="/messages/:username">
                 <MessagesPage />
-              </Route>
+              </Route> */}
               <Route path="/contacts">
                 <ContactsPage />
               </Route>
