@@ -1,6 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote, IonTextarea, IonText } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
+import { useIonViewDidLeave } from '@ionic/react';
 import { send, mailOutline, checkmark } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 // import { setChat, addMessage, clearChat } from '../redux/chatSlice'
@@ -14,12 +15,9 @@ import styled from 'styled-components'
 function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
-  // const {id, participants, messages } = useSelector( state => state.chat )
   const [ isFetching, setIsFetching ] = useState(false)
   const { register, handleSubmit, reset, setValue } = useForm( { defaultValues: { newMessageContent: "" } } )
-  // const [ otherUser, setOtherUser ] = useState({})
   const messagesFeedRef = useRef()
-  // const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
   const { get } = useStorage()
@@ -31,7 +29,7 @@ function MessagesPage () {
   const existingChat = findExistingChat()
   const messages = existingChat?.messages
   const otherUser = existingChat ? getOtherParticipant(existingChat) : {username: params.username}
-  const theirUnreadMessages = messages?.filter( message => {
+  let theirUnreadMessages = messages?.filter( message => {
     return (message.user_id !== currentUser.id && message.read === false)
   })
 
@@ -40,6 +38,10 @@ function MessagesPage () {
     messagesFeedRef.current.scrollToBottom()
     if (theirUnreadMessages && theirUnreadMessages.length > 0) markRead(theirUnreadMessages)
   }, [messages])
+
+  useIonViewDidLeave( () => {
+    console.log(params)
+  })
 
 
 

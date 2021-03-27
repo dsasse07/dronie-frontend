@@ -61,7 +61,8 @@ function ContactsPage () {
   }
   
   function openChat(username){
-    history.push(`/messages/${username}`)
+    console.log(`opening`, username)
+    history.push(`/messages/${username}`, {params: username})
   }
 
   function getOtherParticipant(existingChat){
@@ -86,32 +87,34 @@ function ContactsPage () {
   
   const recentContactIds = recentContacts.map( contact => contact.participant.id)
 
-  const friends = currentUser && currentUser.following.filter( followed => {
-    return followerIds.includes( followed.id )
-  })
+  // const otherFriends = currentUser && currentUser.following.filter( followed => {
+  //   return (followerIds.includes( followed.id ) && !recentContactIds.includes(followed.id) )
+  // })
 
-  const contacts = [...recentContacts, ...friends.filter( friend => !recentContactIds.includes(friend.id) ) ]
-
-  const contactComponents = contacts.map( contact => {
+  // const contacts = [...recentContacts, ...friends.filter( friend => !recentContactIds.includes(friend.id) ) ]
+  console.log(`contacts`, recentContacts)
+  // console.log(`otherFriends`, otherFriends)
+  
+  const recentContactComponents = recentContacts && recentContacts.map( contact => {
     return (
-        <ContactRow key={contact.participant.id} onClick={() => {openChat(contact.participant.username)}} >
+        <ContactRow key={contact.participant?.id} onClick={() => {openChat(contact.participant.username)}} >
           {/* <AvatarCol> */}
             <ContactAvatar >
-              <img src={contact.participant.avatar ? JSON.parse(contact.participant.avatar)[0].secure_url : avatarPlaceHolder } />
+              <img src={contact.participant?.avatar ? JSON.parse(contact.participant.avatar)[0].secure_url : avatarPlaceHolder } />
             </ContactAvatar>
           {/* </AvatarCol> */}
           <TextCol>
             <IonRow>
               <ContactLabel>
-                {contact.participant.username}
+                {contact.participant?.username}
               </ContactLabel>
               <IonBadge color="primary" >
                 {contact.unreadCount}
               </IonBadge>
             </IonRow> 
             <IonRow>
-              <LastMessage read={contact.lastMessage.read} >
-                {contact.lastMessage.content}
+              <LastMessage read={contact.lastMessage?.read} >
+                {contact.lastMessage?.content}
               </LastMessage>
             </IonRow>
           </TextCol>
@@ -155,7 +158,7 @@ function ContactsPage () {
         />
 
         <ContactList>
-          {contactComponents}
+          {recentContactComponents}
         </ContactList>
 
 
