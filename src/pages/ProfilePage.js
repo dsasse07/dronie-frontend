@@ -78,7 +78,6 @@ const ProfilePage = () => {
   }, [ params.username] )
 
   async function fetchNext(event) {
-    console.log('fetch next')
     await fetchPostPreviews();
     (event.target).complete();
   }

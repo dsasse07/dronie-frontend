@@ -2,7 +2,8 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonThumbnail, IonImg, IonInfiniteScroll } from '@ionic/react';
-import { IonInfiniteScrollContent, IonButtons, IonBackButton, IonLoading } from '@ionic/react';
+import { IonInfiniteScrollContent, IonIcon, IonBackButton, IonLoading } from '@ionic/react';
+import { peopleOutline, imagesOutline, pricetagsOutline, locationOutline } from 'ionicons/icons';
 import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -146,7 +147,9 @@ function handleSearchSubmit(e){
               <SegmentLabel>Tags</SegmentLabel>
             </SegmentButton>
             <SegmentButton value="location">
-              <SegmentLabel>Location</SegmentLabel>
+              <SegmentLabel>
+                Location
+              </SegmentLabel>
             </SegmentButton>
           </Segment>
 

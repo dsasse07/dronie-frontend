@@ -83,7 +83,7 @@ function ContactsPage () {
         </ContactRow>
     )
   })
-
+  console.log(`friends`, friends)
   return (
     <IonPage>
 

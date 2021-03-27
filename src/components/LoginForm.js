@@ -4,8 +4,10 @@ import { IonButton, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
 import styled from 'styled-components'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { setCurrentUser } from '../redux/userSlice'
+import { setCurrentUser, updateUsersChat } from '../redux/userSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
+import consumer from '../cable'
+
 
 function LoginForm({isOpen}) {
   const { register, handleSubmit, errors, clearErrors } = useForm();  
@@ -45,6 +47,16 @@ function LoginForm({isOpen}) {
         set("token", data.token)
         setIsLoading(false)
         dispatch( setCurrentUser( data.user) )
+        const subscription = consumer.subscriptions.create({
+          channel: "ChatChannel",
+          "access-token": data.token,
+        },
+        {
+          connected: () => (console.log("Connected")),
+          disconnected: () => (console.log("Disconnected")),
+          received: data => { dispatch( updateUsersChat(data) ) }
+        }
+        )
       })
       .catch((data) => {
         setNetworkErrors(data.errors);

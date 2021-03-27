@@ -27,11 +27,20 @@ export const currentUserSlice = createSlice({
     },
     removeCurrentUser( state, action ){
       return state = null
+    },
+    updateUsersChat( state, action ){
+      const index = state.chats.findIndex( chat => chat.id === action.payload.id)
+      console.log(`index`, index)
+      if (index >= 0) {
+        state.chats[index] = action.payload
+      } else {
+        state.chats.push( action.payload )
+      }
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { removeCurrentUser, setCurrentUser, updateUsersPosts, addCommentToUser } = currentUserSlice.actions
+export const { removeCurrentUser, setCurrentUser, updateUsersPosts, addCommentToUser, updateUsersChat } = currentUserSlice.actions
 
 export default currentUserSlice.reducer

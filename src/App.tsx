@@ -12,11 +12,13 @@ import PostShowPage from './pages/PostShowPage'
 import AuthPage from './pages/AuthPage'
 import EditProfilePage from './pages/EditProfilePage'
 import { useSelector, useDispatch } from 'react-redux'
-import { setCurrentUser } from './redux/userSlice'
+import { setCurrentUser, updateUsersChat } from './redux/userSlice'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import DelayedRedirect from './components/DelayedRedirect'
 import { useStorage } from '@ionic/react-hooks/storage'
+import consumer from './cable'
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -40,6 +42,7 @@ import './theme/variables.css';
 
 function App() {
   const currentUser = useSelector(state => state.currentUser)
+  const [ userSubscription, setUserSubscription ] = useState(null)
   const dispatch = useDispatch()
   const { get, remove } = useStorage()
   // If error and need to reset system, comment out useEffect, and uncomment remove()
@@ -56,11 +59,21 @@ function App() {
             .then( response => response.json() )
             .then( data => {
               dispatch( setCurrentUser(data) )
+              const subscription = consumer.subscriptions.create({
+                channel: "ChatChannel",
+                "access-token": token,
+              } ,
+              {
+                connected: () => (console.log("Connected")),
+                disconnected: () => (console.log("Disconnected")),
+                received: data => { dispatch( updateUsersChat(data) ) }
+              }
+              )
+              setUserSubscription( subscription )
             })
         }
       })
   }, [])
-
 
   return (
     <IonApp>

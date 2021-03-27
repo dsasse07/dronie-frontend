@@ -4,7 +4,7 @@ import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/r
 import { send, mailOutline, checkmark } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { setChat, addMessage, clearChat } from '../redux/chatSlice'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { useForm } from 'react-hook-form';
 import { useStorage } from '@ionic/react-hooks/storage'
@@ -15,27 +15,23 @@ function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const {id, participants, messages } = useSelector( state => state.chat )
-  const { register, handleSubmit, reset, setValue } = useForm({
-    defaultValues: {
-      newMessageContent: ""
-    }
-  })
   const [ isFetching, setIsFetching ] = useState(false)
-  const [ newMessageContent, setNewMessageContent ] = useState("")
+  const { register, handleSubmit, reset, setValue } = useForm( { defaultValues: { newMessageContent: "" } } )
   const [ otherUser, setOtherUser ] = useState({})
-  const { get } = useStorage()
+  const messagesFeedRef = useRef()
   const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
+  const { get } = useStorage()
 
   useEffect( () => {
     const existingChat = currentUser.chats.filter( ({participants}) => {
       return ( 
         participants[0].username === params.username ||
         participants[1].username === params.username
-      )
-    })[0]
-
+        )
+      })[0]
+      
     if (existingChat){
       setOtherUser( existingChat?.participants.filter( participant => {
         return participant.username === params.username
@@ -44,12 +40,12 @@ function MessagesPage () {
       dispatch( setChat( existingChat ) )
     } else {
       setOtherUser({username: params.username})
-    }
-
-    return( () => {
-      dispatch( clearChat([]) )
-    })
-  }, [params.username])
+    } 
+    messagesFeedRef.current.scrollToBottom()
+    // return( () => {
+    //   dispatch( clearChat([]) )
+    // })
+  }, [params.username, currentUser.chats])
 
   function fetchResults(){
     const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
@@ -77,7 +73,7 @@ function MessagesPage () {
     //     console.error(error)
     //   });
   }
-  console.log(`otherUser`, otherUser)
+
   function handleSendMessage(formData, e){
     const newMessage = {
       chat_id: id,
@@ -107,19 +103,13 @@ function MessagesPage () {
             }
           })
           .then((data) => {
-            console.log(data)
-            if (!otherUser.avatar){
-              setOtherUser( data.participants.filter( participant => {
-                return participant.username === params.username
-              })[0] 
-              )
-            }
-            dispatch( setChat( data ) )
-            // setIsUploading(false)
-            // dispatch( updateUsersPosts( data ) )
-            // dispatch( addPost( data ) )
-            // dispatch( updateProfilePosts( data ))
-            // history.push(`/users/${currentUser.username}`)
+            // if (!otherUser.avatar){
+            //   setOtherUser( data.participants.filter( participant => {
+            //     return participant.username === params.username
+            //   })[0] 
+            //   )
+            // }
+            // dispatch( setChat( data ) )
           })
           .catch((data) => {
             console.log(data)
@@ -139,8 +129,6 @@ function MessagesPage () {
 
 
       })
-    console.log(`newMessage`, newMessage)
-    // dispatch( addMessage(newMessage) )
   }
 
   function goToProfile(){
@@ -198,7 +186,7 @@ function belongsToMe(userId){
           </Item>
           <OtherUserRow>
             <OtherUserCol>
-              <OtherUserNameText>
+              <OtherUserNameText onClick={ () => messagesFeedRef.current.scrollToBottom() }>
                 {otherUser.username}
               </OtherUserNameText>
             </OtherUserCol>
@@ -206,7 +194,7 @@ function belongsToMe(userId){
         </Toolbar>
       </Header>
 
-      <IonContent fullscreen>
+      <IonContent scrollEvents={true} ref={messagesFeedRef} >
 
         <MessageGrid>
           {messageComponents?.length > 0 ?
@@ -344,7 +332,7 @@ const MessageContent = styled(IonLabel)`
   padding-top: 5px;
   padding-bottom: 20px;
   padding-left: 25px;
-  background: ${ ({sender, me}) => sender === me ? "pink" : "blue"};
+  background: ${ ({sender, me}) => sender === me ? "mistyrose" : "palegreen"};
 `
 const SeenIndicator = styled(IonIcon)`
   position: absolute;

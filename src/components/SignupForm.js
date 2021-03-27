@@ -7,8 +7,10 @@ import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { useDispatch } from 'react-redux'
-import { setCurrentUser } from '../redux/userSlice'
+import { setCurrentUser, updateUsersChat } from '../redux/userSlice'
 import { useStorage } from '@ionic/react-hooks/storage'
+import consumer from '../cable'
+
 //********************************************************************* */
 //******************* DropZone Component ****************************** */
 //********************************************************************* */
@@ -120,6 +122,15 @@ function SignupForm({isOpen}) {
           .then((data) => {
             set("token", data.token)
             setIsUploading(false)
+            const subscription = consumer.subscriptions.create({
+              channel: "ChatChannel",
+              "access-token": data.token,
+            },
+            {
+              connected: () => (console.log("Connected")),
+              disconnected: () => (console.log("Disconnected")),
+              received: data => { dispatch( updateUsersChat(data) ) }
+            })
             dispatch( setCurrentUser( data.user) )
           })
           .catch((data) => {
@@ -157,6 +168,10 @@ function SignupForm({isOpen}) {
       .then((data) => {
         set("token", data.token)
         setIsUploading(false)
+        const subscription = consumer.subscriptions.create({
+          channel: "ChatChannel",
+          "access-token": data.token,
+        })
         dispatch( setCurrentUser( data.user) )
       })
       .catch((data) => {
