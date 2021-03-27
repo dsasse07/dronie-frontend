@@ -30,7 +30,6 @@ export const currentUserSlice = createSlice({
     },
     updateUsersChat( state, action ){
       const index = state.chats.findIndex( chat => chat.id === action.payload.id)
-      console.log(`index`, index)
       if (index >= 0) {
         state.chats[index] = action.payload
       } else {

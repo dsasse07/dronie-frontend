@@ -1,13 +1,14 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonList, IonLoading } from '@ionic/react';
-import { IonInfiniteScrollContent, IonButtons, IonBackButton,  } from '@ionic/react';
+import { IonBadge, IonBackButton,  } from '@ionic/react';
 import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
 import { useSelector, useDispatch } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
+import { current } from 'immer';
 
 function ContactsPage () {
   const { filter, query, results } = useSelector(state => state.search)
@@ -58,32 +59,67 @@ function ContactsPage () {
   function goToProfile(){
     history.push(`/users/${currentUser.username}`)
   }
-
+  
   function openChat(username){
     history.push(`/messages/${username}`)
+  }
+
+  function getOtherParticipant(existingChat){
+    return existingChat.participants.filter( participant => {
+      return participant.username !== currentUser.username
+    })[0]
   }
 
   const followerIds = currentUser.followers.map( follower => {
     return follower.id
   })
 
+  const recentContacts = currentUser && [...currentUser.chats].sort( (chat1, chat2) => {
+      return new Date(chat2.messages.slice(-1)[0].created_at) - new Date(chat1.messages.slice(-1)[0].created_at)
+    }).map( chat => {
+      return { 
+        participant: getOtherParticipant(chat),
+        lastMessage: chat.messages.slice(-1)[0],
+        unreadCount: chat.messages.filter( message => message.read === false ).length 
+      }
+    })
+  
+  const recentContactIds = recentContacts.map( contact => contact.participant.id)
+
   const friends = currentUser && currentUser.following.filter( followed => {
     return followerIds.includes( followed.id )
   })
 
-  const contactComponents = friends.map( friend => {
+  const contacts = [...recentContacts, ...friends.filter( friend => !recentContactIds.includes(friend.id) ) ]
+
+  const contactComponents = contacts.map( contact => {
     return (
-        <ContactRow onClick={() => {openChat(friend.username)}}>
-            <ContactAvatar>
-              <img src={friend.avatar ? JSON.parse(friend.avatar)[0].secure_url : avatarPlaceHolder } />
+        <ContactRow key={contact.participant.id} onClick={() => {openChat(contact.participant.username)}} >
+          {/* <AvatarCol> */}
+            <ContactAvatar >
+              <img src={contact.participant.avatar ? JSON.parse(contact.participant.avatar)[0].secure_url : avatarPlaceHolder } />
             </ContactAvatar>
-            <ContactLabel>
-              {friend.username}
-            </ContactLabel>
+          {/* </AvatarCol> */}
+          <TextCol>
+            <IonRow>
+              <ContactLabel>
+                {contact.participant.username}
+              </ContactLabel>
+              <IonBadge color="primary" >
+                {contact.unreadCount}
+              </IonBadge>
+            </IonRow> 
+            <IonRow>
+              <LastMessage read={contact.lastMessage.read} >
+                {contact.lastMessage.content}
+              </LastMessage>
+            </IonRow>
+          </TextCol>
         </ContactRow>
     )
   })
-  console.log(`friends`, friends)
+
+
   return (
     <IonPage>
 
@@ -119,10 +155,6 @@ function ContactsPage () {
         />
 
         <ContactList>
-          {contactComponents}
-          {contactComponents}
-          {contactComponents}
-          {contactComponents}
           {contactComponents}
         </ContactList>
 
@@ -179,10 +211,24 @@ const ContactRow = styled(IonRow)`
     transform: translateX(5vw);
   }
 `
+const AvatarCol = styled(IonCol)`
+  
+`
+
+const TextCol = styled(IonCol)`
+  flex-grow: 1;
+`
 const ContactLabel = styled(IonLabel)`
   flex-grow: 2;
-  font-size: 1.3rem;
-  
+  font-size: 1.1rem;
+  font-weight: bold;
+`
+
+const LastMessage = styled(IonNote)`
+  font-weight: ${ ({read}) => read ? "" : "bold" };
+  font-size: 0.8rem;
+  height: calc( 1rem * 2);
+  overflow: hidden;
 `
 
 const ContactAvatar = styled(IonAvatar)`

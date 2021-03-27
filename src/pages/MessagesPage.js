@@ -3,7 +3,7 @@ import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic
 import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
 import { send, mailOutline, checkmark } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
-import { setChat, addMessage, clearChat } from '../redux/chatSlice'
+// import { setChat, addMessage, clearChat } from '../redux/chatSlice'
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { useForm } from 'react-hook-form';
@@ -14,69 +14,39 @@ import styled from 'styled-components'
 function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
-  const {id, participants, messages } = useSelector( state => state.chat )
+  // const {id, participants, messages } = useSelector( state => state.chat )
   const [ isFetching, setIsFetching ] = useState(false)
   const { register, handleSubmit, reset, setValue } = useForm( { defaultValues: { newMessageContent: "" } } )
-  const [ otherUser, setOtherUser ] = useState({})
+  // const [ otherUser, setOtherUser ] = useState({})
   const messagesFeedRef = useRef()
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
   const { get } = useStorage()
 
-  useEffect( () => {
-    const existingChat = currentUser.chats.filter( ({participants}) => {
-      return ( 
-        participants[0].username === params.username ||
-        participants[1].username === params.username
-        )
-      })[0]
-      
-    if (existingChat){
-      setOtherUser( existingChat?.participants.filter( participant => {
-        return participant.username === params.username
-      })[0]
-      )
-      dispatch( setChat( existingChat ) )
-    } else {
-      setOtherUser({username: params.username})
-    } 
-    messagesFeedRef.current.scrollToBottom()
-    // return( () => {
-    //   dispatch( clearChat([]) )
-    // })
-  }, [params.username, currentUser.chats])
 
-  function fetchResults(){
-    const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
-    // fetch(`${process.env.REACT_APP_BACKEND}${urlParams}`)
-    //   .then( response => {
-    //     if (response.ok) {
-    //       return response.json();
-    //     } else {
-    //       return response.json().then((data) => {
-    //         throw data;
-    //       });
-    //     }
-    //   })
-    //   .then((data) => {
-    //     if (data && data.length > 0){
-    //       (filter === "users") ? dispatch( setUserResults(data) ) : dispatch( setPostResults(data) )
-    //       setDisableInfiniteScroll(data.length < 30);
-    //     } else {          
-    //       setDisableInfiniteScroll(true);
-    //     }
-    //     setIsFetching(false)
-    //   })
-    //   .catch(error => {
-    //     setIsFetching(false)
-    //     console.error(error)
-    //   });
-  }
+
+
+
+  const existingChat = findExistingChat()
+  const messages = existingChat?.messages
+  const otherUser = existingChat ? getOtherParticipant(existingChat) : {username: params.username}
+  const theirUnreadMessages = messages?.filter( message => {
+    return (message.user_id !== currentUser.id && message.read === false)
+  })
+
+  
+  useEffect( () => {
+    messagesFeedRef.current.scrollToBottom()
+    if (theirUnreadMessages && theirUnreadMessages.length > 0) markRead(theirUnreadMessages)
+  }, [messages])
+
+
+
 
   function handleSendMessage(formData, e){
     const newMessage = {
-      chat_id: id,
+      chat_id: existingChat?.id,
       content: formData.newMessageContent,
       other_username: params.username
     }
@@ -103,31 +73,27 @@ function MessagesPage () {
             }
           })
           .then((data) => {
-            // if (!otherUser.avatar){
-            //   setOtherUser( data.participants.filter( participant => {
-            //     return participant.username === params.username
-            //   })[0] 
-            //   )
-            // }
-            // dispatch( setChat( data ) )
           })
           .catch((data) => {
             console.log(data)
             // setNetworkErrors(data.errors);
           });
+      })
+  }
 
+  function markRead(messages){
+    get("token")
+      .then( token => {
+        const messagesConfig = {
+          method: "PATCH",
+          headers: {
+            "Content-type":"application/json",
+            Authorization: `Bearer ${token}`
+          }, 
+          body: JSON.stringify( { messages } )
+        }
 
-
-
-
-
-
-
-
-
-
-
-
+        fetch(`${process.env.REACT_APP_BACKEND}/messages`, messagesConfig)
       })
   }
 
@@ -139,9 +105,27 @@ function MessagesPage () {
     history.push(`/users/${username}`)
   }
 
-function belongsToMe(userId){
-  return currentUser.id === userId
-}
+  function belongsToMe(userId){
+    return currentUser.id === userId
+  }
+
+  function findExistingChat(){
+    return currentUser.chats.filter( ({participants}) => {
+      return ( 
+        participants[0].username === params.username ||
+        participants[1].username === params.username
+        )
+      })[0]
+  }
+
+  function getOtherParticipant(existingChat){
+    return existingChat.participants.filter( participant => {
+      return participant.username === params.username
+    })[0]
+  }
+
+
+
 
   const messageComponents = messages?.map( message => {
     const time = new Date(message.created_at).toLocaleString()
@@ -149,7 +133,7 @@ function belongsToMe(userId){
       <MessageRow me={currentUser.id} sender={message.user_id} key={message.id}>
         <Message me={currentUser.id} sender={message.user_id}>
           { !belongsToMe(message.user_id) && 
-            <UserAvatar>
+            <UserAvatar onClick={ () => openUserPage(otherUser.username) }>
                 <img src={otherUser.avatar ? JSON.parse(otherUser.avatar)[0].secure_url : avatarPlaceHolder } />
             </UserAvatar> 
           }
@@ -162,7 +146,7 @@ function belongsToMe(userId){
             <SeenIndicator icon={message.read ? checkmark : mailOutline } me={currentUser.id} sender={message.user_id}/>
           </MessageContent>
           { belongsToMe(message.user_id) && 
-            <UserAvatar>
+            <UserAvatar  >
                 <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </UserAvatar> 
           }

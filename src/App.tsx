@@ -77,7 +77,7 @@ function App() {
 
   return (
     <IonApp>
-      <IonReactRouter>
+      <IonReactRouter >
         {currentUser ?
           <IonTabs>
             <IonRouterOutlet>
