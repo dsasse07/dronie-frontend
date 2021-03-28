@@ -3,28 +3,30 @@ import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic
 import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
 import { useIonViewDidLeave } from '@ionic/react';
 import { send, mailOutline, checkmark, arrowBack } from 'ionicons/icons';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
-import { setChat } from '../redux/chatSlice';
+import { setChatWith } from '../redux/chatWithSlice';
 
-function MessagesPage ({ chatWith, setChatWith}) {
+function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
+  const chatWith = useSelector(state => state.chatWith)
   const [ isFetching, setIsFetching ] = useState(false)
   const { register, handleSubmit, reset, setValue } = useForm( { defaultValues: { newMessageContent: "" } } )
   const messagesFeedRef = useRef()
+  const dispatch = useDispatch()
   const history = useHistory()
   const { get } = useStorage()
 
 
 
 
-
+  const today = new Date()
   const existingChat = findExistingChat()
   const messages = existingChat?.messages
   const otherUser = existingChat ? getOtherParticipant(existingChat) : {username: chatWith}
@@ -38,13 +40,14 @@ function MessagesPage ({ chatWith, setChatWith}) {
 
     return ( () => {
       console.log('dismount')
+
     })
 
   }, [messages])
 
   useIonViewDidLeave( () => {
     console.log('left View')
-    setChatWith(null)
+    dispatch( setChatWith(null) )
   })
 
 
@@ -135,6 +138,13 @@ function MessagesPage ({ chatWith, setChatWith}) {
 
   const messageComponents = messages?.map( message => {
     const time = new Date(message.created_at).toLocaleString()
+    const seenAt = new Date(message.updated_at)
+
+    const sameDay = ( 
+                      today.getMonth() === seenAt.getMonth() &&
+                      today.getDate() === seenAt.getDate()
+                    )
+
     return (
       <MessageRow me={currentUser.id} sender={message.user_id} key={message.id}>
         <Message me={currentUser.id} sender={message.user_id}>
@@ -149,6 +159,14 @@ function MessagesPage ({ chatWith, setChatWith}) {
             </IonNote>
             <br/>
             {message.content}
+            <br/>
+            <SeenAtLabel me={currentUser.id} sender={message.user_id}>
+              {message.read && 
+                (
+                  sameDay ? seenAt.toLocaleTimeString() : seenAt.toLocaleString().slice(4)
+                )
+              }
+            </SeenAtLabel>
             <SeenIndicator icon={message.read ? checkmark : mailOutline } me={currentUser.id} sender={message.user_id}/>
           </MessageContent>
           { belongsToMe(message.user_id) && 
@@ -162,7 +180,6 @@ function MessagesPage ({ chatWith, setChatWith}) {
   })
 
   return (
-    // <IonPage>
     <>
       <Header >
         <Toolbar>
@@ -175,7 +192,7 @@ function MessagesPage ({ chatWith, setChatWith}) {
             </Avatar>
           </Item>
           <OtherUserRow>
-                <IonButton size="small" onClick={ () => setChatWith(null) } >
+                <IonButton size="small" onClick={ () => dispatch( setChatWith(null) ) } >
                   <IonIcon icon={arrowBack} />
                 </IonButton>
             <OtherUserCol>
@@ -195,18 +212,13 @@ function MessagesPage ({ chatWith, setChatWith}) {
             messageComponents
           :
             <NoMessages>
-              No Messages
+              <IonNote>
+                No Messages
+              </IonNote>
             </NoMessages>
           }
         </MessageGrid>
       </IonContent>
-{/* 
-      <form onSubmit={handleSubmit(onSubmit)}>
-      <textarea   />
-
-      <input type="submit" />
-    </form> */}
-
 
       <IonFooter>
         <IonToolbar>
@@ -319,6 +331,7 @@ const Message = styled(IonCol)`
   align-items: flex-end;
   gap: 2vw;
 `
+
 const MessageContent = styled(IonLabel)`
   position: relative;
   width: 60%;
@@ -329,6 +342,15 @@ const MessageContent = styled(IonLabel)`
   padding-left: 25px;
   background: ${ ({sender, me}) => sender === me ? "mistyrose" : "palegreen"};
 `
+
+const SeenAtLabel = styled(IonNote)`
+  position: absolute;
+  bottom: 10%;
+  font-size: 0.7rem;
+  right: ${ ({sender, me}) => sender === me ? "" : "10%"};
+  left: ${ ({sender, me}) => sender === me ? "10%" : ""};
+`
+
 const SeenIndicator = styled(IonIcon)`
   position: absolute;
   bottom: 10%;

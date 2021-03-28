@@ -10,13 +10,14 @@ import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
 import MessagePage from '../pages/MessagesPage'
 import { current } from 'immer';
-import { setChat } from '../redux/chatSlice';
+import { setChatWith } from '../redux/chatWithSlice';
 
 function ContactsPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
+  const chatWith = useSelector(state => state.chatWith)
   const [ isFetching, setIsFetching ] = useState(false)
-  const [ chatWith, setChatWith ] = useState(null)
+  // const [ chatWith, setChatWith ] = useState(null)
   const dispatch = useDispatch()
   const history = useHistory()
 
@@ -64,9 +65,7 @@ function ContactsPage () {
   }
   
   function openChat(username){
-    // console.log(`opening`, username)
-    // history.push(`/messages/${username}`, {params: username})
-    setChatWith(username)
+    dispatch( setChatWith(username) )
   }
 
   function getOtherParticipant(existingChat){
@@ -91,40 +90,32 @@ function ContactsPage () {
   
   const recentContactIds = recentContacts.map( contact => contact.participant.id)
 
-  // const otherFriends = currentUser && currentUser.following.filter( followed => {
-  //   return (followerIds.includes( followed.id ) && !recentContactIds.includes(followed.id) )
-  // })
+  const otherFriends = currentUser && currentUser.following.filter( followed => {
+    return (followerIds.includes( followed.id ) && !recentContactIds.includes(followed.id) )
+  })
 
-  // const contacts = [...recentContacts, ...friends.filter( friend => !recentContactIds.includes(friend.id) ) ]
-  console.log(`contacts`, recentContacts)
-  // console.log(`otherFriends`, otherFriends)
+  const otherFriendComponents = otherFriends?.map( friend => {
+    console.log(friend)
+    return ( 
+      <Contact 
+        key={friend.id}
+        id={friend.id}
+        avatar={friend.avatar}
+        username={friend.username}
+      /> 
+    )
+  })
   
-  const recentContactComponents = recentContacts && recentContacts.map( contact => {
+  const recentContactComponents = recentContacts?.map( ({participant, unreadCount, lastMessage}) => {
     return (
-        <ContactRow key={contact.participant?.id} onClick={() => {openChat(contact.participant.username)}} >
-          {/* <AvatarCol> */}
-            <ContactAvatar >
-              <img src={contact.participant?.avatar ? JSON.parse(contact.participant.avatar)[0].secure_url : avatarPlaceHolder } />
-            </ContactAvatar>
-          {/* </AvatarCol> */}
-          <TextCol>
-            <IonRow>
-              <ContactLabel>
-                {contact.participant?.username}
-              </ContactLabel>
-              { (contact?.unreadCount > 0) &&
-                <IonBadge color="primary" >
-                  { contact.unreadCount } 
-                </IonBadge>
-              }
-            </IonRow> 
-            <IonRow>
-              <LastMessage read={contact.lastMessage?.read} >
-                {contact.lastMessage?.content}
-              </LastMessage>
-            </IonRow>
-          </TextCol>
-        </ContactRow>
+      <Contact
+        key={participant.id} 
+        id={participant.id} 
+        avatar={participant.avatar} 
+        username={participant.username}
+        lastMessage={lastMessage}
+        unreadCount={unreadCount}
+        />
     )
   })
 
@@ -132,7 +123,7 @@ function ContactsPage () {
   return (
     <IonPage>
       { chatWith ?
-        <MessagePage chatWith={chatWith} setChatWith={setChatWith}/>
+        <MessagePage />
       :
 
  
@@ -170,6 +161,7 @@ function ContactsPage () {
 
         <ContactList>
           {recentContactComponents}
+          {otherFriendComponents}
         </ContactList>
 
       </IonContent>
@@ -178,6 +170,39 @@ function ContactsPage () {
     </IonPage>
   );
 };
+
+
+
+function Contact ({ id, avatar, username, lastMessage, unreadCount = 0}){
+  const dispatch = useDispatch()
+  
+  return (
+    <ContactRow key={id} onClick={() => { dispatch( setChatWith(username) ) }} >
+      <ContactAvatar >
+        <img src={avatar ? JSON.parse(avatar)[0].secure_url : avatarPlaceHolder } />
+      </ContactAvatar>
+      <TextCol>
+        <IonRow>
+          <ContactLabel>
+            {username}
+          </ContactLabel>
+          { unreadCount > 0 &&
+            <IonBadge color="primary" >
+              { unreadCount } 
+            </IonBadge>
+          }
+        </IonRow> 
+        <IonRow>
+          { lastMessage && 
+            <LastMessage read={lastMessage?.read} >
+              {lastMessage?.content}
+            </LastMessage>
+          }
+        </IonRow>
+      </TextCol>
+    </ContactRow>
+  )
+}
 
 export default ContactsPage;
 
