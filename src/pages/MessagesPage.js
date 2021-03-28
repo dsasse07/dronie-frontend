@@ -37,16 +37,9 @@ function MessagesPage () {
   useEffect( () => {
     messagesFeedRef.current.scrollToBottom()
     if (chatWith && theirUnreadMessages?.length > 0) markRead(theirUnreadMessages)
-
-    return ( () => {
-      console.log('dismount')
-
-    })
-
   }, [messages])
 
   useIonViewDidLeave( () => {
-    console.log('left View')
     dispatch( setChatWith(null) )
   })
 

@@ -38,6 +38,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { current } from 'immer';
 
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
       })
   }, [])
 
+  function unreadMessageCount(){
+    return currentUser?.chats.reduce( (total, chat) => {
+      return total += chat.messages.filter( message => {
+        return !message.read && message.user_id !== currentUser.id
+      }).length
+    }, 0 )
+  }
+
   return (
     <IonApp>
       <IonReactRouter >
@@ -99,9 +108,6 @@ function App() {
               <Route path="/edit-profile">
                 <EditProfilePage />
               </Route>
-              {/* <Route exact path="/messages/:username">
-                <MessagesPage />
-              </Route> */}
               <Route path="/contacts">
                 <ContactsPage />
               </Route>
@@ -127,7 +133,10 @@ function App() {
                 <IonLabel>Search</IonLabel>
               </IonTabButton>
               <IonTabButton tab="contacts" href="/contacts">
-                <IonIcon icon={mailOutline} />
+                <MessagesIcon 
+                  icon={ currentUser && unreadMessageCount() > 0 ? mailUnreadOutline : mailOutline} 
+                  unread={ unreadMessageCount() > 0 }
+                />
                 <IonLabel>Messages</IonLabel>
               </IonTabButton>
             </IonTabBar>
@@ -152,4 +161,8 @@ export default App;
 
 const TabBar = styled(IonTabBar)`
   height: ${ ({currentUser}) => !currentUser && "0" };
+`
+
+const MessagesIcon = styled(IonIcon)`
+  color: ${ ({unread}) => unread ? "red" : ""};
 `

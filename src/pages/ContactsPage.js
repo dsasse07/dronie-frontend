@@ -1,65 +1,23 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote } from '@ionic/react';
-import { IonItem, IonSegment, IonSegmentButton, IonSearchbar, IonLabel } from '@ionic/react';
-import { IonGrid, IonRow, IonCol, IonList, IonLoading } from '@ionic/react';
+import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
+import { IonInput, IonRow, IonCol, IonList, IonButton } from '@ionic/react';
 import { IonBadge, IonBackButton,  } from '@ionic/react';
-import { setQuery, setFilter, setUserResults, setPostResults, clearResults } from '../redux/searchSlice'
+import { close } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
-import { useHistory, Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+import { useState } from 'react'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
 import MessagePage from '../pages/MessagesPage'
-import { current } from 'immer';
 import { setChatWith } from '../redux/chatWithSlice';
 
 function ContactsPage () {
-  const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const chatWith = useSelector(state => state.chatWith)
-  const [ isFetching, setIsFetching ] = useState(false)
-  // const [ chatWith, setChatWith ] = useState(null)
+  const [ query, setQuery ] = useState("")
   const dispatch = useDispatch()
   const history = useHistory()
 
-  function fetchResults(){
-    const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
-    // fetch(`${process.env.REACT_APP_BACKEND}${urlParams}`)
-    //   .then( response => {
-    //     if (response.ok) {
-    //       return response.json();
-    //     } else {
-    //       return response.json().then((data) => {
-    //         throw data;
-    //       });
-    //     }
-    //   })
-    //   .then((data) => {
-    //     if (data && data.length > 0){
-    //       (filter === "users") ? dispatch( setUserResults(data) ) : dispatch( setPostResults(data) )
-    //       setDisableInfiniteScroll(data.length < 30);
-    //     } else {          
-    //       setDisableInfiniteScroll(true);
-    //     }
-    //     setIsFetching(false)
-    //   })
-    //   .catch(error => {
-    //     setIsFetching(false)
-    //     console.error(error)
-    //   });
-  }
-
-  async function fetchNext(event) { 
-    console.log('ding')
-    await fetchResults();
-    (event.target).complete();
-  }
-
-  function handleSearchSubmit(e){
-    if (e.key !== "Enter" || query === "") return
-    dispatch( clearResults([]) )
-    fetchResults()
-  }
-  
   function goToProfile(){
     history.push(`/users/${currentUser.username}`)
   }
@@ -84,7 +42,7 @@ function ContactsPage () {
       return { 
         participant: getOtherParticipant(chat),
         lastMessage: chat.messages.slice(-1)[0],
-        unreadCount: chat.messages.filter( message => message.read === false ).length 
+        unreadCount: chat.messages.filter( message => message.user_id !== currentUser.id && message.read === false ).length 
       }
     })
   
@@ -94,30 +52,34 @@ function ContactsPage () {
     return (followerIds.includes( followed.id ) && !recentContactIds.includes(followed.id) )
   })
 
-  const otherFriendComponents = otherFriends?.map( friend => {
-    console.log(friend)
-    return ( 
-      <Contact 
-        key={friend.id}
-        id={friend.id}
-        avatar={friend.avatar}
-        username={friend.username}
-      /> 
-    )
+  const filteredRecentContacts = recentContacts?.filter( ({participant}) => {
+    return participant.username.includes(query)
   })
   
-  const recentContactComponents = recentContacts?.map( ({participant, unreadCount, lastMessage}) => {
+  const recentContactComponents = filteredRecentContacts?.map( ({participant, unreadCount, lastMessage}) => {
     return (
       <Contact
-        key={participant.id} 
-        id={participant.id} 
-        avatar={participant.avatar} 
-        username={participant.username}
-        lastMessage={lastMessage}
-        unreadCount={unreadCount}
-        />
-    )
-  })
+      key={participant.id} 
+      id={participant.id} 
+      avatar={participant.avatar} 
+      username={participant.username}
+      lastMessage={lastMessage}
+      unreadCount={unreadCount}
+      />
+      )
+    })
+
+    const otherFriendComponents = otherFriends?.map( friend => {
+      console.log(friend)
+      return ( 
+        <Contact 
+          key={friend.id}
+          id={friend.id}
+          avatar={friend.avatar}
+          username={friend.username}
+        /> 
+      )
+    })
 
 
   return (
@@ -138,26 +100,21 @@ function ContactsPage () {
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
           </Item>
-          <IonSearchbar 
-            // value={query} 
-            // onIonChange={e => {
-            //   dispatch( setQuery( (e.detail.value!) ) )
-            //   }
-            // } 
-            // onKeyUp={handleSearchSubmit}
-            animated
-            showClearButton="always"
+
+          <IonInput
+            value={query} 
+            onIonChange={e => { setQuery( (e.detail.value) ) } } 
+            type="search"
             placeholder="Search..."
-          >
-          </IonSearchbar>
+            >
+          <ClearButton size="small" slot="end" onClick={ () => setQuery("") } >
+            <ClearIcon icon={close} />
+          </ClearButton>
+          </IonInput>
         </Toolbar>
       </Header>
 
       <IonContent fullscreen>
-        <IonLoading
-          // isOpen={isFetching}
-          message={'Searching...'}
-        />
 
         <ContactList>
           {recentContactComponents}
@@ -223,6 +180,9 @@ const Avatar = styled(IonAvatar)`
 const Item = styled(IonItem)`
   --border-color: transparent;
 ` 
+
+const ClearButton = styled(IonButton)``
+const ClearIcon = styled(IonIcon)``
 
 /***************** Segment Bar ******************** */
 

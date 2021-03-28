@@ -3,7 +3,7 @@ import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast, IonIcon } from '@i
 import { IonThumbnail, IonLabel, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/react';
 import { IonPopover, IonList, IonAlert, IonButton, IonLoading } from '@ionic/react';
 import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
-import { checkmark, add } from 'ionicons/icons';
+import { checkmark, add, mailOutline } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser, removeCurrentUser } from '../redux/userSlice'
 import { setProfileUser, setProfilePosts, updateProfileUser, resetProfile } from '../redux/profileSlice'
@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
 import { useHistory } from 'react-router-dom'
 import avatarPlaceHolder from '../assets/avatar.jpg'
+import { setChatWith } from '../redux/chatWithSlice';
 
 const ProfilePage = () => {
   const currentUser = useSelector(state => state.currentUser)
@@ -352,7 +353,7 @@ const ProfilePage = () => {
                     { profileUser?.id !== currentUser.id && 
                       <UserDetailsRow3>
                         <IonCol>
-                          <FollowButton size="block" onClick={handleFollowToggle}>
+                          <FollowButton size="small" onClick={handleFollowToggle}>
                             { followedByCurrentUser() ? 
                               <>
                                 <IonLabel>
@@ -369,6 +370,11 @@ const ProfilePage = () => {
                               </>
                             }
                           </FollowButton>
+                        </IonCol>
+                        <IonCol>
+                          <MessageButton size="small" color="secondary" routerLink="/contacts" onClick={() => { dispatch( setChatWith(profileUser.username)) } }>
+                            <IonIcon icon={mailOutline} />
+                          </MessageButton>
                         </IonCol>
                       </UserDetailsRow3>
                     }
@@ -637,6 +643,7 @@ const UserDetailsRow2 = styled(IonRow)`
 
 const UserDetailsRow3 = styled(IonRow)``
 const FollowButton = styled(IonButton)``
+const MessageButton = styled(IonButton)``
 
 const GalleryRow = styled(IonRow)`
   height: 41vh;
