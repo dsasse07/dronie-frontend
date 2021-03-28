@@ -73,7 +73,7 @@ function MessagesPage () {
                 throw data;
               });
             }
-          })
+          }) 
           .then((data) => {
             messagesFeedRef.current.scrollToBottom()
           })
