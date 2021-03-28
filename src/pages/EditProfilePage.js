@@ -209,8 +209,8 @@ function saveChangesWithoutPhoto(formData){
     <IonPage>
         <Header >
           <Toolbar>
-            <Title slot="start">Dronie</Title>
             <Item>
+              <Title slot="start">Dronie</Title>
               <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url}/>
               </Avatar>

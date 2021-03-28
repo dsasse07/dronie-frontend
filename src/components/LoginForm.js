@@ -9,7 +9,7 @@ import { useStorage } from '@ionic/react-hooks/storage'
 import consumer from '../cable'
 
 
-function LoginForm({isOpen}) {
+function LoginForm({isOpen, setChatSubscription}) {
   const { register, handleSubmit, errors, clearErrors } = useForm();  
   const [ isLoading, setIsLoading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
@@ -57,6 +57,7 @@ function LoginForm({isOpen}) {
           received: data => { dispatch( updateUsersChat(data) ) }
         }
         )
+        setChatSubscription(subscription)
       })
       .catch((data) => {
         setNetworkErrors(data.errors);

@@ -1,8 +1,8 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonCardContent } from '@ionic/react';
 import { IonItem, IonCard, IonGrid, IonRow, IonCol, IonToast, IonIcon } from '@ionic/react';
 import { IonThumbnail, IonLabel, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/react';
-import { IonPopover, IonList, IonAlert, IonButton, IonLoading } from '@ionic/react';
-import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline } from 'ionicons/icons';
+import { IonPopover, IonList, IonAlert, IonButton, IonLoading, useIonViewWillLeave } from '@ionic/react';
+import { ellipsisHorizontal, createOutline, logOutOutline, trashOutline, close } from 'ionicons/icons';
 import { checkmark, add, mailOutline } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { setCurrentUser, removeCurrentUser } from '../redux/userSlice'
@@ -15,7 +15,7 @@ import { useHistory } from 'react-router-dom'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { setChatWith } from '../redux/chatWithSlice';
 
-const ProfilePage = () => {
+const ProfilePage = ({chatSubscription, setChatSubscription}) => {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
   const profilePosts = useSelector(state => state.profile.posts)
@@ -77,6 +77,14 @@ const ProfilePage = () => {
         ))
       })
   }, [ params.username] )
+
+  // useIonViewWillLeave( () => {
+  //   dispatch( resetProfile({
+  //     user: null,
+  //     posts: []
+  //   }
+  // ))
+  // })
 
   async function fetchNext(event) {
     await fetchPostPreviews();
@@ -171,11 +179,13 @@ const ProfilePage = () => {
   }
 
   function handleLogOut(){
+    chatSubscription.unsubscribe()
+    setChatSubscription(null)
     remove("token")
       .then( () => {
         setShowPopover({ showPopover: false, event: undefined })
         dispatch( removeCurrentUser() ) 
-        history.push('/login')
+        // history.push('/login')
       })
   }
 
@@ -246,8 +256,8 @@ const ProfilePage = () => {
 
         <Header >
           <Toolbar>
-            <Title slot="start">Dronie</Title>
             <Item>
+              <Title slot="start">Dronie</Title>
               <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url}/>
               </Avatar>

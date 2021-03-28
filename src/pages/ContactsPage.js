@@ -93,7 +93,7 @@ function ContactsPage () {
       <Header >
         <Toolbar>
           <Item>
-            <Title slot="start">
+            <Title slo="start">
               Dronie
             </Title>
             <Avatar slot="end" onClick={goToProfile}>

@@ -75,6 +75,7 @@ function MessagesPage () {
             }
           })
           .then((data) => {
+            messagesFeedRef.current.scrollToBottom()
           })
           .catch((data) => {
             console.log(data)

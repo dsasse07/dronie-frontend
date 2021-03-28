@@ -2,7 +2,7 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
 import {IonSegment, IonSegmentButton, IonItem, IonLabel } from '@ionic/react';
-import {IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import {IonFab, IonFabButton, IonIcon, IonBackButton } from '@ionic/react';
 import { arrowUpOutline, refreshOutline } from 'ionicons/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'

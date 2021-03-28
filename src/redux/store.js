@@ -15,7 +15,7 @@ export default configureStore({
     tags: tagsReducer,
     postForm: postFormReducer,
     search: searchReducer,
-    chatWith: chatWithReducer
+    chatWith: chatWithReducer,
   }
 })
 

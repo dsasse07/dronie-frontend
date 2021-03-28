@@ -43,7 +43,7 @@ import { current } from 'immer';
 
 function App() {
   const currentUser = useSelector(state => state.currentUser)
-  const [ userSubscription, setUserSubscription ] = useState(null)
+  const [ chatSubscription, setChatSubscription ] = useState(null)
   const dispatch = useDispatch()
   const { get, remove } = useStorage()
   // If error and need to reset system, comment out useEffect, and uncomment remove()
@@ -70,7 +70,7 @@ function App() {
                 received: data => { dispatch( updateUsersChat(data) ) }
               }
               )
-              setUserSubscription( subscription )
+              setChatSubscription(subscription)
             })
         }
       })
@@ -103,7 +103,7 @@ function App() {
                 <PostShowPage />
               </Route>
               <Route path="/users/:username">
-                <ProfilePage />
+                <ProfilePage chatSubscription={chatSubscription} setChatSubscription={setChatSubscription}/>
               </Route>
               <Route path="/edit-profile">
                 <EditProfilePage />
@@ -147,7 +147,7 @@ function App() {
             <DelayedRedirect />
             <IonRouterOutlet>
               <Route path="/login">
-                <AuthPage />
+                <AuthPage setChatSubscription={setChatSubscription} />
               </Route>
             </IonRouterOutlet>
           </>

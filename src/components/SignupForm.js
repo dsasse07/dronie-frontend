@@ -48,7 +48,7 @@ export function Droparea(props) {
 //******************* Login and Signup Form *************************** */
 //********************************************************************* */
 
-function SignupForm({isOpen}) {
+function SignupForm({isOpen, setChatSubscription}) {
   const { register, handleSubmit, errors, control, watch, clearErrors, getValues } = useForm();  
   const [ isUploading, setIsUploading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
@@ -173,6 +173,7 @@ function SignupForm({isOpen}) {
           "access-token": data.token,
         })
         dispatch( setCurrentUser( data.user) )
+        setChatSubscription(subscription)
       })
       .catch((data) => {
         setNetworkErrors(data.errors);

@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { useState } from 'react'
 
-function AuthPage () {
+function AuthPage ({setChatSubscription}) {
   const [ showLogin, setShowLogin ] = useState(true)
 
   function toggleFormDisplay(formToShow){
@@ -30,9 +30,9 @@ function AuthPage () {
           {/* <Content> */}
             
             {showLogin ?
-              <LoginForm isOpen={showLogin}/>
+              <LoginForm isOpen={showLogin} setChatSubscription={setChatSubscription}/>
             :
-              <SignupForm isOpen={!showLogin}/>
+              <SignupForm isOpen={!showLogin} setChatSubscription={setChatSubscription} />
             }
 
           {/* </Content> */}

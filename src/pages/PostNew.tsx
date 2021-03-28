@@ -1,7 +1,7 @@
 import './Tab2.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
-import { IonItem } from '@ionic/react';
-import {  } from 'ionicons/icons';
+import { IonItem, IonBackButton } from '@ionic/react';
+import { close } from 'ionicons/icons';
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import NewPostForm from '../components/NewPostForm'
@@ -18,8 +18,10 @@ const PostNew: React.FC = () => {
     <IonPage>
       <Header >
         <Toolbar>
-          <Title slot="start">Dronie</Title>
           <Item>
+            <Title slot="start">
+              Dronie
+            </Title>
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
