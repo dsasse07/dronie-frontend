@@ -54,7 +54,7 @@ function LoginForm({isOpen, setChatSubscription}) {
         {
           connected: () => (console.log("Connected")),
           disconnected: () => (console.log("Disconnected")),
-          received: data => { dispatch( updateUsersChat(data) ) }
+          received: data => { dispatch( updateUsersChat(data) ) } 
         }
         )
         setChatSubscription(subscription)
