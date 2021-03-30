@@ -1,6 +1,6 @@
 import { IonInput, IonLabel, IonItem, IonCard, IonCardContent, IonThumbnail } from "@ionic/react"
 import { IonButton, IonTextarea, IonGrid, IonRow, IonCol, IonToast } from "@ionic/react"
-import { IonLoading } from "@ionic/react"
+import { IonLoading, useIonViewDidLeave } from "@ionic/react"
 import { useForm, Controller } from "react-hook-form";
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react'
@@ -36,6 +36,10 @@ export function Basic(props) {
   useEffect(() => {
     setFiles([])
   }, [currentUser])
+
+  useIonViewDidLeave( () => {
+    setFiles([])
+  })
 
   return (
     <DropArea >

@@ -122,6 +122,7 @@ function SignupForm({isOpen, setChatSubscription}) {
           .then((data) => {
             set("token", data.token)
             setIsUploading(false)
+            dispatch( setCurrentUser( data.user) )
             const subscription = consumer.subscriptions.create({
               channel: "ChatChannel",
               "access-token": data.token,
@@ -130,8 +131,9 @@ function SignupForm({isOpen, setChatSubscription}) {
               connected: () => (console.log("Connected")),
               disconnected: () => (console.log("Disconnected")),
               received: data => { dispatch( updateUsersChat(data) ) }
-            })
-            dispatch( setCurrentUser( data.user) )
+            }
+            )
+            setChatSubscription(subscription)
           })
           .catch((data) => {
             setNetworkErrors(data.errors);
@@ -168,11 +170,17 @@ function SignupForm({isOpen, setChatSubscription}) {
       .then((data) => {
         set("token", data.token)
         setIsUploading(false)
+        dispatch( setCurrentUser( data.user) )
         const subscription = consumer.subscriptions.create({
           channel: "ChatChannel",
           "access-token": data.token,
-        })
-        dispatch( setCurrentUser( data.user) )
+        },
+        {
+          connected: () => (console.log("Connected")),
+          disconnected: () => (console.log("Disconnected")),
+          received: data => { dispatch( updateUsersChat(data) ) }
+        }
+        )
         setChatSubscription(subscription)
       })
       .catch((data) => {
