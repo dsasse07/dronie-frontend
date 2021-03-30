@@ -131,7 +131,7 @@ function MessagesPage () {
 
 
   const messageComponents = messages?.map( message => {
-    const time = new Date(message.created_at).toLocaleString()
+    const time = new Date(message.created_at).toLocaleString("en-US",{year:"numeric", month: "2-digit", day:"2-digit", hour: "numeric", minute: "numeric"})
     const seenAt = new Date(message.updated_at)
 
     const sameDay = ( 
@@ -157,7 +157,7 @@ function MessagesPage () {
             <SeenAtLabel me={currentUser.id} sender={message.user_id}>
               {message.read && 
                 (
-                  sameDay ? seenAt.toLocaleTimeString() : seenAt.toLocaleString().slice(4)
+                  sameDay ? seenAt.toLocaleTimeString("en-US",{hour: "numeric", minute: "numeric"}) : seenAt.toLocaleString().slice(4)
                 )
               }
             </SeenAtLabel>
@@ -264,43 +264,9 @@ const OtherUserCol = styled(IonCol)`
   justify-content: center;
 `
 const OtherUserNameText = styled(IonTitle)`
-  background: pink;
+  /* background: pink; */
   text-align: center;
 `
-/***************** Segment Bar ******************** */
-
-const Segment = styled(IonSegment)`
-`
-const SegmentButton = styled(IonSegmentButton)``
-const SegmentLabel = styled(IonLabel)``
-
-/************************************************ */
-const ContactList = styled(IonList)``
-const ContactRow = styled(IonRow)`
-  align-items: center;
-  gap: 20px;
-  padding: 8px;
-  padding-left: 5vw;
-  border-bottom: 1px solid;
-  transition: 0.2s ease-in-out;
-  cursor: pointer;
-
-  :hover{
-    transform: translateX(5vw);
-  }
-`
-const ContactLabel = styled(IonLabel)`
-  flex-grow: 2;
-  font-size: 1.3rem;
-`
-
-const ContactAvatar = styled(IonAvatar)`
-  margin: 0.5vw;
-  width: 10vw;
-  height: 10vw;
-  border: 1px solid;
-`
-/******************************************* */
 
 const NoMessages = styled.div`
   display: flex;
@@ -311,15 +277,19 @@ const NoMessages = styled.div`
   height: 75vh;
 `
 const MessageGrid = styled(IonGrid)`
-  border: 2px solid blue;
+  /* border: 2px solid blue; */
+  /* display: flex;
+  flex-direction: column;
+  gap: 10px; */
 `
 const MessageRow = styled(IonRow)`
   width: 100%;
-  border: 2px solid blue;
+  margin-bottom: 15px;
+  /* border: 2px solid blue; */
 
 `
 const Message = styled(IonCol)`
-  border: 2px solid pink;
+  /* border: 2px solid pink; */
   display: flex;
   justify-content: ${ ({sender, me}) => sender === me ? "flex-end" : "flex-start"};
   align-items: flex-end;
@@ -329,12 +299,21 @@ const Message = styled(IonCol)`
 const MessageContent = styled(IonLabel)`
   position: relative;
   width: 60%;
+  max-width: 500px;
   border-radius: 5px;
   padding: 10px;
   padding-top: 5px;
-  padding-bottom: 20px;
+  padding-bottom: 40px;
   padding-left: 25px;
-  background: ${ ({sender, me}) => sender === me ? "mistyrose" : "palegreen"};
+  background: ${ ({sender, me}) => sender === me ? "#cef6ff" : "#a0ffe1"};
+  box-shadow: var(--light-shadow);
+
+  ion-note:first-of-type{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 0.7rem;
+  }
 `
 
 const SeenAtLabel = styled(IonNote)`
@@ -357,7 +336,8 @@ const StatusText = styled(IonNote)``
 const UserAvatar = styled(IonAvatar)`
   height: 8vw;
   width: 8vw;
-
+  max-height: 75px;
+  max-width: 75px;
 `
 
 /************************************************** */

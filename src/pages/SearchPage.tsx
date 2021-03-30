@@ -15,6 +15,7 @@ function SearchPage () {
   const { filter, query, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const [ isFetching, setIsFetching ] = useState(false)
+  const [ searchSubmitted, setSearchSubmitted ] = useState(false)
   const [ disableInfiniteScroll , setDisableInfiniteScroll ] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
@@ -27,13 +28,17 @@ function SearchPage () {
   useEffect( () => {
     if ( query === "" || results[filter].length > 0 ) return
     fetchResults()
-
+    
+    return( () => {
+      setSearchSubmitted(false)
+    })
   }, [filter])
 
 function handleSearchSubmit(e){
     if (e.key !== "Enter" || query === "") return
     dispatch( clearResults([]) )
     fetchResults()
+    setSearchSubmitted(true)
   }
 
   function fetchResults(){
@@ -166,11 +171,13 @@ function handleSearchSubmit(e){
             {displayedComponents}
           </ResultsGrid>
         }
-        { displayedComponents?.length === 0 &&
+        { displayedComponents?.length === 0 && searchSubmitted &&
           <NoMatches>  
             No Matches Found
           </NoMatches>
         }
+        
+
             
         <IonInfiniteScroll 
           threshold="20%" 

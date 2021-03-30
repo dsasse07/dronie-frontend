@@ -1,16 +1,16 @@
 {
-  "short_name": "Ionic App",
-  "name": "My Ionic App",
+  "short_name": "Dronie",
+  "name": "Dronie",
   "icons": [
     {
-      "src": "assets/icon/favicon.png",
+      "src": "assets/icon/dronieIcon.png",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "assets/icon/icon.png",
+      "src": "assets/icon/dronieLogo.png",
       "type": "image/png",
-      "sizes": "512x512",
+      "sizes": "200x200",
       "purpose": "maskable"
     }
   ],

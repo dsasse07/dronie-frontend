@@ -119,6 +119,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
 
   function handleShowComments(){
     setShowComments( showComments => !showComments)
+    setShowNewCommentForm(true)
   }
 
   function handleShowNewCommentForm(){

@@ -40,6 +40,7 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
 
   useEffect( () => {
     setDisableInfiniteScroll(false);
+    setIsLoading(true)
     get("token")
     .then( token => {
       fetch(`${process.env.REACT_APP_BACKEND}/users/${params.username}`, {
@@ -58,6 +59,7 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
         })
         .then((data) => {
           dispatch( setProfileUser( data) )
+          setIsLoading(false)
           fetchPostPreviews(0, data)
         })
         .catch((data) => {
