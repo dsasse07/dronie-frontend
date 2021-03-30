@@ -1,11 +1,11 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs} from '@ionic/react';
+import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, IonPage} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { addCircleOutline, search, home, infinite, mailOutline, mailUnreadOutline } from 'ionicons/icons';
 import Home from './pages/Home';
 import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
-import MessagesPage from './pages/MessagesPage'
+import SplashScreen from './components/SplashScreen'
 import ContactsPage from './pages/ContactsPage'
 import ProfilePage from './pages/ProfilePage'
 import PostShowPage from './pages/PostShowPage'
@@ -38,17 +38,22 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { current } from 'immer';
-
 
 function App() {
   const currentUser = useSelector(state => state.currentUser)
   const [ chatSubscription, setChatSubscription ] = useState(null)
+  const [ showLoadScreen, setShowLoadScreen ] = useState(true)
+
   const dispatch = useDispatch()
   const { get, remove } = useStorage()
   // If error and need to reset system, comment out useEffect, and uncomment remove()
   // remove("token")
   useEffect( () => {
+
+    const timer = setTimeout( () => {
+      setShowLoadScreen(false)
+    }, 1500)
+
     get("token")
       .then( token => {
         if (token) {
@@ -61,18 +66,20 @@ function App() {
             .then( data => {
               dispatch( setCurrentUser(data) )
               const subscription = consumer.subscriptions.create({
-                channel: "ChatChannel",
-                "access-token": token,
-              } ,
-              {
-                connected: () => (console.log("Connected")),
-                disconnected: () => (console.log("Disconnected")),
-                received: data => { dispatch( updateUsersChat(data) ) }
-              }
-              )
+                  channel: "ChatChannel",
+                  "access-token": token,
+                } , {
+                  connected: () => (console.log("Connected")),
+                  disconnected: () => (console.log("Disconnected")),
+                  received: data => { dispatch( updateUsersChat(data) ) }
+                })
               setChatSubscription(subscription)
             })
         }
+      })
+
+      return( () => {
+        clearTimeout(timer)
       })
   }, [])
 
@@ -87,71 +94,78 @@ function App() {
   return (
     <IonApp>
       <IonReactRouter >
-        {currentUser ?
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route exact path="/home">
-                <Home />
-              </Route>
-              <Route exact path="/new">
-                <PostNew />
-              </Route>
-              <Route path="/search">
-                <SearchPage />
-              </Route>
-              <Route path="/posts/:id">
-                <PostShowPage />
-              </Route>
-              <Route path="/users/:username">
-                <ProfilePage chatSubscription={chatSubscription} setChatSubscription={setChatSubscription}/>
-              </Route>
-              <Route path="/edit-profile">
-                <EditProfilePage />
-              </Route>
-              <Route path="/contacts">
-                <ContactsPage />
-              </Route>
-              <Route path="/login">
-                <Redirect to="/home" />
-              </Route>
-              <Route exact path="/">
-                <Redirect to="/home" />
-              </Route>
-            </IonRouterOutlet>
-
-            <IonTabBar slot="bottom" >
-              <IonTabButton tab="home" href="/home">
-                <IonIcon icon={home} />
-                <IonLabel>Home</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="new" href="/new">
-                <IonIcon icon={addCircleOutline} />
-                <IonLabel>New</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="search" href="/search">
-                <IonIcon icon={search} />
-                <IonLabel>Search</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="contacts" href="/contacts">
-                <MessagesIcon 
-                  icon={ currentUser && unreadMessageCount() > 0 ? mailUnreadOutline : mailOutline} 
-                  unread={ unreadMessageCount() > 0 }
-                />
-                <IonLabel>Messages</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
-
-          :
-          <>
-            <DelayedRedirect />
-            <IonRouterOutlet>
-              <Route path="/login">
-                <AuthPage setChatSubscription={setChatSubscription} />
-              </Route>
-            </IonRouterOutlet>
-          </>
+        { showLoadScreen &&
+          <IonPage>
+            <SplashScreen />
+          </IonPage>
         }
+          {currentUser && !showLoadScreen &&
+            <IonTabs>
+              <IonRouterOutlet>
+                <Route exact path="/home">
+                  <Home />
+                </Route>
+                <Route exact path="/new">
+                  <PostNew />
+                </Route>
+                <Route path="/search">
+                  <SearchPage />
+                </Route>
+                <Route path="/posts/:id">
+                  <PostShowPage />
+                </Route>
+                <Route path="/users/:username">
+                  <ProfilePage chatSubscription={chatSubscription} setChatSubscription={setChatSubscription}/>
+                </Route>
+                <Route path="/edit-profile">
+                  <EditProfilePage />
+                </Route>
+                <Route path="/contacts">
+                  <ContactsPage />
+                </Route>
+                <Route path="/login">
+                  <Redirect to="/home" />
+                </Route>
+                <Route exact path="/">
+                  <Redirect to="/home" />
+                </Route>
+              </IonRouterOutlet>
+
+              <IonTabBar slot="bottom" >
+                <IonTabButton tab="home" href="/home">
+                  <IonIcon icon={home} />
+                  <IonLabel>Home</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="new" href="/new">
+                  <IonIcon icon={addCircleOutline} />
+                  <IonLabel>New</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="search" href="/search">
+                  <IonIcon icon={search} />
+                  <IonLabel>Search</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="contacts" href="/contacts">
+                  <MessagesIcon 
+                    icon={ currentUser && unreadMessageCount() > 0 ? mailUnreadOutline : mailOutline} 
+                    unread={ unreadMessageCount() > 0 }
+                  />
+                  <IonLabel>Messages</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            </IonTabs>
+}
+            {/* : */}
+            {!currentUser && !showLoadScreen &&
+            <>
+              <DelayedRedirect />
+              <IonRouterOutlet>
+                <Route path="/login">
+                  <AuthPage setChatSubscription={setChatSubscription} />
+                </Route>
+              </IonRouterOutlet>
+            </>
+          }
+
       </IonReactRouter>
     </IonApp>
   ) 

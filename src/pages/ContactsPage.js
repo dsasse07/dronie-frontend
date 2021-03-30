@@ -53,7 +53,11 @@ function ContactsPage () {
   })
 
   const filteredRecentContacts = recentContacts?.filter( ({participant}) => {
-    return participant.username.includes(query)
+    return participant.username.toLowerCase().includes(query.toLowerCase())
+  })
+
+  const filteredOtherFriends = otherFriends && otherFriends.filter( friend => {
+    return friend.username.toLowerCase().includes( query.toLowerCase() )
   })
   
   const recentContactComponents = filteredRecentContacts?.map( ({participant, unreadCount, lastMessage}) => {
@@ -69,8 +73,7 @@ function ContactsPage () {
       )
     })
 
-    const otherFriendComponents = otherFriends?.map( friend => {
-      console.log(friend)
+    const otherFriendComponents = filteredOtherFriends?.map( friend => {
       return ( 
         <Contact 
           key={friend.id}

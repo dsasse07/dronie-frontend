@@ -2,7 +2,7 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
 import {IonSegment, IonSegmentButton, IonItem, IonLabel } from '@ionic/react';
-import {IonFab, IonFabButton, IonIcon, IonBackButton } from '@ionic/react';
+import {IonFab, IonFabButton, IonIcon, IonLoading } from '@ionic/react';
 import { arrowUpOutline, refreshOutline } from 'ionicons/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
@@ -19,6 +19,7 @@ function Home () {
   const tags = useSelector(state => state.tags)
   const dispatch = useDispatch()
   const [ isFetching, setIsFetching ] = useState(false)
+  const [ fetchInitial, setFetchInitial ] = useState(true)
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
@@ -38,6 +39,7 @@ function Home () {
 
     return () => {
       dispatch( clearPosts([]) )
+      setFetchInitial(true)
     }
   }, [feedType])
 
@@ -63,6 +65,7 @@ function Home () {
           setDisableInfiniteScroll(true);
         }
         setIsFetching(false)
+        setFetchInitial(false)
       })
       .catch(error => {
         setIsFetching(false)
@@ -224,10 +227,10 @@ function Home () {
   }
   
 
-  const postComponents = posts.map( post => {
+  const postComponents = posts.map( (post, index) => {
     return (
       <PostCard 
-        key={post.id} 
+        key={index} 
         post={post} 
         onCommentDeleteClick={handleDeleteCommentClick} 
         onPostDeleteClick={handleDeletePostClick}
@@ -266,6 +269,10 @@ function Home () {
       </Header>
 
       <IonContent fullscreen ref={contentRef} scrollEvents={true} onIonScroll={(e)=>setScrollPosition(e.detail.scrollTop)} >
+        <IonLoading
+          isOpen={fetchInitial}
+          message={'Loading...'}
+        />
         <IonAlert
           isOpen={commentToDelete !== null}
           onDidDismiss={() => setCommentToDelete(null) }
@@ -389,13 +396,15 @@ const List = styled(IonList)`
   align-items: center;
 `
 
-const Header = styled(IonHeader)``
+const Header = styled(IonHeader)`
+  /* height: 65px; */
+`
 
 const Toolbar = styled(IonToolbar)`
   padding-right: 10px;
 `
 const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+  font-size: 1.4rem;
 `
 
 const Avatar = styled(IonAvatar)`
@@ -410,7 +419,9 @@ const Item = styled(IonItem)`
 
 /***************** Segment Bar ******************** */
 
-const Segment = styled(IonSegment)``
+const Segment = styled(IonSegment)`
+  /* height: 60px; */
+`
 const SegmentButton = styled(IonSegmentButton)``
 const SegmentLabel = styled(IonLabel)``
 /********************************************* */
