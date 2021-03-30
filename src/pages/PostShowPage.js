@@ -1,9 +1,10 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar } from '@ionic/react';
-import { IonToast, IonAlert, IonItem } from '@ionic/react';
+import { IonToast, IonAlert, IonItem, IonLoading } from '@ionic/react';
 import PostCard from '../components/PostCard'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { removePost, updatePost } from '../redux/postsSlice'
+import { deleteProfilePost } from '../redux/profileSlice'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
@@ -56,6 +57,7 @@ function PostShowPage () {
           setNetworkErrors(data.errors);
         });
       })
+
   }, [params.id, posts] )
 
   function handleDeleteCommentClick(commentId){
@@ -85,9 +87,14 @@ function PostShowPage () {
             }
           })
           .then((data) => {
+            dispatch( updatePost( data ) )
             setDisplayedPost({
               ...data,
-              images: JSON.parse(data.images)
+              images: JSON.parse(data.images),
+              user: {
+                ...data.user,
+                avatar: JSON.parse(data.user.avatar) 
+              }
             })
           })
           .catch((data) => {
@@ -102,6 +109,10 @@ function PostShowPage () {
   }
 
   function handleDeletePost(postId){
+    dispatch( deleteProfilePost(postId) )
+    dispatch( removePost(postId) )
+    goToProfile()
+
     get("token")
     .then( token => {
 
@@ -124,14 +135,16 @@ function PostShowPage () {
             }
           })
           .then((data) => {
-            dispatch( removePost(data) )
-            history.push(`/home`)
+            // Optimistically Removes post from state to 
+            // prevent 404 error on component re-render
           })
           .catch((data) => {
+            console.log(data)
             console.log(data.errors);
-          });
+          }); 
       })
   }
+
 
   function handleEditPostClick(postId){
     setPostToEdit(postId)
@@ -179,8 +192,8 @@ function PostShowPage () {
 
     <Header>
         <Toolbar>
-          <Title slot="start">Dronie</Title>
           <Item>
+            <Title slot="start">Dronie</Title>
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
@@ -272,6 +285,11 @@ function PostShowPage () {
           ]}
         />
 
+        <IonLoading
+          isOpen={isLoading}
+          message={'Loading...'}
+        />
+
 
         { Object.keys(displayedPost).length > 0 && 
           <PostCard 
@@ -284,9 +302,9 @@ function PostShowPage () {
 
           
         <Toast
-          isOpen={networkErrors.length > 0}
+          isOpen={networkErrors?.length > 0}
           message={ 
-            networkErrors.reduce( (string, error) => {
+            networkErrors?.reduce( (string, error) => {
               return `${string}${error}.\n`
             }, '')
           }

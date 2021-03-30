@@ -1,21 +1,24 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { addCircleOutline, search, home, infinite } from 'ionicons/icons';
+import { addCircleOutline, search, home, infinite, mailOutline, mailUnreadOutline } from 'ionicons/icons';
 import Home from './pages/Home';
 import PostNew from './pages/PostNew';
 import SearchPage from './pages/SearchPage';
-// import Infinite from './pages/Inifnite'
-import AuthPage from './pages/AuthPage'
+import MessagesPage from './pages/MessagesPage'
+import ContactsPage from './pages/ContactsPage'
 import ProfilePage from './pages/ProfilePage'
 import PostShowPage from './pages/PostShowPage'
+import AuthPage from './pages/AuthPage'
 import EditProfilePage from './pages/EditProfilePage'
 import { useSelector, useDispatch } from 'react-redux'
-import { setCurrentUser } from './redux/userSlice'
+import { setCurrentUser, updateUsersChat } from './redux/userSlice'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import DelayedRedirect from './components/DelayedRedirect'
 import { useStorage } from '@ionic/react-hooks/storage'
+import consumer from './cable'
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,10 +38,12 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { current } from 'immer';
 
 
 function App() {
   const currentUser = useSelector(state => state.currentUser)
+  const [ chatSubscription, setChatSubscription ] = useState(null)
   const dispatch = useDispatch()
   const { get, remove } = useStorage()
   // If error and need to reset system, comment out useEffect, and uncomment remove()
@@ -55,15 +60,33 @@ function App() {
             .then( response => response.json() )
             .then( data => {
               dispatch( setCurrentUser(data) )
+              const subscription = consumer.subscriptions.create({
+                channel: "ChatChannel",
+                "access-token": token,
+              } ,
+              {
+                connected: () => (console.log("Connected")),
+                disconnected: () => (console.log("Disconnected")),
+                received: data => { dispatch( updateUsersChat(data) ) }
+              }
+              )
+              setChatSubscription(subscription)
             })
         }
       })
   }, [])
 
+  function unreadMessageCount(){
+    return currentUser?.chats.reduce( (total, chat) => {
+      return total += chat.messages.filter( message => {
+        return !message.read && message.user_id !== currentUser.id
+      }).length
+    }, 0 )
+  }
 
   return (
     <IonApp>
-      <IonReactRouter>
+      <IonReactRouter >
         {currentUser ?
           <IonTabs>
             <IonRouterOutlet>
@@ -80,10 +103,13 @@ function App() {
                 <PostShowPage />
               </Route>
               <Route path="/users/:username">
-                <ProfilePage />
+                <ProfilePage chatSubscription={chatSubscription} setChatSubscription={setChatSubscription}/>
               </Route>
               <Route path="/edit-profile">
                 <EditProfilePage />
+              </Route>
+              <Route path="/contacts">
+                <ContactsPage />
               </Route>
               <Route path="/login">
                 <Redirect to="/home" />
@@ -106,10 +132,13 @@ function App() {
                 <IonIcon icon={search} />
                 <IonLabel>Search</IonLabel>
               </IonTabButton>
-              {/* <IonTabButton tab="infinite" href="/infinite">
-                <IonIcon icon={infinite} />
-                <IonLabel>Infinite</IonLabel>
-              </IonTabButton> */}
+              <IonTabButton tab="contacts" href="/contacts">
+                <MessagesIcon 
+                  icon={ currentUser && unreadMessageCount() > 0 ? mailUnreadOutline : mailOutline} 
+                  unread={ unreadMessageCount() > 0 }
+                />
+                <IonLabel>Messages</IonLabel>
+              </IonTabButton>
             </IonTabBar>
           </IonTabs>
 
@@ -118,7 +147,7 @@ function App() {
             <DelayedRedirect />
             <IonRouterOutlet>
               <Route path="/login">
-                <AuthPage />
+                <AuthPage setChatSubscription={setChatSubscription} />
               </Route>
             </IonRouterOutlet>
           </>
@@ -132,4 +161,8 @@ export default App;
 
 const TabBar = styled(IonTabBar)`
   height: ${ ({currentUser}) => !currentUser && "0" };
+`
+
+const MessagesIcon = styled(IonIcon)`
+  color: ${ ({unread}) => unread ? "red" : ""};
 `

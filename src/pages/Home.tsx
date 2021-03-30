@@ -2,25 +2,31 @@ import './Tab1.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react'
 import {IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar, IonList } from '@ionic/react';
 import {IonSegment, IonSegmentButton, IonItem, IonLabel } from '@ionic/react';
-import styled from 'styled-components'
+import {IonFab, IonFabButton, IonIcon, IonBackButton } from '@ionic/react';
+import { arrowUpOutline, refreshOutline } from 'ionicons/icons'
 import { useSelector, useDispatch } from 'react-redux'
-import PostCard from '../components/PostCard'
-import { useEffect, useState } from 'react'
 import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
+import { setTags } from '../redux/tagsSlice'
+import styled from 'styled-components'
+import PostCard from '../components/PostCard'
+import { useEffect, useState, useRef } from 'react'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
-import { colorFillOutline, remove } from 'ionicons/icons';
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
+  const tags = useSelector(state => state.tags)
   const dispatch = useDispatch()
   const [ isFetching, setIsFetching ] = useState(false)
   const [disableInfiniteScroll, setDisableInfiniteScroll] = useState(false)
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
   const [ postToEdit, setPostToEdit ] = useState(null)
+  const [ scrollPosition, setScrollPosition ] = useState(0)
   const { get } = useStorage()
+  const contentRef = useRef<HTMLIonContentElement>(null)
+  const topOfFeedRef = useRef<HTMLDivElement>(null)
   const history = useHistory()
   const [ feedType, setFeedType ] = useState("recent")
 
@@ -28,17 +34,18 @@ function Home () {
   useEffect( () => {
     if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
+    fetchTags()
 
     return () => {
       dispatch( clearPosts([]) )
     }
   }, [feedType])
 
-  function fetchPosts(){
+  function fetchPosts(count = posts.length){
     if (isFetching) return
     setIsFetching(true)
 
-    fetch(`${process.env.REACT_APP_BACKEND}/posts?fetched_count=${posts.length}&display=${feedType}&user_id=${currentUser.id}`)
+    fetch(`${process.env.REACT_APP_BACKEND}/posts?fetched_count=${count}&display=${feedType}&user_id=${currentUser.id}`)
       .then( response => {
         if (response.ok) {
           return response.json();
@@ -49,7 +56,6 @@ function Home () {
         }
       })
       .then((data) => {
-        console.log(`data`, data)
         if (data && data.length > 0){
           dispatch( setPosts(data) )
           setDisableInfiniteScroll(data.length < 5);
@@ -65,15 +71,32 @@ function Home () {
   }
 
   async function fetchNext(event) { 
-    console.log("ding)")
     await fetchPosts();
     (event.target).complete();
+  }
+
+  function fetchTags() {
+    fetch(`${process.env.REACT_APP_BACKEND}/tags`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then((data) => {
+            throw data;
+          });
+        }
+      })
+      .then((data) => {
+        dispatch( setTags(data) )
+      })
+      .catch((data) => {
+        console.log(data.errors);
+      })
   }
 
   function handleFeedChange(feedType){
     dispatch( clearPosts([]) )
     setFeedType(feedType)
-    
   }
 
   function handleDeleteCommentClick(commentId){
@@ -190,6 +213,16 @@ function Home () {
       })
   }
 
+  function handleFabClick(){
+    if (scrollPosition > 800) {
+      contentRef.current.scrollToPoint(0,0,1000)
+    } else {
+      dispatch( clearPosts( [] ) )
+      setDisableInfiniteScroll(false)
+      fetchPosts(0)
+    }
+  }
+  
 
   const postComponents = posts.map( post => {
     return (
@@ -232,7 +265,7 @@ function Home () {
         </Toolbar>
       </Header>
 
-      <IonContent fullscreen >
+      <IonContent fullscreen ref={contentRef} scrollEvents={true} onIonScroll={(e)=>setScrollPosition(e.detail.scrollTop)} >
         <IonAlert
           isOpen={commentToDelete !== null}
           onDidDismiss={() => setCommentToDelete(null) }
@@ -315,9 +348,22 @@ function Home () {
             }
           ]}
         />
-      
-        <List>
-          {postComponents}
+
+        <IonFab vertical="bottom" horizontal="end"  slot="fixed">
+          <FabButton size="small" >
+            <IonIcon icon={scrollPosition > 800 ? arrowUpOutline : refreshOutline } onClick={handleFabClick}/>
+          </FabButton>
+        </IonFab>
+        
+        <div id="top" ref={topOfFeedRef} />
+        <List >
+          {postComponents.length > 0 ?
+            postComponents
+          :
+            <NoPostsFound>
+              The users you follow have no posts.
+            </NoPostsFound>
+          }
         </List>
 
         <IonInfiniteScroll 
@@ -367,3 +413,16 @@ const Item = styled(IonItem)`
 const Segment = styled(IonSegment)``
 const SegmentButton = styled(IonSegmentButton)``
 const SegmentLabel = styled(IonLabel)``
+/********************************************* */
+
+const NoPostsFound = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1vh;
+  /* border: 2px solid blue; */
+  width: 100%;
+  height: 75vh;
+`
+
+const FabButton = styled(IonFabButton)``
