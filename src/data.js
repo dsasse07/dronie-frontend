@@ -8,7 +8,7 @@ export const testUser = {
   "location": {
     "street": "9278 new road",
     "city": "kilcoole",
-    "state": "waterford",
+    "state": "waterford", 
     "postcode": "93027",
     "coordinates": {
       "latitude": "20.9267",
