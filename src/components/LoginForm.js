@@ -114,9 +114,9 @@ function LoginForm({isOpen, setChatSubscription}) {
       </Form>
 
       <Toast
-        isOpen={Object.keys(errors).length > 0}
+        isOpen={Object.keys(errors)?.length > 0}
         message={ 
-          Object.keys(errors).reduce( (string, key) => {
+          Object.keys(errors)?.reduce( (string, key) => {
             return `${string}${errors[key].message}.\n`
           }, '')
         }
