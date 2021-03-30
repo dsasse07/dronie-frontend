@@ -57,7 +57,7 @@ function LoginForm({isOpen}) {
   <Card>
     <Content>
       <Form onSubmit={handleSubmit(onLogin)}>
-        <LoginGrid >
+        <LoginGrid > 
 
           <IonRow>
             <IonCol > 
