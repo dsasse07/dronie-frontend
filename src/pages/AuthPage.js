@@ -46,7 +46,7 @@ function AuthPage ({setChatSubscription}) {
               :
                 <SignupForm isOpen={!showLogin} setChatSubscription={setChatSubscription} />
               }
-        </IonContent> 
+        </IonContent>  
       
     </IonPage>
   );
