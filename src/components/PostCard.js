@@ -406,6 +406,9 @@ const Card = styled(IonCard)`
   align-items: center;
   justify-content: center;
   max-width: 95%;
+    /* @media (min-width: 800px) {
+      max-width: fit-content;
+    } */
 `
 //****************************************************** */
 //************** Card Header Styling ******************* */
@@ -475,6 +478,13 @@ const CardContent = styled(IonCardContent)`
 const ImageRow = styled(IonRow)``
 const ImageContainer = styled(IonCol)`
   position: relative;
+  ion-img{
+    ::part(image){
+      @media (min-width: 800px) {
+        max-height: 70vh;
+      }
+    }
+  }
 `
 const PrevImage = styled.div`
   position: absolute;

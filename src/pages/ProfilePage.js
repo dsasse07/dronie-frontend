@@ -270,169 +270,170 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
           isOpen={isLoading}
           message={'Loading...'}
         />
-        <Card>
+        <Container>
+          <Card>
 
-          <IonCardContent>
-            <Grid>
+            <IonCardContent>
+              <Grid>
 
-              <Row>
-                <Col>
-                  <Row>
-                    <ImageContainer>
-                      <img 
-                        src={profileUser?.avatar ? profileUser?.avatar.secure_url : avatarPlaceHolder }
-                        alt={profileUser?.username}
-                      />
-                    </ImageContainer>
-                  </Row>
+                <Row>
+                  <Col>
+                    <Row>
+                      <ImageContainer>
+                        <img 
+                          src={profileUser?.avatar ? profileUser?.avatar.secure_url : avatarPlaceHolder }
+                          alt={profileUser?.username}
+                        />
+                      </ImageContainer>
+                    </Row>
 
-                  <IonRow>
-                    <IonCol>
-                      { (profileUser?.first_name || profileUser?.last_name) && 
-                        <FullNameLabel text-wrap>
-                          {`${profileUser?.first_name} ${profileUser?.last_name}`}
-                        </FullNameLabel>
-                      }
-                    </IonCol>
-                  </IonRow>
-
-                </Col>
-
-                <Col>
-                  <UserDetailsGrid>
-
-                    <UserDetailsRow1>  
-                      <IonCol>
-                        <UsernameLabel>
-                          <strong>{profileUser?.username}</strong>
-                        </UsernameLabel>
-                      </IonCol>
-
-                      { profileUser?.id === currentUser.id && 
-                        <IonCol>
-                            <MenuButton onClick={ (e) => {
-                                    e.persist();
-                                    setShowPopover({ showPopover: true, event: e })
-                                  }}
-                            >
-                              <IonIcon icon={ellipsisHorizontal} />
-                            </MenuButton>
-                        </IonCol>
-                      }
-                    </UserDetailsRow1>
-
-                    <UserDetailsRow2>
-                      <IonCol onClick={ (e) => {
-                                    if (profileUser?.followers.length === 0) return
-                                    e.persist();
-                                    setShowFollowPopover({ 
-                                      showPopover: true, 
-                                      users: profileUser.followers, 
-                                      event: e })
-                                  }}
-                      >
-                        <IonRow>
-                          <strong>{profileUser?.followers.length}</strong>
-                        </IonRow>
-                        <IonRow>
+                    <IonRow>
+                      <FullNameCol>
+                        { (profileUser?.first_name || profileUser?.last_name) && 
                           <FullNameLabel text-wrap>
-                            Followers
+                            {`${profileUser?.first_name} ${profileUser?.last_name}`}
                           </FullNameLabel>
-                        </IonRow>
-                      </IonCol>
-                      <IonCol onClick={ (e) => {
-                                    if (profileUser?.following.length === 0) return
-                                    e.persist();
-                                    setShowFollowPopover({ 
-                                      showPopover: true,
-                                      users: profileUser.following, 
-                                      event: e })
-                                  }}
-                      >
-                        <IonRow>
-                          <strong>{profileUser?.following.length}</strong>
-                        </IonRow>
-                        <IonRow>
-                          <FullNameLabel text-wrap>
-                            Following
-                          </FullNameLabel>
-                        </IonRow>
-                      </IonCol>
-                    </UserDetailsRow2>
-                    
-                    { profileUser?.id !== currentUser.id && 
-                      <UserDetailsRow3>
+                        }
+                      </FullNameCol>
+                    </IonRow>
+
+                  </Col>
+
+                  <Col>
+                    <UserDetailsGrid>
+
+                      <UserDetailsRow1>  
                         <IonCol>
-                          <FollowButton size="small" onClick={handleFollowToggle}>
-                            { followedByCurrentUser() ? 
-                              <>
-                                <IonLabel>
-                                  Following 
-                                </IonLabel>
-                                <IonIcon slot="end" icon={checkmark}/> 
-                              </>
-                            : 
-                              <>
-                                <IonLabel>
-                                  Follow
-                                </IonLabel>
-                                <IonIcon slot="end" icon={add} />
-                              </>
-                            }
-                          </FollowButton>
+                          <UsernameLabel>
+                            <strong>{profileUser?.username}</strong>
+                          </UsernameLabel>
                         </IonCol>
-                        <IonCol>
-                          <MessageButton size="small" color="secondary" routerLink="/contacts" onClick={() => { dispatch( setChatWith(profileUser.username)) } }>
-                            <IonIcon icon={mailOutline} />
-                          </MessageButton>
+
+                        { profileUser?.id === currentUser.id && 
+                          <IonCol>
+                              <MenuButton onClick={ (e) => {
+                                      e.persist();
+                                      setShowPopover({ showPopover: true, event: e })
+                                    }}
+                              >
+                                <IonIcon icon={ellipsisHorizontal} />
+                              </MenuButton>
+                          </IonCol>
+                        }
+                      </UserDetailsRow1>
+
+                      <UserDetailsRow2>
+                        <IonCol onClick={ (e) => {
+                                      if (profileUser?.followers.length === 0) return
+                                      e.persist();
+                                      setShowFollowPopover({ 
+                                        showPopover: true, 
+                                        users: profileUser.followers, 
+                                        event: e })
+                                    }}
+                        >
+                          <IonRow>
+                            <strong>{profileUser?.followers.length}</strong>
+                          </IonRow>
+                          <IonRow>
+                            <FullNameLabel text-wrap>
+                              Followers
+                            </FullNameLabel>
+                          </IonRow>
                         </IonCol>
-                      </UserDetailsRow3>
-                    }
+                        <IonCol onClick={ (e) => {
+                                      if (profileUser?.following.length === 0) return
+                                      e.persist();
+                                      setShowFollowPopover({ 
+                                        showPopover: true,
+                                        users: profileUser.following, 
+                                        event: e })
+                                    }}
+                        >
+                          <IonRow>
+                            <strong>{profileUser?.following.length}</strong>
+                          </IonRow>
+                          <IonRow>
+                            <FullNameLabel text-wrap>
+                              Following
+                            </FullNameLabel>
+                          </IonRow>
+                        </IonCol>
+                      </UserDetailsRow2>
+                      
+                      { profileUser?.id !== currentUser.id && 
+                        <UserDetailsRow3>
+                          <IonCol>
+                            <FollowButton size="small" onClick={handleFollowToggle}>
+                              { followedByCurrentUser() ? 
+                                <>
+                                  <IonLabel>
+                                    Following 
+                                  </IonLabel>
+                                  <IonIcon slot="end" icon={checkmark}/> 
+                                </>
+                              : 
+                                <>
+                                  <IonLabel>
+                                    Follow
+                                  </IonLabel>
+                                  <IonIcon slot="end" icon={add} />
+                                </>
+                              }
+                            </FollowButton>
+                          </IonCol>
+                          <IonCol>
+                            <MessageButton size="small" color="secondary" routerLink="/contacts" onClick={() => { dispatch( setChatWith(profileUser.username)) } }>
+                              <IonIcon icon={mailOutline} />
+                            </MessageButton>
+                          </IonCol>
+                        </UserDetailsRow3>
+                      }
 
-                  </UserDetailsGrid>
-                </Col>
-              </Row>
+                    </UserDetailsGrid>
+                  </Col>
+                </Row>
 
-              <BioRow>
-                <IonCol>
-                  <BioContainer>
-                    <strong>Bio: </strong>
-                    {profileUser?.bio}
-                  </BioContainer>
-                </IonCol>
-              </BioRow>
+                <BioRow>
+                  <IonCol>
+                    <BioContainer>
+                      {profileUser?.bio}
+                    </BioContainer>
+                  </IonCol>
+                </BioRow>
 
-              <GalleryRow>
-                <IonCol>
-                  <GalleryContainer>
-                    {postPreviews}
-                    { !postPreviews &&
-                      <IonItem>
-                        <IonLabel>
-                          No posts yet.
-                        </IonLabel>
-                      </IonItem>
-                    }
-                  </GalleryContainer>
+                <GalleryRow>
+                  <IonCol>
+                    <GalleryContainer>
+                      {postPreviews}
+                      { !postPreviews &&
+                        <IonItem>
+                          <IonLabel>
+                            No posts yet.
+                          </IonLabel>
+                        </IonItem>
+                      }
+                    </GalleryContainer>
+              
+                    <IonInfiniteScroll 
+                      threshold="15%" 
+                      disabled={disableInfiniteScroll}
+                      onIonInfinite={fetchNext}
+                    >
+
+                      <IonInfiniteScrollContent
+                        loadingText="Loading Posts...">
+                      </IonInfiniteScrollContent>
+                    </IonInfiniteScroll>
+                  </IonCol>
+                </GalleryRow>
+
             
-                  <IonInfiniteScroll 
-                    threshold="15%" 
-                    disabled={disableInfiniteScroll}
-                    onIonInfinite={fetchNext}
-                  >
 
-                    <IonInfiniteScrollContent
-                      loadingText="Loading Posts...">
-                    </IonInfiniteScrollContent>
-                  </IonInfiniteScroll>
-                </IonCol>
-              </GalleryRow>
-
-          
-
-            </Grid>
-          </IonCardContent>
-        </Card>
+              </Grid>
+            </IonCardContent>
+          </Card>
+        </Container>
 
         <MenuPopover
           cssClass='my-custom-class'
@@ -559,6 +560,15 @@ const Avatar = styled(IonAvatar)`
 `
 const Item = styled(IonItem)``
 
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+
+`
+
 const Card = styled(IonCard)`
   position: relative;
   display: grid;
@@ -566,6 +576,10 @@ const Card = styled(IonCard)`
   justify-content: center;
   max-width: 95%;
   height: 97%;
+  @media (min-width: 900px) {
+    max-width: 950px;
+  }
+  
 `
 const MenuButton = styled(IonButton)`
   cursor: pointer;
@@ -579,7 +593,11 @@ const MenuButton = styled(IonButton)`
 /************************************ */
 
 const Grid = styled(IonGrid)``
-const Row = styled(IonRow)``
+const Row = styled(IonRow)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 const Col = styled(IonCol)``
 
 const Toast = styled(IonToast)`
@@ -591,10 +609,13 @@ const Toast = styled(IonToast)`
 /************************************ */
 
 const ImageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 20vw;
   width: 20vw;
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 200px;
+  max-height: 200px;
   overflow: hidden;
   border-radius: 50%;
   border: 2px solid;
@@ -615,9 +636,14 @@ const UserDetailsGrid = styled(IonGrid)`
 const BioRow = styled(IonRow)`
   height: 13vh;
   overflow-y: scroll;
-  border: 1px solid;
+  /* border: 1px solid; */
 `
-const BioContainer = styled.div`
+
+// const BioRow = styled(IonRow)``
+const BioContainer = styled(IonCol)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow-y: scroll;
   height: 100%;
 `
@@ -627,6 +653,11 @@ const UsernameLabel = styled(IonLabel)`
   line-height: 1rem;
 `
 
+const FullNameCol = styled(IonCol)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 const FullNameLabel = styled(IonLabel)`
   font-size: 0.8rem;
   line-height: 1rem;
@@ -651,7 +682,13 @@ const UserDetailsRow2 = styled(IonRow)`
   }
 `
 
-const UserDetailsRow3 = styled(IonRow)``
+const UserDetailsRow3 = styled(IonRow)`
+  ion-col{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+`
 const FollowButton = styled(IonButton)``
 const MessageButton = styled(IonButton)``
 
@@ -660,7 +697,7 @@ const GalleryRow = styled(IonRow)`
   overflow-y: scroll;
   margin-top: 15px;
   margin-bottom: 15px;
-  border: 1px solid;
+  /* border: 1px solid; */
 `
 
 const GalleryContainer = styled.div`

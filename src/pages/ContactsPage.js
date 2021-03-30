@@ -101,16 +101,21 @@ function ContactsPage () {
             </Avatar>
           </Item>
 
-          <IonInput
-            value={query} 
-            onIonChange={e => { setQuery( (e.detail.value) ) } } 
-            type="search"
-            placeholder="Search..."
-            >
-          <ClearButton size="small" slot="end" onClick={ () => setQuery("") } >
-            <ClearIcon icon={close} />
-          </ClearButton>
-          </IonInput>
+          <IonRow>
+            
+              <ClearButton size="small"onClick={ () => setQuery("") } >
+                <ClearIcon icon={close} />
+              </ClearButton>
+            
+              <IonInput
+                value={query} 
+                onIonChange={e => { setQuery( (e.detail.value) ) } } 
+                type="search"
+                placeholder="Search..."
+                >
+              </IonInput>
+            
+          </IonRow>
         </Toolbar>
       </Header>
 
@@ -181,8 +186,14 @@ const Item = styled(IonItem)`
   --border-color: transparent;
 ` 
 
-const ClearButton = styled(IonButton)``
+
+const ClearButton = styled(IonButton)`
+  margin-left: 3vw;
+  margin-right: 3vw;
+`
 const ClearIcon = styled(IonIcon)``
+
+
 
 /***************** Segment Bar ******************** */
 
@@ -205,7 +216,7 @@ const ContactRow = styled(IonRow)`
   cursor: pointer;
 
   :hover{
-    transform: translateX(5vw);
+    transform: translateX(1vw);
   }
 `
 const AvatarCol = styled(IonCol)`

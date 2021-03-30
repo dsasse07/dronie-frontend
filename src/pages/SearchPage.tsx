@@ -38,6 +38,7 @@ function handleSearchSubmit(e){
 
   function fetchResults(){
     const urlParams = `/search?filter=${filter}&q=${query}&fetched=${results[filter].length}`
+    setIsFetching(true)
     fetch(`${process.env.REACT_APP_BACKEND}${urlParams}`)
       .then( response => {
         if (response.ok) {
@@ -51,7 +52,7 @@ function handleSearchSubmit(e){
       .then((data) => {
         if (data && data.length > 0){
           (filter === "users") ? dispatch( setUserResults(data) ) : dispatch( setPostResults(data) )
-          setDisableInfiniteScroll(data.length < 30);
+          setDisableInfiniteScroll(data.length < 20);
         } else {          
           setDisableInfiniteScroll(true);
         }
@@ -64,7 +65,6 @@ function handleSearchSubmit(e){
   }
 
   async function fetchNext(event) { 
-    console.log('ding')
     await fetchResults();
     (event.target).complete();
   }
@@ -86,7 +86,6 @@ function handleSearchSubmit(e){
       return (
           <ResultPreview key={post.id} post={post} onClick={ () => openPost(post.id) }>
             <img src={post.images[0].secure_url} alt={post.description}/>
-            {post.id}
           </ResultPreview>
       )
     })
@@ -162,11 +161,12 @@ function handleSearchSubmit(e){
           message={'Searching...'}
         />
 
-        { displayedComponents?.length > 0 ?
+        { displayedComponents?.length > 0 &&
           <ResultsGrid>
             {displayedComponents}
           </ResultsGrid>
-        :
+        }
+        { displayedComponents?.length === 0 &&
           <NoMatches>  
             No Matches Found
           </NoMatches>

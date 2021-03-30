@@ -57,7 +57,6 @@ export function Basic(props) {
           Drag images here, or Click to select files
         </IonLabel>
       </Item>
-        {/* <button type="button" onClick={ () => remove() } >Reset</button> */}
     </DropArea>
   );
 }
@@ -67,7 +66,7 @@ export function Basic(props) {
 function NewPostForm() {
   const currentUser = useSelector(state => state.currentUser)
   const postForm = useSelector(state => state.postForm)
-  const tags = useSelector(state => state.tags)
+  // const tags = useSelector(state => state.tags)
   const { register, handleSubmit, errors, control, reset, clearErrors, setValue } = useForm({
     defaultValues: {
       images: [],
@@ -81,6 +80,7 @@ function NewPostForm() {
   const dispatch = useDispatch()
   const history = useHistory()
   const { get } = useStorage()
+
 
   function onSubmit (formData, e){
     formData.tags = postForm.tags
@@ -142,7 +142,6 @@ function NewPostForm() {
               })
               .then((data) => {
                 setIsUploading(false)
-                // dispatch( updateUsersPosts( data ) )
                 dispatch( addPost( data ) )
                 dispatch( updateProfilePosts( data ))
                 history.push(`/users/${currentUser.username}`)
@@ -161,129 +160,127 @@ function NewPostForm() {
       isOpen={isUploading}
       message={'Posting...'}
     />
-    <Card>
-      <Content>
+    <Container>
+      <Card>
+        <Content>
 
-          <Form onSubmit={handleSubmit(onSubmit)}>
+            <Form onSubmit={handleSubmit(onSubmit)}>
+                
+              <Controller control={control} name="images" 
+                rules={{
+                  required:true, 
+                  validate: value => value.length > 0 || "Select at least one photo"
+                }} 
+                defaultValue={[]}
+                render={({ onChange, onBlur, value, ref }) => (
+                  <Basic onBlur={onBlur} onChange={(e) => onChange(e)} checked={value} inputRef={ref}
+                  />
+                )}
+              />
+
+              <IonInput type="hidden" name="user_id" value={currentUser.id} ref={register} />
               
-            <Controller control={control} name="images" rules={{required:true, validate: value => value.length > 0}} defaultValue={[]}
-              render={({ onChange, onBlur, value, ref }) => (
-                <Basic onBlur={onBlur} onChange={(e) => onChange(e)} checked={value} inputRef={ref}
-                />
-              )}
+              <IonGrid>
+              
+                <TagInput />
+
+                <IonRow>
+                  <IonCol>
+                    <IonItem >
+                      <CalLabel position="floating">
+                        Date Taken
+                      </CalLabel>
+                      <IonInput type="date" name="date_taken" ref={register} />
+                    </IonItem >
+                  </IonCol>    
+                </IonRow>
+                
+                <IonRow>
+                  <IonCol>
+                    <IonItem>
+                      <CalLabel position="floating">
+                        Location
+                      </CalLabel>
+                      <IonInput type="text" name="location" ref={register} />
+                    </IonItem>
+                  </IonCol>
+                </IonRow>
+
+                <IonRow>
+                  <IonCol>
+                    <IonItem>
+                      <CalLabel position="floating">
+                        Description
+                      </CalLabel>
+                      <IonTextarea name="description" placeholder="Tell us about the shot!" ref={register} />
+                    </IonItem>
+                  </IonCol>
+                </IonRow>
+
+                <IonRow>
+                  <Col >
+                    <IonButton type="submit" disabled={isUploading}>
+                      Post
+                    </IonButton>
+                  </Col>
+                </IonRow>
+              </IonGrid>
+            </Form> 
+
+            <Toast
+              isOpen={Object.keys(errors).length > 0}
+              message={ 
+                Object.keys(errors).reduce( (string, key) => {
+                  return `${string}${errors[key].message}.\n`
+                }, '')
+              }
+              duration={1500}
+              position="middle"
+              header="Error :"
+              color="danger"
+              onDidDismiss={()=> clearErrors() }
+              buttons= {[{
+                text: 'Done',
+                role: 'cancel',
+              }]}
             />
 
-            <IonInput type="hidden" name="user_id" value={currentUser.id} ref={register} />
-            
-            <IonGrid>
-            
-              <TagInput />
+            <Toast
+              isOpen={networkErrors.length > 0}
+              message={ 
+                networkErrors.reduce( (string, error) => {
+                  return `${string}${error}.\n`
+                }, '')
+              }
+              duration={1500}
+              position="middle"
+              header="Error :"
+              color="danger"
+              onDidDismiss={()=> {
+                clearErrors() 
+                setNetworkErrors([])
+                setIsUploading(false)
+              }}
+              buttons= {[{
+                text: 'Done',
+                role: 'cancel',
+              }]}
+            />
 
-              <IonRow>
-                <IonCol>
-                  <IonItem >
-                    <CalLabel position="floating">
-                      Date Taken
-                    </CalLabel>
-                    <IonInput type="date" name="date_taken" ref={register} />
-                  </IonItem >
-                </IonCol>    
-              </IonRow>
-              
-              <IonRow>
-                <IonCol>
-                  <IonItem>
-                    <CalLabel position="floating">
-                      Location
-                    </CalLabel>
-                    <IonInput type="text" name="location" ref={register} />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-
-              <IonRow>
-                <IonCol>
-                  <IonItem>
-                    <CalLabel position="floating">
-                      Description
-                    </CalLabel>
-                    <IonTextarea name="description" placeholder="Tell us about the shot!" ref={register} />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-
-
-
-            {/* <IonItem>
-              <CalLabel position="floating">
-                Tags
-              </CalLabel>
-              <ReactTags
-                ref={reactTags}
-                tags={postTags}
-                suggestions={tags}
-                onDelete={ handleOnDelete }
-                onAddition={ handleOnAddition } 
-              />
-            </IonItem> */}
-
-              <IonRow>
-                <Col >
-                  <IonButton type="submit" disabled={isUploading}>
-                    Post
-                  </IonButton>
-                </Col>
-              </IonRow>
-            </IonGrid>
-          </Form> 
-
-          <Toast
-            isOpen={Object.keys(errors).length > 0}
-            message={ 
-              Object.keys(errors).reduce( (string, key) => {
-                return `${string}${errors[key].message}.\n`
-              }, '')
-            }
-            duration={1500}
-            position="middle"
-            header="Error :"
-            color="danger"
-            onDidDismiss={()=> clearErrors() }
-            buttons= {[{
-              text: 'Done',
-              role: 'cancel',
-            }]}
-          />
-
-          <Toast
-            isOpen={networkErrors.length > 0}
-            message={ 
-              networkErrors.reduce( (string, error) => {
-                return `${string}${error}.\n`
-              }, '')
-            }
-            duration={1500}
-            position="middle"
-            header="Error :"
-            color="danger"
-            onDidDismiss={()=> {
-              clearErrors() 
-              setNetworkErrors([])
-              setIsUploading(false)
-            }}
-            buttons= {[{
-              text: 'Done',
-              role: 'cancel',
-            }]}
-          />
-
-      </Content>
-    </Card>
+        </Content>
+      </Card>
+    </Container>
   </>
   )
 }
 
 export default NewPostForm
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 
 const Card = styled(IonCard)`
   display: grid;
@@ -291,7 +288,8 @@ const Card = styled(IonCard)`
 `
 const Content = styled(IonCardContent)``
 
-const Form = styled.form``
+const Form = styled.form`
+`
 
 const DropArea = styled.section`
   display: flex;
@@ -353,4 +351,8 @@ const Placeholder = styled(IonThumbnail)`
     height: 100%;
     width: 100%;
   }
+`
+
+const HiddenButton = styled.button`
+
 `

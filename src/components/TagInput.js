@@ -1,20 +1,16 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { close, add, chevronDownOutline } from 'ionicons/icons'
-import { IonInput, IonLabel, IonItem, IonIcon, IonPopover, IonList } from "@ionic/react"
+import { IonInput, IonLabel, IonItem, IonIcon } from "@ionic/react"
 import { IonRow, IonCol, IonNote } from "@ionic/react"
 import { useDispatch, useSelector } from 'react-redux'
-import { addPostTag, removePostTag } from '../redux/postFormSlice'
+import { addPostTag, removePostTag} from '../redux/postFormSlice'
 
 function TagInput() {
   const postForm = useSelector(state => state.postForm)
   const tags = useSelector(state => state.tags)
   const [ inputText, setInputText ] = useState("")
   const dispatch = useDispatch()
-  const [ showPopover, setShowPopover] = useState({
-    showPopover: false,
-    event: undefined
-  })
 
   const addTags = event => {
     setInputText(event.target.value)
@@ -28,7 +24,7 @@ function TagInput() {
   const removeTag = tag => {
     dispatch( removePostTag( tag ) )
   };
-
+  
   const tagComponents = postForm.tags?.map( (tag, index) => {
     return (
       <TagItem key={index} >
@@ -92,11 +88,12 @@ function TagInput() {
                 Tag Suggestions:
               </SuggestionsLabel>
             </IonCol>
-            <IonCol>
+            <CenterCol>
               {(inputText.length >= 2 && suggestionComponents.length > 0) &&
                 "Click to select"
               }
-            </IonCol>
+            </CenterCol>
+            <IonCol></IonCol>
           </IonRow>
 
           <IonRow>
@@ -172,6 +169,11 @@ const SuggestionsRow = styled(IonRow)`
 `
 const SuggestionsLabel = styled(IonLabel)`
   font-weight: bold;
+`
+const CenterCol = styled(IonCol)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 const MissingTagsLabel = styled(IonNote)``
