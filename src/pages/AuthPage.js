@@ -83,13 +83,9 @@ const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239, 239, 239, 0.2);
   transition: 1s;
   opacity: ${({showLogo}) => showLogo ? "100%" : "0%" };
 
-  @media (prefers-color-scheme: dark) {
-    background: rgba(20, 20, 20, 0.2);
-  }
   img {
     padding-top: 4vw;
     padding-bottom: 4vw;
