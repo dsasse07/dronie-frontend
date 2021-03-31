@@ -8,9 +8,17 @@ import { useEffect, useState } from 'react'
 import dronieLogo from '../assets/dronieLogo.png'
 import meshGradient from '../assets/meshGradient.png'
 import SplashScreen from '../components/SplashScreen';
+import meshGradientDark from '../assets/meshGradientDark.png'
 
 function AuthPage ({setChatSubscription}) {
   const [ showLogin, setShowLogin ] = useState(true)
+  const [ showLogo, setShowLogo ] = useState(false)
+
+  useEffect(() => {
+    setTimeout( () => {
+      setShowLogo(showLogin)
+    },100)
+  }, [showLogin])
 
   function toggleFormDisplay(formToShow){
     setShowLogin( formToShow === "login")
@@ -18,9 +26,8 @@ function AuthPage ({setChatSubscription}) {
 
   return (
     <IonPage>
-  
-    
-        <IonContent fullscreen>  
+
+        <PageContent fullscreen>  
               <IonSegment onIonChange={e => toggleFormDisplay(e.detail.value) } value={showLogin ? "login" : "signup"}>
                 <IonSegmentButton value="login">
                   <IonLabel>Login</IonLabel>
@@ -31,11 +38,16 @@ function AuthPage ({setChatSubscription}) {
               </IonSegment>
 
               {showLogin ?
-                <LoginForm isOpen={showLogin} setChatSubscription={setChatSubscription}/>
+                <>
+                  <LogoContainer showLogo={showLogo}>
+                    <img src={dronieLogo} />
+                  </LogoContainer>
+                  <LoginForm isOpen={showLogin} setChatSubscription={setChatSubscription}/>
+                </>
               :
                 <SignupForm isOpen={!showLogin} setChatSubscription={setChatSubscription} />
               }
-        </IonContent>  
+        </PageContent>
       
     </IonPage>
   );
@@ -43,29 +55,58 @@ function AuthPage ({setChatSubscription}) {
 
 export default AuthPage;
 
-const Card = styled(IonCard)``
+// const Card = styled(IonCard)``
 
-const Content = styled(IonCardContent)`
-  position: relative;
-`
+// const Content = styled(IonCardContent)`
+//   position: relative;
+// `
 
 
-const SplashContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+// const SplashContainer = styled.div`
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   z-index: 100000;
+
+// `
+// const Background = styled.img`
+//   height: 100%;
+//   width: 100%;
+//   object-fit: cover;
+// `
+const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100000;
+  background: rgba(239, 239, 239, 0.2);
+  transition: 1s;
+  opacity: ${({showLogo}) => showLogo ? "100%" : "0%" };
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(20, 20, 20, 0.2);
+  }
+  img {
+    padding-top: 4vw;
+    padding-bottom: 4vw;
+    padding-left: 7vw;
+    padding-right: 7vw;
+  }
 
 `
-const Background = styled.img`
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-`
-const LogoContainer = styled.div`
+
+const PageContent = styled(IonContent)`
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark}); 
+  }
+
 `
