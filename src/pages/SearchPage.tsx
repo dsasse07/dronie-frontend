@@ -9,6 +9,10 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 function SearchPage () {
   // const posts = useSelector(state => state.posts)
@@ -110,10 +114,21 @@ function handleSearchSubmit(e){
   const displayedComponents = filter === "users" ? userResultComponents() : postResultComponents()
 
   return (
-    <IonPage>
+    <Page>
 
       <Header >
-          <Toolbar>
+        <Toolbar>
+          <Item>
+            {/* <Title slot="start">
+              Dronie
+            </Title> */}
+            <LogoImage src={dronePiece} />
+            <NameImage src={namePiece} />
+            <Avatar slot="end" onClick={goToProfile}>
+              <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+            </Avatar>
+          </Item>
+          {/* <Toolbar>
             <Item>
               <Title slot="start">
                 Dronie
@@ -121,7 +136,7 @@ function handleSearchSubmit(e){
               <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
               </Avatar>
-            </Item>
+            </Item> */}
 
             <IonSearchbar 
               value={query} 
@@ -160,7 +175,7 @@ function handleSearchSubmit(e){
           </Toolbar>
         </Header>
 
-      <IonContent >
+      <Content >
         <IonLoading
           isOpen={isFetching}
           message={'Searching...'}
@@ -189,9 +204,9 @@ function handleSearchSubmit(e){
           </IonInfiniteScrollContent>
         </IonInfiniteScroll>
 
-      </IonContent>
+      </Content>
 
-    </IonPage>
+    </Page>
   );
 };
 
@@ -199,20 +214,33 @@ export default SearchPage;
 
 
 const Header = styled(IonHeader)``
+
 const Toolbar = styled(IonToolbar)`
-  padding-right: 10px;
+  display: flex;
 `
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const LogoImage = styled.img`
+  height: 35px;
 `
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
+    margin-right: 3vw;
 `
 const Item = styled(IonItem)`
-  --border-color: transparent;
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 ` 
 
 /***************** Segment Bar ******************** */
@@ -223,6 +251,25 @@ const SegmentButton = styled(IonSegmentButton)``
 const SegmentLabel = styled(IonLabel)``
 
 /***************** Results grid ******************* */
+const Page = styled(IonPage)`
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
+const Content = styled(IonContent)`
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
 
 const ResultsGrid = styled(IonGrid)`
   display: flex;
@@ -231,8 +278,9 @@ const ResultsGrid = styled(IonGrid)`
   justify-content: center;
   overflow-y: scroll;
   margin-top:10px;
-  border: 1px solid blue;
   height: 98.5%;
+
+  
 `
 const ResultPreview = styled.div`
   position: relative;

@@ -11,6 +11,10 @@ import { useStorage } from '@ionic/react-hooks/storage'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
 import { setChatWith } from '../redux/chatWithSlice';
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 function MessagesPage () {
   const { filter, query, results } = useSelector(state => state.search)
@@ -178,9 +182,11 @@ function MessagesPage () {
       <Header >
         <Toolbar>
           <Item>
-            <Title slot="start">
+            {/* <Title slot="start">
               Dronie
-            </Title>
+            </Title> */}
+            <LogoImage src={dronePiece} />
+            <NameImage src={namePiece} />
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
@@ -242,23 +248,41 @@ export default MessagesPage;
 
 
 const Header = styled(IonHeader)``
+
 const Toolbar = styled(IonToolbar)`
-  padding-right: 10px;
+  display: flex;
 `
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const LogoImage = styled.img`
+  height: 35px;
 `
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
+    margin-right: 3vw;
 `
 const Item = styled(IonItem)`
-  --border-color: transparent;
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 ` 
 
-const OtherUserRow = styled(IonRow)``
+const OtherUserRow = styled(IonRow)`
+  ion-button{
+    margin-left: 3vw;
+    margin-right: 3vw;
+  }
+`
 const OtherUserCol = styled(IonCol)`
   align-items: center;
   justify-content: center;

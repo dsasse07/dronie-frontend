@@ -13,6 +13,8 @@ import styled from 'styled-components'
 import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 import TagInput from '../components/TagInput'
 import { clearPostTags } from "../redux/postFormSlice";
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
 
 export function Basic(props) {
   const [ files, setFiles ] = useState()
@@ -294,6 +296,20 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+
 `
 
 const Card = styled(IonCard)`

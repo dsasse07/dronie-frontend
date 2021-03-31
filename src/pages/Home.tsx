@@ -276,7 +276,7 @@ function Home () {
         </Toolbar>
       </Header>
 
-      <IonContent fullscreen ref={contentRef} scrollEvents={true} onIonScroll={(e)=>setScrollPosition(e.detail.scrollTop)} >
+      <Content fullscreen ref={contentRef} scrollEvents={true} onIonScroll={(e)=>setScrollPosition(e.detail.scrollTop)} >
         <IonLoading
           isOpen={fetchInitial}
           message={'Loading...'}
@@ -391,7 +391,7 @@ function Home () {
           </IonInfiniteScrollContent>
         </IonInfiniteScroll>
 
-      </IonContent>
+      </Content>
     </IonPage>
   );
 };
@@ -402,6 +402,15 @@ const List = styled(IonList)`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+
 `
 
 const Header = styled(IonHeader)``
@@ -423,16 +432,20 @@ const Avatar = styled(IonAvatar)`
     margin-right: 3vw;
 `
 const Item = styled(IonItem)`
-  --border-color: transparent;
+  /* --border-color: transparent; */
   --background: none;
   background-image: url(${meshGradient});
-  @media (prefers-color-scheme: dark) {
-    background-image: url(${meshGradientDark});
-  }
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 ` 
+
+const Content = styled(IonContent)`
+
+`
 
 /***************** Segment Bar ******************** */
 

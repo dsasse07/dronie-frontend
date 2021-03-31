@@ -251,7 +251,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
 
         <CardContent>
           <IonGrid>
-            <IonRow>
+            <ImageRow>
               <ImageContainer >
                 <Img src={images[displayedImageIndex].secure_url} />
                 { images.length > 1 && 
@@ -265,7 +265,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
                   </>
                 }
               </ImageContainer>
-            </IonRow>
+            </ImageRow>
             
             <IonRow>
               <IonCol>
@@ -479,6 +479,7 @@ const CardContent = styled(IonCardContent)`
 const ImageRow = styled(IonRow)``
 const ImageContainer = styled(IonCol)`
   position: relative;
+  /* width: ; */
   ion-img{
     ::part(image){
       @media (min-width: 800px) {
@@ -557,7 +558,7 @@ const ImageTracker = styled.div`
 
 const Img = styled(IonImg)`
   max-width: 100%;
-  object-fit: contain;
+  /* object-fit: contain; */
 `
 
 const DescriptionRow = styled(IonRow)`
