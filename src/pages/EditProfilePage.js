@@ -501,7 +501,7 @@ const PageContent = styled(IonContent)`
   background-repeat: no-repeat;
   background-size: cover;
   @media (prefers-color-scheme: dark) {
-    background-image: url(${meshGradientDark});
+    background-image: url(${meshGradientDark}); 
   }
 `
 
