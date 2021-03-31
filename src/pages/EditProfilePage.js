@@ -11,6 +11,10 @@ import { useStorage } from '@ionic/react-hooks/storage'
 import { useForm, Controller, get } from "react-hook-form";
 import styled from 'styled-components'
 import avatarPlaceHolder from '../assets/avatar.jpg'
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 
 //********************************************************************* */
@@ -44,9 +48,9 @@ export function Droparea(props) {
           </Thumbnail>
         }
         <input {...getInputProps()} />
-        <Item>
+        <DropItem>
           <IonLabel>Drag or Select Photo</IonLabel>
-        </Item>
+        </DropItem>
       </DropArea>
   );
 }
@@ -210,16 +214,27 @@ function saveChangesWithoutPhoto(formData){
         <Header >
           <Toolbar>
             <Item>
+              {/* <Title slot="start">
+                Dronie
+              </Title> */}
+              <LogoImage src={dronePiece} />
+              <NameImage src={namePiece} />
+              <Avatar slot="end" onClick={goToProfile}>
+                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+              </Avatar>
+            </Item>
+          {/* <Toolbar>
+            <Item>
               <Title slot="start">Dronie</Title>
               <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url}/>
               </Avatar>
-            </Item>
+            </Item> */}
           </Toolbar>
         </Header>
 
-      <IonContent fullscreen>
-              
+      <PageContent fullscreen>
+            <Container>
               <Card>
                 <Content> 
 
@@ -413,8 +428,8 @@ function saveChangesWithoutPhoto(formData){
                   />
                 </Content>
               </Card>
-
-      </IonContent>
+            </Container>
+      </PageContent>
     </IonPage>
   );
 };
@@ -430,7 +445,9 @@ const DropArea = styled.section`
   border: 2px dashed;
   border-radius: 8px;
 `
+const DropItem = styled(IonItem)`
 
+`
 const Thumbnail = styled(IonAvatar)`
   width: 120px;
   height: 120px;
@@ -442,22 +459,69 @@ const Thumbnail = styled(IonAvatar)`
 `
 /**********************************************************/
 const Header = styled(IonHeader)``
-const Toolbar = styled(IonToolbar)``
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const Toolbar = styled(IonToolbar)`
+  display: flex;
 `
+
+const LogoImage = styled.img`
+  height: 35px;
+`
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
-    height: 50px;
+    height: 50px !important;
     border: 1px solid;
     cursor: pointer;
-    margin-right: 10px;
+    margin-right: 3vw;
 `
-const Item = styled(IonItem)``
+const Item = styled(IonItem)`
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+` 
 
 /********************************************************** */
 
-const Card = styled(IonCard)``
+const PageContent = styled(IonContent)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
+
+const Card = styled(IonCard)`
+
+`
 const Content = styled(IonCardContent)``
 
 const Form = styled.form``

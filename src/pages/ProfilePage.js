@@ -14,6 +14,10 @@ import { useStorage } from '@ionic/react-hooks/storage';
 import { useHistory } from 'react-router-dom'
 import avatarPlaceHolder from '../assets/avatar.jpg'
 import { setChatWith } from '../redux/chatWithSlice';
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 const ProfilePage = ({chatSubscription, setChatSubscription}) => {
   const currentUser = useSelector(state => state.currentUser)
@@ -80,13 +84,6 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
       })
   }, [ params.username] )
 
-  // useIonViewWillLeave( () => {
-  //   dispatch( resetProfile({
-  //     user: null,
-  //     posts: []
-  //   }
-  // ))
-  // })
 
   async function fetchNext(event) {
     await fetchPostPreviews();
@@ -117,7 +114,7 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
           setIsLoading(false)
           if (data && data.length > 0 ){
             dispatch( setProfilePosts(data) )
-            setDisableInfiniteScroll(data.length < 15);
+            setDisableInfiniteScroll(data.length < 12);
           } else {
             setDisableInfiniteScroll(true);
           }
@@ -259,15 +256,26 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
         <Header >
           <Toolbar>
             <Item>
+              {/* <Title slot="start">
+                Dronie
+              </Title> */}
+              <LogoImage src={dronePiece} />
+              <NameImage src={namePiece} />
+              <Avatar slot="end" onClick={goToProfile}>
+                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+              </Avatar>
+            </Item>
+          {/* <Toolbar>
+            <Item>
               <Title slot="start">Dronie</Title>
               <Avatar slot="end" onClick={goToProfile}>
                 <img src={currentUser.avatar.secure_url}/>
               </Avatar>
-            </Item>
+            </Item> */}
           </Toolbar>
         </Header>
 
-      <IonContent fullscreen>
+      <Content fullscreen>
         <IonLoading
           isOpen={isLoading}
           message={'Loading...'}
@@ -539,7 +547,7 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
           ]}
         />
 
-      </IonContent>
+      </Content>
       
 
     </IonPage>
@@ -549,26 +557,63 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
 export default ProfilePage;
 
 const Header = styled(IonHeader)``
-const Toolbar = styled(IonToolbar)``
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const Toolbar = styled(IonToolbar)`
+  display: flex;
 `
+
+const LogoImage = styled.img`
+  height: 35px;
+`
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
-    height: 50px;
+    height: 50px !important;
     border: 1px solid;
     cursor: pointer;
-    margin-right: 10px;
+    margin-right: 3vw;
 `
-const Item = styled(IonItem)``
+const Item = styled(IonItem)`
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+` 
+
+const Content = styled(IonContent)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
 
 
 const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
 
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 `
 
 const Card = styled(IonCard)`
@@ -585,8 +630,12 @@ const Card = styled(IonCard)`
 `
 const MenuButton = styled(IonButton)`
   cursor: pointer;
-  font-size:1rem;
+  font-size:0.8rem;
   padding: 5px;
+
+  ::part(native){
+    
+  }
 
   ion-icon {
     cursor: pointer;
@@ -616,8 +665,8 @@ const ImageContainer = styled.div`
   justify-content: center;
   height: 20vw;
   width: 20vw;
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 150px;
+  max-height: 150px;
   overflow: hidden;
   border-radius: 50%;
   border: 2px solid;
@@ -633,6 +682,7 @@ const ImageContainer = styled.div`
 
 const UserDetailsGrid = styled(IonGrid)`
   width: 53vw;
+  max-width: 400px;
 `
 
 const BioRow = styled(IonRow)`

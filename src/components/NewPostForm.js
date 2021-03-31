@@ -12,9 +12,13 @@ import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import uploadPlaceholder from '../assets/uploadPlaceholder.png'
 import TagInput from '../components/TagInput'
+import { clearPostTags } from "../redux/postFormSlice";
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
 
 export function Basic(props) {
   const [ files, setFiles ] = useState()
+  const dispatch = useDispatch()
   const currentUser = useSelector(state => state.currentUser)
   const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
@@ -35,14 +39,16 @@ export function Basic(props) {
   // Clear the file previews when the user is updated after the post is uploaded.
   useEffect(() => {
     setFiles([])
+    dispatch( clearPostTags([]) )
   }, [currentUser])
 
   useIonViewDidLeave( () => {
     setFiles([])
+    dispatch( clearPostTags([]) )
   })
 
   return (
-    <DropArea >
+    <DropArea {...getRootProps()}>
       <PhotoPreviewsContainer>
         {files}
         {files?.length === 0 &&
@@ -51,8 +57,8 @@ export function Basic(props) {
           </Placeholder>
         }
       </PhotoPreviewsContainer>
-      <Item {...getRootProps()}>
-        <input {...getInputProps()} />
+      <input {...getInputProps()} />
+      <Item >
         <IonLabel>
           Drag images here, or Click to select files
         </IonLabel>
@@ -90,9 +96,19 @@ function NewPostForm() {
       location: "",
       description: ""
     })
+    dispatch( clearPostTags([]) )
     setIsUploading(true)
     uploadAndSave(formData)
   } 
+
+  useIonViewDidLeave( () => {
+    reset({
+      images: [],
+      date_take: "",
+      location: "",
+      description: ""
+    })
+  })
 
   //********************************************************************* */
   //******** Post Avatar(s) to Cloudinary Then Save to DB *************** */
@@ -280,6 +296,20 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+
 `
 
 const Card = styled(IonCard)`

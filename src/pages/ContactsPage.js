@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
 import { IonInput, IonRow, IonCol, IonList, IonButton } from '@ionic/react';
-import { IonBadge, IonBackButton,  } from '@ionic/react';
+import { IonBadge, IonItemGroup, IonItemDivider  } from '@ionic/react';
 import { close } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -10,6 +10,10 @@ import avatarPlaceHolder from '../assets/avatar.jpg'
 import styled from 'styled-components'
 import MessagePage from '../pages/MessagesPage'
 import { setChatWith } from '../redux/chatWithSlice';
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 function ContactsPage () {
   const currentUser = useSelector(state => state.currentUser)
@@ -96,17 +100,32 @@ function ContactsPage () {
       <Header >
         <Toolbar>
           <Item>
+            {/* <Title slot="start">
+              Dronie
+            </Title> */}
+            <LogoImage src={dronePiece} />
+            <NameImage src={namePiece} />
+            <Avatar slot="end" onClick={goToProfile}>
+              <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+            </Avatar>
+          </Item>
+        {/* <Toolbar>
+          <Item>
             <Title slo="start">
               Dronie
             </Title>
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
-          </Item>
+          </Item> */}
 
           <IonRow>
             
-              <ClearButton size="small"onClick={ () => setQuery("") } >
+              <ClearButton 
+                size="small"
+                onClick={ () => setQuery("") } 
+                disabled={query.length === 0}
+              >
                 <ClearIcon icon={close} />
               </ClearButton>
             
@@ -122,14 +141,30 @@ function ContactsPage () {
         </Toolbar>
       </Header>
 
-      <IonContent fullscreen>
+      <Content fullscreen>
 
         <ContactList>
-          {recentContactComponents}
-          {otherFriendComponents}
+          <IonItemGroup>
+            <IonItemDivider>
+              <IonLabel>
+                Recent Contacts
+              </IonLabel>
+            </IonItemDivider>
+            {recentContactComponents}
+          </IonItemGroup>
+
+          <IonItemGroup>
+            <IonItemDivider>
+              <IonLabel>
+                Friends
+              </IonLabel>
+            </IonItemDivider>
+            
+            {otherFriendComponents}
+          </IonItemGroup>
         </ContactList>
 
-      </IonContent>
+      </Content>
       </>
     } 
     </IonPage>
@@ -173,20 +208,33 @@ export default ContactsPage;
 
 
 const Header = styled(IonHeader)``
+
 const Toolbar = styled(IonToolbar)`
-  padding-right: 10px;
+  display: flex;
 `
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const LogoImage = styled.img`
+  height: 35px;
 `
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
+    margin-right: 3vw;
 `
 const Item = styled(IonItem)`
-  --border-color: transparent;
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 ` 
 
 
@@ -206,6 +254,17 @@ const SegmentButton = styled(IonSegmentButton)``
 const SegmentLabel = styled(IonLabel)``
 
 /************************************************ */
+const Content = styled(IonContent)`
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
+
 const ContactList = styled(IonList)`
   margin: 4px;
 `
@@ -248,4 +307,7 @@ const ContactAvatar = styled(IonAvatar)`
   width: 10vw;
   height: 10vw;
   border: 1px solid;
+
+  max-width: 75px;
+  max-height: 75px;
 `

@@ -16,7 +16,7 @@ export const postFormSlice = createSlice({
       })
     },
     clearPostTags( state, action ) {
-      return state.tags = []
+      state.tags = []
     }
   }
 })
