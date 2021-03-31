@@ -133,12 +133,13 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
 
   function handleAddComment(event){
     event.preventDefault()
+    if (newCommentText.trim().length === 0) return
     get("token")
     .then( token => {
       const newComment = {
         user_id: currentUser.id,
         post_id: id,
-        content: newCommentText
+        content: newCommentText.trim()
       }
 
       const newCommentConfig = {
