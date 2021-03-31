@@ -1,5 +1,6 @@
 import { IonContent, IonPage, IonSegment, IonSegmentButton, IonLabel} from '@ionic/react';
-import { IonCard, IonCardContent } from '@ionic/react';
+import { IonToolbar, IonFooter, IonButtons, IonButton, IonIcon } from '@ionic/react';
+import { logoGithub, logoLinkedin } from 'ionicons/icons'
 import SignupForm from '../components/SignupForm'
 import LoginForm from '../components/LoginForm'
 import styled from 'styled-components'
@@ -48,6 +49,20 @@ function AuthPage ({setChatSubscription}) {
                 <SignupForm isOpen={!showLogin} setChatSubscription={setChatSubscription} />
               }
         </PageContent>
+        <IonFooter>
+          <Toolbar>
+              <IonButtons slot="start">
+                <IonButton href="https://github.com/dsasse07/Dronie/blob/main/README.md" target="_blank" >
+                  <IonIcon slot="icon-only" icon={logoGithub} />
+                </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                <IonButton href="https://www.linkedin.com/in/danny-sasse/" target="_blank" >
+                  <IonIcon slot="icon-only" icon={logoLinkedin} />
+                </IonButton>
+              </IonButtons>
+          </Toolbar>
+        </IonFooter>
       
     </IonPage>
   );
@@ -55,30 +70,11 @@ function AuthPage ({setChatSubscription}) {
 
 export default AuthPage;
 
-// const Card = styled(IonCard)``
+const Toolbar = styled(IonToolbar)`
+  padding-left: 2vw;
+  padding-right: 2vw;
+`
 
-// const Content = styled(IonCardContent)`
-//   position: relative;
-// `
-
-
-// const SplashContainer = styled.div`
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   z-index: 100000;
-
-// `
-// const Background = styled.img`
-//   height: 100%;
-//   width: 100%;
-//   object-fit: cover;
-// `
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;

@@ -21,19 +21,19 @@ function Comment( { comment, onCommentDeleteClick, onViewUser } ) {
       <Row>
         <IonLabel>
 
-          <IonCol>
+          {/* <AuthorCol> */}
             <AuthorSpan onClick={ () => onViewUser(author) }> 
               {author} 
             </AuthorSpan>
-            <DateSpan>
+            <DateSpan> 
               {new Date(created_at).toDateString().slice(4) }
-            </DateSpan>
-          </IonCol>
-            <IonCol>
+            </DateSpan> 
+          {/* </AuthorCol> */}
+            {/* <IonCol> */}
               { belongsToCurrentUser() && 
                 <DeleteButton color="danger" icon={trashOutline} onClick={() => onCommentDeleteClick(id)} />
               }
-            </IonCol>
+            {/* </IonCol> */}
 
         </IonLabel>
       </Row>
@@ -54,8 +54,14 @@ export default Comment
 
 const Grid = styled(IonGrid)`
   /* border-bottom: 1px solid; */
+  padding-left: 2vw;
+    padding-right: 2vw;
   hr {
     margin-top: 0.6rem;
+  }
+  ion-label{
+    padding-left: 1vw;
+    padding-right: 1vw;
   }
 `
 
@@ -64,6 +70,8 @@ const Row = styled(IonRow)`
     width: 100%;
     display: flex;
     justify-content: space-between;
+    padding-left: 1vw;
+    padding-right: 1vw;
 
     span{
       display: flex;
