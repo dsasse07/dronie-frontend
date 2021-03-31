@@ -163,8 +163,12 @@ export default LoginForm
 const CardAnimationWrapper = styled.div`
   transform: ${({isOpen}) => isOpen ? "translateX(0)" : "translateX(-100vw)" };
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 const Card = styled(IonCard)`
+  padding: 3vw;
 `
 
 const Content = styled(IonCardContent)``
