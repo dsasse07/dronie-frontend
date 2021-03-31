@@ -259,11 +259,19 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
               {/* <Title slot="start">
                 Dronie
               </Title> */}
-              <LogoImage src={dronePiece} />
-              <NameImage src={namePiece} />
-              <Avatar slot="end" onClick={goToProfile}>
-                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
-              </Avatar>
+              <HeaderRow>
+                <HeaderCol>
+                  <LogoImage src={dronePiece} />
+                </HeaderCol>
+                <HeaderCol>
+                  <NameImage src={namePiece} />
+                </HeaderCol>
+                <HeaderCol>
+                  <Avatar  onClick={goToProfile}>
+                    <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+                  </Avatar>
+                </HeaderCol>
+              </HeaderRow>
             </Item>
           {/* <Toolbar>
             <Item>
@@ -562,6 +570,18 @@ const Toolbar = styled(IonToolbar)`
   display: flex;
 `
 
+const HeaderRow = styled(IonRow)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`
+
+const HeaderCol = styled(IonCol)`
+  display: flex;
+  justify-content: center;
+`
+
 const LogoImage = styled.img`
   height: 35px;
 `
@@ -572,7 +592,7 @@ const Avatar = styled(IonAvatar)`
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
-    margin-right: 3vw;
+    /* margin-right: 3vw; */
 `
 const Item = styled(IonItem)`
   /* --border-color: transparent; */
