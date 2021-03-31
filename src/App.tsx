@@ -50,9 +50,9 @@ function App() {
   // remove("token")
   useEffect( () => {
 
-    const timer = setTimeout( () => {
-      setShowLoadScreen(false)
-    }, 2000)
+    // const timer = setTimeout( () => {
+    //   setShowLoadScreen(false)
+    // }, 2000)
 
     get("token")
       .then( token => {
@@ -78,9 +78,9 @@ function App() {
         }
       })
 
-      return( () => {
-        clearTimeout(timer)
-      })
+      // return( () => {
+      //   clearTimeout(timer)
+      // })
   }, [])
 
   function unreadMessageCount(){
