@@ -78,7 +78,7 @@ function LoginForm({isOpen, setChatSubscription}) {
                 <InputLabel position="floating">
                   Username *
                 </InputLabel>
-                <IonInput type="text" name="username" placeholder="First Name" 
+                <IonInput type="text" name="username" placeholder="Username" 
                   ref={register({
                     required: {value: true, message:"Please enter a username"}
                   })} 

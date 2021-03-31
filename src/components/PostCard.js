@@ -25,7 +25,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
-  const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
+  // const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
   const [ displayedImageIndex, setDisplayedImageIndex ] = useState(0)
   const [ showPostTags, setShowPostTags ] = useState({
     showPopover: false,
@@ -251,7 +251,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
 
         <CardContent>
           <IonGrid>
-            <IonRow>
+            <ImageRow>
               <ImageContainer >
                 <Img src={images[displayedImageIndex].secure_url} />
                 { images.length > 1 && 
@@ -265,7 +265,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
                   </>
                 }
               </ImageContainer>
-            </IonRow>
+            </ImageRow>
             
             <IonRow>
               <IonCol>
@@ -479,6 +479,7 @@ const CardContent = styled(IonCardContent)`
 const ImageRow = styled(IonRow)``
 const ImageContainer = styled(IonCol)`
   position: relative;
+  /* width: ; */
   ion-img{
     ::part(image){
       @media (min-width: 800px) {
@@ -498,6 +499,7 @@ const PrevImage = styled.div`
   justify-content: center;
   height: calc(100% - 11px);
   width: 5vw;
+  max-width: 50px;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
   cursor: pointer;
@@ -509,6 +511,7 @@ const PrevImage = styled.div`
   :hover{
     background: rgba(45, 45, 45, 0.5);
     width: 8vw;
+    max-width: 70px;
   }
 `
 const NextImage = styled.div`
@@ -522,6 +525,7 @@ const NextImage = styled.div`
   top: 0;
   height: calc(100% - 11px);
   width: 5vw;
+  max-width: 50px;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
   cursor: pointer;
@@ -533,6 +537,7 @@ const NextImage = styled.div`
   :hover{
     background: rgba(45, 45, 45, 0.5);
     width: 8vw;
+    max-width: 70px;
   }
 `
 
@@ -553,7 +558,7 @@ const ImageTracker = styled.div`
 
 const Img = styled(IonImg)`
   max-width: 100%;
-  object-fit: contain;
+  /* object-fit: contain; */
 `
 
 const DescriptionRow = styled(IonRow)`

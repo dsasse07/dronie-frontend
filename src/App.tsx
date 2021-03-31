@@ -52,7 +52,7 @@ function App() {
 
     const timer = setTimeout( () => {
       setShowLoadScreen(false)
-    }, 1500)
+    }, 2000)
 
     get("token")
       .then( token => {

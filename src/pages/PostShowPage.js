@@ -9,6 +9,10 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
 import { useHistory } from 'react-router-dom'
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 function PostShowPage () {
   const currentUser = useSelector(state => state.currentUser)
@@ -191,17 +195,28 @@ function PostShowPage () {
     <IonPage>
 
     <Header>
-        <Toolbar>
+      <Toolbar>
+        <Item>
+          {/* <Title slot="start">
+            Dronie
+          </Title> */}
+          <LogoImage src={dronePiece} />
+          <NameImage src={namePiece} />
+          <Avatar slot="end" onClick={goToProfile}>
+            <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
+          </Avatar>
+        </Item>
+        {/* <Toolbar>
           <Item>
             <Title slot="start">Dronie</Title>
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
-          </Item>
+          </Item> */}
         </Toolbar>
       </Header>
 
-      <IonContent fullscreen>
+      <Content fullscreen>
         <IonAlert
           isOpen={commentToDelete !== null}
           onDidDismiss={() => setCommentToDelete(null) }
@@ -290,14 +305,15 @@ function PostShowPage () {
           message={'Loading...'}
         />
 
-
         { Object.keys(displayedPost).length > 0 && 
-          <PostCard 
-            post={displayedPost} 
-            onCommentDeleteClick={handleDeleteCommentClick} 
-            onPostDeleteClick={handleDeletePostClick}
-            onEditPostClick={handleEditPostClick}
-          />
+          <Container>
+            <PostCard 
+              post={displayedPost} 
+              onCommentDeleteClick={handleDeleteCommentClick} 
+              onPostDeleteClick={handleDeletePostClick}
+              onEditPostClick={handleEditPostClick}
+            />
+          </Container>
         }
 
           
@@ -321,7 +337,7 @@ function PostShowPage () {
             role: 'cancel',
           }]}
         />   
-      </IonContent>
+      </Content>
     </IonPage>
   );
 };
@@ -330,19 +346,45 @@ export default PostShowPage;
 
 
 const Header = styled(IonHeader)``
-const Toolbar = styled(IonToolbar)``
-const Title = styled(IonTitle)`
-  font-size: 1.8rem;
+
+const Toolbar = styled(IonToolbar)`
+  display: flex;
 `
+
+const LogoImage = styled.img`
+  height: 35px;
+`
+const NameImage = styled.img``
+
 const Avatar = styled(IonAvatar)`
     width:50px !important;
-    height: 50px;
+    height: 50px !important;
     border: 1px solid;
     cursor: pointer;
-    margin-right: 10px;
+    margin-right: 3vw;
 `
-const Item = styled(IonItem)``
+const Item = styled(IonItem)`
+  /* --border-color: transparent; */
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+` 
 
+const Content = styled(IonContent)`
+  --background: none;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
 
 const Toast = styled(IonToast)`
   &::part(message) {
@@ -350,5 +392,23 @@ const Toast = styled(IonToast)`
   }
 `
 
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+
+`
 

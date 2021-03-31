@@ -11,21 +11,10 @@ import SplashScreen from '../components/SplashScreen';
 
 function AuthPage ({setChatSubscription}) {
   const [ showLogin, setShowLogin ] = useState(true)
-  // const [ showLoadScreen, setShowLoadScreen ] = useState(true)
 
   function toggleFormDisplay(formToShow){
     setShowLogin( formToShow === "login")
   }
-
-  // useEffect ( () => {
-  //   const timer = setTimeout( () => {
-  //     setShowLoadScreen(false)
-  //   }, 2000)
-
-  //   return ( () => {
-  //     clearTimeout(timer)
-  //   })
-  // })
 
   return (
     <IonPage>
