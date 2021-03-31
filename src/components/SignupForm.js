@@ -389,7 +389,7 @@ const CardAnimationWrapper = styled.div`
 `
 
 const Card = styled(IonCard)``
-const Content = styled(IonCardContent)``
+const Content = styled(IonCardContent)`` 
 
 const Form = styled.form``
 
