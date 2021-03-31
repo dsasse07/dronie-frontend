@@ -383,10 +383,13 @@ export default SignupForm
 const CardAnimationWrapper = styled.div`
   transform: ${({isOpen}) => isOpen ? "translateX(0)" : "translateX(100vw)" };
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 const Card = styled(IonCard)``
-const Content = styled(IonCardContent)``
+const Content = styled(IonCardContent)`` 
 
 const Form = styled.form``
 
