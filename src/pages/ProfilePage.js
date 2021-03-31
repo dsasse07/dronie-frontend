@@ -80,13 +80,6 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
       })
   }, [ params.username] )
 
-  // useIonViewWillLeave( () => {
-  //   dispatch( resetProfile({
-  //     user: null,
-  //     posts: []
-  //   }
-  // ))
-  // })
 
   async function fetchNext(event) {
     await fetchPostPreviews();
@@ -117,7 +110,7 @@ const ProfilePage = ({chatSubscription, setChatSubscription}) => {
           setIsLoading(false)
           if (data && data.length > 0 ){
             dispatch( setProfilePosts(data) )
-            setDisableInfiniteScroll(data.length < 15);
+            setDisableInfiniteScroll(data.length < 12);
           } else {
             setDisableInfiniteScroll(true);
           }
@@ -585,8 +578,12 @@ const Card = styled(IonCard)`
 `
 const MenuButton = styled(IonButton)`
   cursor: pointer;
-  font-size:1rem;
+  font-size:0.8rem;
   padding: 5px;
+
+  ::part(native){
+    
+  }
 
   ion-icon {
     cursor: pointer;
@@ -616,8 +613,8 @@ const ImageContainer = styled.div`
   justify-content: center;
   height: 20vw;
   width: 20vw;
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 150px;
+  max-height: 150px;
   overflow: hidden;
   border-radius: 50%;
   border: 2px solid;
@@ -633,6 +630,7 @@ const ImageContainer = styled.div`
 
 const UserDetailsGrid = styled(IonGrid)`
   width: 53vw;
+  max-width: 400px;
 `
 
 const BioRow = styled(IonRow)`

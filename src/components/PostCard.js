@@ -25,7 +25,7 @@ export const PostCard = ({post, onCommentDeleteClick, onPostDeleteClick, onEditP
   const [showComments, setShowComments] = useState(false)
   const [showNewCommentForm, setShowNewCommentForm] = useState(false)
   const [newCommentText, setNewCommentText] = useState("")
-  const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
+  // const [ showConfirmDelete, setShowConfirmDelete ] = useState(false)
   const [ displayedImageIndex, setDisplayedImageIndex ] = useState(0)
   const [ showPostTags, setShowPostTags ] = useState({
     showPopover: false,
@@ -498,6 +498,7 @@ const PrevImage = styled.div`
   justify-content: center;
   height: calc(100% - 11px);
   width: 5vw;
+  max-width: 50px;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
   cursor: pointer;
@@ -509,6 +510,7 @@ const PrevImage = styled.div`
   :hover{
     background: rgba(45, 45, 45, 0.5);
     width: 8vw;
+    max-width: 70px;
   }
 `
 const NextImage = styled.div`
@@ -522,6 +524,7 @@ const NextImage = styled.div`
   top: 0;
   height: calc(100% - 11px);
   width: 5vw;
+  max-width: 50px;
   background: rgba(45, 45, 45, 0.2);
   transition: 0.1s ease-in-out;
   cursor: pointer;
@@ -533,6 +536,7 @@ const NextImage = styled.div`
   :hover{
     background: rgba(45, 45, 45, 0.5);
     width: 8vw;
+    max-width: 70px;
   }
 `
 

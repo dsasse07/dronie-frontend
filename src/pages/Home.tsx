@@ -6,12 +6,16 @@ import {IonFab, IonFabButton, IonIcon, IonLoading } from '@ionic/react';
 import { arrowUpOutline, refreshOutline } from 'ionicons/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { setPosts, updatePost, removePost, clearPosts } from '../redux/postsSlice'
-import { setTags } from '../redux/tagsSlice'
+// import { setTags } from '../redux/tagsSlice'
 import styled from 'styled-components'
 import PostCard from '../components/PostCard'
 import { useEffect, useState, useRef } from 'react'
 import { useStorage } from '@ionic/react-hooks/storage'
 import { useHistory } from 'react-router-dom'
+import meshGradient from '../assets/meshGradient.png'
+import meshGradientDark from '../assets/meshGradientDark.png'
+import dronePiece from '../assets/dronePiece.png'
+import namePiece from '../assets/namePiece.png'
 
 function Home () {
   const currentUser = useSelector(state => state.currentUser)
@@ -35,7 +39,7 @@ function Home () {
   useEffect( () => {
     if (posts.length === 0) setDisableInfiniteScroll(false)
     fetchPosts()
-    fetchTags()
+    // fetchTags()
 
     return () => {
       dispatch( clearPosts([]) )
@@ -78,24 +82,24 @@ function Home () {
     (event.target).complete();
   }
 
-  function fetchTags() {
-    fetch(`${process.env.REACT_APP_BACKEND}/tags`)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return response.json().then((data) => {
-            throw data;
-          });
-        }
-      })
-      .then((data) => {
-        dispatch( setTags(data) )
-      })
-      .catch((data) => {
-        console.log(data.errors);
-      })
-  }
+  // function fetchTags() {
+  //   fetch(`${process.env.REACT_APP_BACKEND}/tags`)
+  //     .then((response) => {
+  //       if (response.ok) {
+  //         return response.json();
+  //       } else {
+  //         return response.json().then((data) => {
+  //           throw data;
+  //         });
+  //       }
+  //     })
+  //     .then((data) => {
+  //       dispatch( setTags(data) )
+  //     })
+  //     .catch((data) => {
+  //       console.log(data.errors);
+  //     })
+  // }
 
   function handleFeedChange(feedType){
     dispatch( clearPosts([]) )
@@ -169,7 +173,7 @@ function Home () {
             }
           })
           .then((data) => {
-            dispatch( removePost( data ) )
+            dispatch( removePost( data.id ) )
             history.push("/home")
           })
           .catch((data) => {
@@ -244,9 +248,11 @@ function Home () {
       <Header >
         <Toolbar>
           <Item>
-            <Title slot="start">
+            {/* <Title slot="start">
               Dronie
-            </Title>
+            </Title> */}
+            <LogoImage src={dronePiece} />
+            <NameImage src={namePiece} />
             <Avatar slot="end" onClick={goToProfile}>
               <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
             </Avatar>
@@ -256,13 +262,15 @@ function Home () {
           value={currentUser.following.length > 0 ? feedType : "recent"}
           disabled={currentUser.following.length === 0}
           onIonChange={e => handleFeedChange(e.detail.value) }
-        >
-          <SegmentButton value="followed_by">
-            <SegmentLabel>Following</SegmentLabel>
-          </SegmentButton>
-          <SegmentButton value="recent">
-            <SegmentLabel>Recent</SegmentLabel>
-          </SegmentButton>
+          >
+            <SegmentButton value="followed_by">
+              <SegmentLabel>
+                Following
+              </SegmentLabel>
+            </SegmentButton>
+            <SegmentButton value="recent">
+              <SegmentLabel>Recent</SegmentLabel>
+            </SegmentButton>
         </Segment>
 
         </Toolbar>
@@ -396,25 +404,34 @@ const List = styled(IonList)`
   align-items: center;
 `
 
-const Header = styled(IonHeader)`
-  /* height: 65px; */
-`
+const Header = styled(IonHeader)``
 
 const Toolbar = styled(IonToolbar)`
-  padding-right: 10px;
+  display: flex;
 `
-const Title = styled(IonTitle)`
-  font-size: 1.4rem;
+
+const LogoImage = styled.img`
+  height: 35px;
 `
+const NameImage = styled.img``
 
 const Avatar = styled(IonAvatar)`
     width:50px !important;
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
+    margin-right: 3vw;
 `
 const Item = styled(IonItem)`
   --border-color: transparent;
+  --background: none;
+  background-image: url(${meshGradient});
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
 ` 
 
 /***************** Segment Bar ******************** */

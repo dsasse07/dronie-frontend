@@ -160,7 +160,7 @@ function handleSearchSubmit(e){
           </Toolbar>
         </Header>
 
-      <IonContent fullscreen>
+      <IonContent >
         <IonLoading
           isOpen={isFetching}
           message={'Searching...'}
@@ -231,6 +231,8 @@ const ResultsGrid = styled(IonGrid)`
   justify-content: center;
   overflow-y: scroll;
   margin-top:10px;
+  border: 1px solid blue;
+  height: 98.5%;
 `
 const ResultPreview = styled.div`
   position: relative;

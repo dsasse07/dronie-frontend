@@ -1,16 +1,41 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { close, add, chevronDownOutline } from 'ionicons/icons'
 import { IonInput, IonLabel, IonItem, IonIcon } from "@ionic/react"
 import { IonRow, IonCol, IonNote } from "@ionic/react"
 import { useDispatch, useSelector } from 'react-redux'
 import { addPostTag, removePostTag} from '../redux/postFormSlice'
+import { setTags } from '../redux/tagsSlice'
+
 
 function TagInput() {
   const postForm = useSelector(state => state.postForm)
   const tags = useSelector(state => state.tags)
   const [ inputText, setInputText ] = useState("")
   const dispatch = useDispatch()
+
+  useEffect( () => {
+    fetchTags()
+  }, [] )
+
+  function fetchTags() {
+    fetch(`${process.env.REACT_APP_BACKEND}/tags`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then((data) => {
+            throw data;
+          });
+        }
+      })
+      .then((data) => {
+        dispatch( setTags(data) )
+      })
+      .catch((data) => {
+        console.log(data.errors);
+      })
+  }
 
   const addTags = event => {
     setInputText(event.target.value)
