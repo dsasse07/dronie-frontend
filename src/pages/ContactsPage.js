@@ -124,7 +124,7 @@ function ContactsPage () {
               <ClearButton 
                 size="small"
                 onClick={ () => setQuery("") } 
-                disabled={query.length === 0}
+                disabled={query.length === 0} 
               >
                 <ClearIcon icon={close} />
               </ClearButton>
