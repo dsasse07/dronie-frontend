@@ -48,10 +48,10 @@ const Background = styled.div`
   }
 `
 const LogoContainer = styled.div`
-  background: rgba(239, 239, 239, 0.2);
+  /* background: rgba(239, 239, 239, 0.2); */
   
-  @media (prefers-color-scheme: dark) {
-    background: rgba(20, 20, 20, 0.2);
+  @media (prefers-color-scheme: dark) { 
+    /* background: rgba(20, 20, 20, 0.2); */
   }
   img {
     padding-top: 4vw;
