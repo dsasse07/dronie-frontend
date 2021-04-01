@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { removePost, updatePost } from '../redux/postsSlice'
 import { deleteProfilePost } from '../redux/profileSlice'
 import { useEffect, useState } from 'react'
-import { useParams, useHistory, useRouteMatch } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
 import meshGradient from '../assets/meshGradient.png'
 import meshGradientDark from '../assets/meshGradientDark.png'
@@ -25,11 +25,9 @@ function PostShowPage () {
   const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
-  const match = useRouteMatch()
   const { get } = useStorage()
 
   useEffect( () => {
-    console.log(`match.url`, match.url)
     setIsLoading(true)
     get("token")
     .then( token => {
