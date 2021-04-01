@@ -265,11 +265,12 @@ function Home () {
               </HeaderCol>
             </HeaderRow>
           </Item>
-
-        <Segment 
-          value={currentUser.following.length > 0 ? feedType : "recent"}
-          disabled={currentUser.following.length === 0}
-          onIonChange={e => handleFeedChange(e.detail.value) }
+        </Toolbar>
+        <Toolbar>
+          <Segment 
+            value={currentUser.following.length > 0 ? feedType : "recent"}
+            disabled={currentUser.following.length === 0}
+            onIonChange={e => handleFeedChange(e.detail.value) }
           >
             <SegmentButton value="followed_by">
               <SegmentLabel>
@@ -279,7 +280,7 @@ function Home () {
             <SegmentButton value="recent">
               <SegmentLabel>Recent</SegmentLabel>
             </SegmentButton>
-        </Segment>
+          </Segment>
 
         </Toolbar>
       </Header>

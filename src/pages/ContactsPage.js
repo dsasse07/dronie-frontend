@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote } from '@ionic/react';
 import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
-import { IonInput, IonRow, IonCol, IonList, IonButton } from '@ionic/react';
+import { IonInput, IonRow, IonCol, IonList, IonButtons, IonButton } from '@ionic/react';
 import { IonBadge, IonItemGroup, IonItemDivider  } from '@ionic/react';
 import { close } from 'ionicons/icons';
 import { useSelector, useDispatch } from 'react-redux'
@@ -117,35 +117,27 @@ function ContactsPage () {
               </HeaderCol>
             </HeaderRow>
           </Item>
-        {/* <Toolbar>
-          <Item>
-            <Title slo="start">
-              Dronie
-            </Title>
-            <Avatar slot="end" onClick={goToProfile}>
-              <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
-            </Avatar>
-          </Item> */}
-
-          <IonRow>
-            
+        </Toolbar>
+        <Toolbar>
+          
+            <IonButtons slot="primary" >
               <ClearButton 
-                size="small"
                 onClick={ () => setQuery("") } 
                 disabled={query.length === 0}
               >
-                <ClearIcon icon={close} />
+                <ClearIcon slot="icon-only" icon={close} />
+                
               </ClearButton>
+            </IonButtons>
             
-              <IonInput
-                value={query} 
-                onIonChange={e => { setQuery( (e.detail.value) ) } } 
-                type="search"
-                placeholder="Search..."
-                >
-              </IonInput>
+            <IonInput
+              value={query} 
+              onIonChange={e => { setQuery( (e.detail.value) ) } } 
+              type="search"
+              placeholder="Search..."
+              >
+            </IonInput>
             
-          </IonRow>
         </Toolbar>
       </Header>
 
@@ -245,7 +237,7 @@ const Avatar = styled(IonAvatar)`
     /* margin-right: 3vw; */
 `
 const Item = styled(IonItem)`
-  /* --border-color: transparent; */
+  --border-color: transparent;
   --background: none;
   background-image: url(${meshGradient});
   background-position: center center;

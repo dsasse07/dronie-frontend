@@ -94,7 +94,7 @@ const Avatar = styled(IonAvatar)`
     /* margin-right: 3vw; */
 `
 const Item = styled(IonItem)`
-  /* --border-color: transparent; */
+  --border-color: transparent;
   --background: none;
   background-image: url(${meshGradient});
   background-position: center center;

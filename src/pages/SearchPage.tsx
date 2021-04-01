@@ -15,17 +15,21 @@ import dronePiece from '../assets/dronePiece.png'
 import namePiece from '../assets/namePiece.png'
 
 function SearchPage () {
-  // const posts = useSelector(state => state.posts)
-  const { filter, query, results } = useSelector(state => state.search)
+  const { filter, results } = useSelector(state => state.search)
   const currentUser = useSelector(state => state.currentUser)
   const [ isFetching, setIsFetching ] = useState(false)
   const [ searchSubmitted, setSearchSubmitted ] = useState(false)
-  const [ disableInfiniteScroll , setDisableInfiniteScroll ] = useState(false)
+  const [ disableInfiniteScroll , setDisableInfiniteScroll ] = useState({
+    users: false,
+    description: false,
+    tags: false,
+    location: false
+  })
+  const [ query, setQuery ] = useState("")
   const dispatch = useDispatch()
   const history = useHistory()
 
   function handleFilterChange(newFilterValue){
-    setDisableInfiniteScroll(false)
     dispatch( setFilter( newFilterValue ) )
   }
 
@@ -39,7 +43,12 @@ function SearchPage () {
   }, [filter])
 
 function handleSearchSubmit(e){
+    console.log(`submitted query`, query)
     if (e.key !== "Enter" || query === "") return
+    setDisableInfiniteScroll({
+      ...disableInfiniteScroll,
+      [filter]: false
+    })
     dispatch( clearResults([]) )
     fetchResults()
     setSearchSubmitted(true)
@@ -61,9 +70,15 @@ function handleSearchSubmit(e){
       .then((data) => {
         if (data && data.length > 0){
           (filter === "users") ? dispatch( setUserResults(data) ) : dispatch( setPostResults(data) )
-          setDisableInfiniteScroll(data.length < 20);
+          setDisableInfiniteScroll({
+            ...disableInfiniteScroll,
+            [filter]: data.length < 20
+          });
         } else {          
-          setDisableInfiniteScroll(true);
+          setDisableInfiniteScroll({
+            ...disableInfiniteScroll,
+            [filter]: true
+          });
         }
         setIsFetching(false)
       })
@@ -90,28 +105,22 @@ function handleSearchSubmit(e){
     history.push(`/posts/${postId}`)
   }
 
-  function postResultComponents(){
-    return results[filter]?.map( post => {
+  const displayedComponents = results[filter].map( result => {
+    if (filter === "users") {
       return (
-          <ResultPreview key={post.id} post={post} onClick={ () => openPost(post.id) }>
-            <img src={post.images[0].secure_url} alt={post.description}/>
-          </ResultPreview>
+        <ResultPreview key={result.id} user={result} onClick={ () => openUsersPage(result.username) }>
+          <img src={result.avatar.secure_url} alt={result.username}/>
+          <span>{result.username}</span>
+        </ResultPreview>
       )
-    })
-  }
-
-  function userResultComponents(){
-    return results.users?.map( user => {
+    } else {
       return (
-          <ResultPreview key={user.id} user={user} onClick={ () => openUsersPage(user.username) }>
-            <img src={user.avatar.secure_url} alt={user.username}/>
-            <span>{user.username}</span>
-          </ResultPreview>
+        <ResultPreview key={result.id} post={result} onClick={ () => openPost(result.id) }>
+          <img src={result.images[0].secure_url} alt={result.description}/>
+        </ResultPreview>
       )
-    })
-  }
-  
-  const displayedComponents = filter === "users" ? userResultComponents() : postResultComponents()
+    }
+  })
 
   return (
     <Page>
@@ -119,9 +128,6 @@ function handleSearchSubmit(e){
       <Header >
         <Toolbar>
           <Item>
-            {/* <Title slot="start">
-              Dronie
-            </Title> */}
             <HeaderRow>
               <HeaderCol>
                 <LogoImage src={dronePiece} />
@@ -136,30 +142,24 @@ function handleSearchSubmit(e){
               </HeaderCol>
             </HeaderRow>
           </Item>
-          {/* <Toolbar>
-            <Item>
-              <Title slot="start">
-                Dronie
-              </Title>
-              <Avatar slot="end" onClick={goToProfile}>
-                <img src={currentUser.avatar.secure_url} alt={currentUser.username}/>
-              </Avatar>
-            </Item> */}
+        </Toolbar>
 
+        <IonToolbar>
             <IonSearchbar 
               value={query} 
               onIonChange={e => {
-                dispatch( setQuery( (e.detail.value!) ) )
+                setQuery(e.detail.value)
                 }
               } 
               onKeyUp={handleSearchSubmit}
               animated
+              debounce={0}
               showClearButton="always"
               placeholder="Search..."
             >
             </IonSearchbar>
-
-
+        </IonToolbar>
+        <IonToolbar>
           <Segment 
             value={filter}
             onIonChange={e => handleFilterChange(e.detail.value) }
@@ -179,8 +179,8 @@ function handleSearchSubmit(e){
               </SegmentLabel>
             </SegmentButton>
           </Segment>
+        </IonToolbar>
 
-          </Toolbar>
         </Header>
 
       <Content >
@@ -189,7 +189,12 @@ function handleSearchSubmit(e){
           message={'Searching...'}
         />
 
-        { displayedComponents?.length > 0 &&
+        { displayedComponents?.length > 0 && filter !== "users" &&
+          <ResultsGrid>
+            {displayedComponents}
+          </ResultsGrid>
+        }
+        { displayedComponents?.length > 0 && filter === "users" &&
           <ResultsGrid>
             {displayedComponents}
           </ResultsGrid>
@@ -204,7 +209,7 @@ function handleSearchSubmit(e){
             
         <IonInfiniteScroll 
           threshold="20%" 
-          disabled={disableInfiniteScroll}
+          disabled={disableInfiniteScroll[filter]}
           onIonInfinite={fetchNext}
         >
           <IonInfiniteScrollContent
@@ -253,7 +258,7 @@ const Avatar = styled(IonAvatar)`
     /* margin-right: 3vw; */
 `
 const Item = styled(IonItem)`
-  /* --border-color: transparent; */
+  --border-color: transparent;
   --background: none;
   background-image: url(${meshGradient});
   background-position: center center;
@@ -300,13 +305,12 @@ const ResultsGrid = styled(IonGrid)`
   overflow-y: scroll;
   margin-top:10px;
   height: 98.5%;
-
   
 `
 const ResultPreview = styled.div`
   position: relative;
-  max-width: 30vw;
-  max-height: 30vw;
+  width: 30vw;
+  height: 30vw;
   cursor: pointer;
   transition: .2s ease-in-out; 
 
