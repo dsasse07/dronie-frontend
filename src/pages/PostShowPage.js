@@ -17,7 +17,7 @@ function PostShowPage () {
   const currentUser = useSelector(state => state.currentUser)
   const posts = useSelector(state => state.posts)
   const [ isLoading, setIsLoading ] = useState(false)
-  const [ networkErrors, setNetworkErrors ] = useState([])
+  const [ networkErrors, setNetworkErrors ] = useState([]) 
   const [ displayedPost, setDisplayedPost ] = useState({}) 
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
