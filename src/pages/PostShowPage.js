@@ -43,7 +43,7 @@ function PostShowPage () {
             return response.json();
           } else {
             return response.json().then((data) => {
-              throw data; 
+              throw data;  
             });
           }
         })
