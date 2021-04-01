@@ -6,9 +6,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { removePost, updatePost } from '../redux/postsSlice'
 import { deleteProfilePost } from '../redux/profileSlice'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory, useRouteMatch } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
-import { useHistory } from 'react-router-dom'
 import meshGradient from '../assets/meshGradient.png'
 import meshGradientDark from '../assets/meshGradientDark.png'
 import dronePiece from '../assets/dronePiece.png'
@@ -25,10 +24,12 @@ function PostShowPage () {
   const [ postToEdit, setPostToEdit ] = useState(null)
   const dispatch = useDispatch()
   const history = useHistory()
-  const { get } = useStorage()
   const params = useParams()
+  const match = useRouteMatch()
+  const { get } = useStorage()
 
   useEffect( () => {
+    console.log(`match.url`, match.url)
     setIsLoading(true)
     get("token")
     .then( token => {
@@ -42,7 +43,7 @@ function PostShowPage () {
             return response.json();
           } else {
             return response.json().then((data) => {
-              throw data;
+              throw data; 
             });
           }
         })
@@ -59,6 +60,7 @@ function PostShowPage () {
         })
         .catch((data) => {
           setNetworkErrors(data.errors);
+          setIsLoading(false)
         });
       })
 
@@ -113,6 +115,7 @@ function PostShowPage () {
   }
 
   function handleDeletePost(postId){
+    setIsLoading(true)
     dispatch( deleteProfilePost(postId) )
     dispatch( removePost(postId) )
     goToProfile()
@@ -127,7 +130,6 @@ function PostShowPage () {
           Authorization: `Bearer ${token}`
         },
       }
-
       fetch(`${process.env.REACT_APP_BACKEND}/posts/${postId}`, deletePostConfig)
           .then((response) => {
             if (response.ok) {
@@ -141,10 +143,12 @@ function PostShowPage () {
           .then((data) => {
             // Optimistically Removes post from state to 
             // prevent 404 error on component re-render
+            setIsLoading(false)
           })
           .catch((data) => {
             console.log(data)
-            console.log(data.errors);
+            console.log(data.errors);  
+            setIsLoading(false)
           }); 
       })
   }
