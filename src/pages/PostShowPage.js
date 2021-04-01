@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { removePost, updatePost } from '../redux/postsSlice'
 import { deleteProfilePost } from '../redux/profileSlice'
 import { useEffect, useState } from 'react'
-import { useParams, useHistory, useRouteMatch } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { useStorage } from '@ionic/react-hooks/storage';
 import meshGradient from '../assets/meshGradient.png'
 import meshGradientDark from '../assets/meshGradientDark.png'
@@ -18,18 +18,16 @@ function PostShowPage () {
   const posts = useSelector(state => state.posts)
   const [ isLoading, setIsLoading ] = useState(false)
   const [ networkErrors, setNetworkErrors ] = useState([])
-  const [ displayedPost, setDisplayedPost ] = useState({})
+  const [ displayedPost, setDisplayedPost ] = useState({}) 
   const [ commentToDelete, setCommentToDelete ] = useState(null)
   const [ postToDelete, setPostToDelete ] = useState(null)
   const [ postToEdit, setPostToEdit ] = useState(null)
   const dispatch = useDispatch()
   const history = useHistory()
   const params = useParams()
-  const match = useRouteMatch()
   const { get } = useStorage()
 
   useEffect( () => {
-    console.log(`match.url`, match.url)
     setIsLoading(true)
     get("token")
     .then( token => {
