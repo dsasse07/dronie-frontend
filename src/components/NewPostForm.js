@@ -60,7 +60,7 @@ export function Basic(props) {
       <input {...getInputProps()} />
       <Item >
         <IonLabel>
-          Drag images here, or Click to select files
+          Drop or Select files
         </IonLabel>
       </Item>
     </DropArea>
@@ -72,7 +72,7 @@ export function Basic(props) {
 function NewPostForm() {
   const currentUser = useSelector(state => state.currentUser)
   const postForm = useSelector(state => state.postForm)
-  // const tags = useSelector(state => state.tags)
+  const profile = useSelector(state => state.profile)
   const { register, handleSubmit, errors, control, reset, clearErrors, setValue } = useForm({
     defaultValues: {
       images: [],
@@ -86,7 +86,6 @@ function NewPostForm() {
   const dispatch = useDispatch()
   const history = useHistory()
   const { get } = useStorage()
-
 
   function onSubmit (formData, e){
     formData.tags = postForm.tags
@@ -159,10 +158,13 @@ function NewPostForm() {
               .then((data) => {
                 setIsUploading(false)
                 dispatch( addPost( data ) )
-                dispatch( updateProfilePosts( data ))
+                if (profile.user?.id === currentUser.id){
+                  dispatch( updateProfilePosts( data ))
+                }
                 history.push(`/users/${currentUser.username}`)
               })
               .catch((data) => {
+                debugger
                 setNetworkErrors(data.errors);
               });
             } 
@@ -330,7 +332,7 @@ const DropArea = styled.section`
   border-radius: 8px;
 `
 const PhotoPreviewsContainer = styled.div`
-  width: 95%;
+  max-width: 95%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

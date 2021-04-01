@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAvatar, IonNote, IonTextarea, IonText } from '@ionic/react';
-import { IonItem, IonSegment, IonSegmentButton, IonIcon, IonLabel } from '@ionic/react';
+import { IonItem, IonButtons, IonIcon, IonLabel } from '@ionic/react';
 import { IonGrid, IonRow, IonCol, IonList, IonFooter, IonButton } from '@ionic/react';
 import { useIonViewDidLeave } from '@ionic/react';
 import { send, mailOutline, checkmark, arrowBack } from 'ionicons/icons';
@@ -199,21 +199,22 @@ function MessagesPage () {
               </HeaderCol>
             </HeaderRow>
           </Item>
-          <OtherUserRow>
-                <IonButton size="small" onClick={ () => dispatch( setChatWith(null) ) } >
-                  <IonIcon icon={arrowBack} />
-                </IonButton>
-            <OtherUserCol>
+          </Toolbar>
+          <Toolbar>
+            <IonButtons>
+              <IonButton size="large" onClick={ () => dispatch( setChatWith(null) ) } >
+                <IonIcon icon={arrowBack} />
+                Back
+              </IonButton>
+            </IonButtons>
               <OtherUserNameText onClick={ () => messagesFeedRef.current.scrollToBottom() }>
                 {otherUser.username}
-                
               </OtherUserNameText>
-            </OtherUserCol>
-          </OtherUserRow>
+          
         </Toolbar>
       </Header>
 
-      <IonContent scrollEvents={true} ref={messagesFeedRef} >
+      <Content scrollEvents={true} ref={messagesFeedRef} >
 
         <MessageGrid>
           {messageComponents?.length > 0 ?
@@ -226,7 +227,7 @@ function MessagesPage () {
             </NoMessages>
           }
         </MessageGrid>
-      </IonContent>
+      </Content>
 
       <IonFooter>
         <IonToolbar>
@@ -283,10 +284,9 @@ const Avatar = styled(IonAvatar)`
     height: 50px !important;
     border: 1px solid;
     cursor: pointer;
-    /* margin-right: 3vw; */
 `
 const Item = styled(IonItem)`
-  /* --border-color: transparent; */
+  --border-color: transparent;
   --background: none;
   background-image: url(${meshGradient});
   background-position: center center;
@@ -308,7 +308,6 @@ const OtherUserCol = styled(IonCol)`
   justify-content: center;
 `
 const OtherUserNameText = styled(IonTitle)`
-  /* background: pink; */
   text-align: center;
 `
 
@@ -320,11 +319,25 @@ const NoMessages = styled.div`
   width: 100%;
   height: 75vh;
 `
+
+const Content = styled(IonContent)`
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
+`
 const MessageGrid = styled(IonGrid)`
-  /* border: 2px solid blue; */
-  /* display: flex;
-  flex-direction: column;
-  gap: 10px; */
+  height: 100%;
+  background-image: url(${meshGradient});
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (prefers-color-scheme: dark) {
+    background-image: url(${meshGradientDark});
+  }
 `
 const MessageRow = styled(IonRow)`
   width: 100%;
@@ -351,14 +364,20 @@ const MessageContent = styled(IonLabel)`
   padding-left: 25px;
   background: ${ ({sender, me}) => sender === me ? "#cef6ff" : "#a0ffe1"};
   box-shadow: var(--light-shadow);
-
+  
   ion-note:first-of-type{
     width: 100%;
     display: flex;
     justify-content: center;
     font-size: 0.7rem;
   }
-`
+  @media (prefers-color-scheme: dark) {
+    background: ${ ({sender, me}) => sender === me ? "#444444" : "#232323"};
+    ion-note{
+      color: white;
+    }
+  }
+  `
 
 const SeenAtLabel = styled(IonNote)`
   position: absolute;
