@@ -43,7 +43,6 @@ function SearchPage () {
   }, [filter])
 
 function handleSearchSubmit(e){
-    console.log(`submitted query`, query)
     if (e.key !== "Enter" || query === "") return
     setDisableInfiniteScroll({
       ...disableInfiniteScroll,
